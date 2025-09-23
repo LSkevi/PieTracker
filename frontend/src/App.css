@@ -1,0 +1,1703 @@
+/* Sophisticated Finance App Styles 🌸💰 - Detailed & Beautiful Design */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap");
+
+:root {
+  --sage-green: #a8b5a0;
+  --soft-beige: #f0ebe5;
+  --cream-white: #faf7f2;
+  --paper-white: #fffef9;
+  --muted-teal: #7ba098;
+  --dusty-rose: #d4b5a0;
+  --warm-gray: #c7c0b8;
+  --charcoal: #4a4a4a;
+  --text-soft: #6b6b6b;
+  --accent-gold: #d4af37;
+  --accent-coral: #f4a261;
+  --accent-lavender: #c8a2c8;
+  --gradient-soft: linear-gradient(135deg, #f0ebe5, #faf7f2);
+  --gradient-sage: linear-gradient(135deg, #a8b5a0, #7ba098);
+  --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #a8b5a0);
+  --shadow-soft: 0 8px 32px rgba(168, 181, 160, 0.2);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 6px 24px rgba(168, 181, 160, 0.3);
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --sage-green: #7a8c6f;
+  --soft-beige: #1a1812;
+  --cream-white: #141210;
+  --paper-white: #1c1a15;
+  --muted-teal: #5c7a73;
+  --dusty-rose: #a08970;
+  --warm-gray: #4a453f;
+  --charcoal: #e5e5e5;
+  --text-soft: #c9c9c9;
+  --accent-gold: #d4af37;
+  --accent-coral: #f4a261;
+  --accent-lavender: #c8a2c8;
+  --gradient-soft: linear-gradient(135deg, #1a1812, #141210);
+  --gradient-sage: linear-gradient(135deg, #7a8c6f, #5c7a73);
+  --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #7a8c6f);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-button: 0 6px 24px rgba(122, 140, 111, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", "Roboto", -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  background: var(--soft-beige);
+  min-height: 100vh;
+  width: 100vw;
+  color: var(--text-soft);
+  position: relative;
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-weight: 400;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced Typography System */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-family: "Crimson Text", serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+h3 {
+  font-family: "Crimson Text", serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+p,
+span,
+div {
+  font-family: "Inter", sans-serif;
+}
+
+/* Beautiful background pattern with decorative elements */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--soft-beige);
+  background-image: radial-gradient(
+      circle at 15% 25%,
+      rgba(168, 181, 160, 0.08) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 85% 75%,
+      rgba(212, 181, 160, 0.06) 0%,
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 45% 60%,
+      rgba(244, 162, 97, 0.04) 0%,
+      transparent 30%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(168, 181, 160, 0.02) 50%,
+      transparent 60%
+    );
+  z-index: -2;
+}
+
+.app {
+  min-height: 100vh;
+  max-width: 100vw;
+  width: 100%;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  top: 30px;
+  right: 90px;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cream-white), var(--soft-beige));
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-card);
+  z-index: 1000;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-soft);
+  border-color: var(--sage-green);
+}
+
+.theme-toggle:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Moon and Sun Icons */
+.moon-icon,
+.sun-icon {
+  transition: all 0.3s ease;
+  color: var(--charcoal);
+}
+
+.moon-icon {
+  font-size: 18px;
+}
+
+.sun-icon {
+  font-size: 20px;
+}
+
+/* Animated leaf design - Top Left */
+.app::before {
+  content: "";
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path d="M8 25 Q18 12, 25 25 Q32 12, 42 25 Q32 38, 25 25 Q18 38, 8 25 Z" fill="%2368A065" opacity="0.9"/><path d="M12 25 Q20 16, 25 25 Q30 16, 38 25 Q30 34, 25 25 Q20 34, 12 25 Z" fill="%234F7942" opacity="0.7"/><path d="M16 25 Q22 19, 25 25 Q28 19, 34 25 Q28 31, 25 25 Q22 31, 16 25 Z" fill="%2356B649" opacity="0.5"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloatCorner 8s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* Animated leaf design - Top Right */
+.app::after {
+  content: "";
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><path d="M7 22 Q16 10, 22 22 Q28 10, 38 22 Q28 34, 22 22 Q16 34, 7 22 Z" fill="%2356B649" opacity="0.9"/><path d="M10 22 Q17 14, 22 22 Q27 14, 35 22 Q27 30, 22 22 Q17 30, 10 22 Z" fill="%2368A065" opacity="0.7"/><path d="M13 22 Q19 17, 22 22 Q25 17, 32 22 Q25 27, 22 22 Q19 27, 13 22 Z" fill="%234F7942" opacity="0.5"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloatCorner 10s ease-in-out infinite reverse;
+  z-index: 10;
+}
+
+@keyframes leafFloatCorner {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  25% {
+    transform: translateY(-8px) rotate(5deg) scale(1.05);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-12px) rotate(-3deg) scale(1.1);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-5px) rotate(7deg) scale(1.03);
+    opacity: 0.8;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.header h1 {
+  color: var(--charcoal);
+  font-size: 2.1rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.2),
+    rgba(245, 255, 245, 0.8)
+  );
+  padding: 15px 30px;
+  border-radius: 35px;
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  box-shadow: 0 8px 25px rgba(106, 176, 106, 0.15);
+  font-family: "Playfair Display", serif;
+  display: inline-block;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.header h1:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(106, 176, 106, 0.2);
+  border-color: rgba(168, 181, 160, 0.5);
+}
+
+.title-text {
+  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.title-icon {
+  font-size: 2.2rem;
+  margin-right: 12px;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+.title-text {
+  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.header h1::after {
+  content: "�";
+  position: absolute;
+  right: -45px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  animation: rotateFlower 4s linear infinite reverse;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+.header p {
+  color: var(--text-soft);
+  font-size: 1rem;
+  font-style: italic;
+  margin-top: 5px;
+  font-weight: 300;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+  max-width: 100%;
+  width: 100%;
+  flex: 1;
+  overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .app {
+    padding: 15px;
+  }
+
+  .chart-info-layout {
+    flex-direction: column;
+  }
+}
+
+.card {
+  background: var(--cream-white);
+  border-radius: 16px;
+  padding: 35px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(168, 181, 160, 0.25);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  height: fit-content;
+  overflow: hidden;
+}
+
+/* Decorative leaf elements for cards */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 35px;
+  height: 35px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M5 17 Q12 8, 17 17 Q22 8, 30 17 Q22 26, 17 17 Q12 26, 5 17 Z" fill="%2368A065" opacity="0.8"/><path d="M8 17 Q14 11, 17 17 Q20 11, 27 17 Q20 23, 17 17 Q14 23, 8 17 Z" fill="%234F7942" opacity="0.6"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 6s ease-in-out infinite;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M4 15 Q10 7, 15 15 Q20 7, 26 15 Q20 23, 15 15 Q10 23, 4 15 Z" fill="%2368A065" opacity="0.7"/><path d="M7 15 Q11 10, 15 15 Q19 10, 23 15 Q19 20, 15 15 Q11 20, 7 15 Z" fill="%2356B649" opacity="0.5"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 8s ease-in-out infinite reverse;
+}
+
+@keyframes leafFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-5px) rotate(5deg);
+    opacity: 0.6;
+  }
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-soft);
+  border-color: rgba(168, 181, 160, 0.4);
+}
+
+.card h2 {
+  color: var(--charcoal);
+  margin-bottom: 30px;
+  font-size: 1.6rem;
+  font-weight: 600;
+  font-family: "Crimson Text", serif;
+  position: relative;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(168, 181, 160, 0.2);
+  letter-spacing: 0.8px;
+}
+
+.left-panel {
+  position: sticky;
+  top: 30px;
+}
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  font-family: "Crimson Text", serif;
+  margin-bottom: 2px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 15px 20px;
+  border: 2px solid var(--warm-gray);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--paper-white);
+  color: var(--charcoal);
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+  font-weight: 300;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--sage-green);
+  box-shadow: 0 0 0 4px rgba(168, 181, 160, 0.15),
+    inset 0 2px 4px rgba(168, 181, 160, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Enhanced date picker styling */
+.form-group input[type="date"] {
+  position: relative;
+  cursor: pointer;
+  background: var(--paper-white);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a8b5a0"><path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.89 3 3 3.9 3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 20px 20px;
+  padding-right: 50px;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+}
+
+.btn-primary {
+  background: var(--gradient-sage);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 15px;
+  letter-spacing: 0.5px;
+  position: relative;
+  box-shadow: var(--shadow-button);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 50%
+  );
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: var(--gradient-sunset);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(168, 181, 160, 0.4);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--paper-white);
+  border-radius: 12px;
+  border: 1px solid rgba(168, 181, 160, 0.2);
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex-wrap: wrap;
+}
+
+.month-selector label {
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 1rem;
+  white-space: nowrap;
+  font-family: "Crimson Text", serif;
+  letter-spacing: 0.3px;
+}
+
+.month-selector select {
+  padding: 8px 12px;
+  border: 1px solid var(--warm-gray);
+  border-radius: 6px;
+  background: var(--cream-white);
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  min-width: 100px;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+.month-picker {
+  padding: 8px 12px;
+  border: 1px solid var(--warm-gray);
+  border-radius: 6px;
+  background: var(--cream-white);
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  min-width: 150px;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+/* Enhanced month picker styling */
+.month-picker {
+  padding: 12px 16px;
+  border: 2px solid var(--warm-gray);
+  border-radius: 12px;
+  background: var(--cream-white);
+  color: var(--charcoal);
+  font-size: 1rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  font-family: inherit;
+  font-weight: 500;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a8b5a0"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.month-picker:focus {
+  outline: none;
+  border-color: var(--sage-green);
+  box-shadow: 0 0 0 4px rgba(168, 181, 160, 0.15),
+    inset 0 2px 4px rgba(168, 181, 160, 0.1);
+  transform: translateY(-1px);
+}
+
+.month-picker::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a8b5a0"><path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.89 3 3 3.9 3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
+  background-size: 20px 20px;
+  cursor: pointer;
+}
+
+.chart-container {
+  background: var(--paper-white);
+  border-radius: 12px;
+  padding: 40px;
+  border: 1px solid rgba(168, 181, 160, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 500px;
+  justify-content: center;
+}
+
+.chart-title {
+  color: var(--charcoal);
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 600;
+  font-family: "Crimson Text", serif;
+  letter-spacing: 0.6px;
+}
+
+/* Chart Legend Styling */
+.chart-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--cream-white);
+  border-radius: 8px;
+  border: 1px solid rgba(168, 181, 160, 0.15);
+  transition: all 0.3s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 181, 160, 0.2);
+  border-color: rgba(168, 181, 160, 0.3);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.legend-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.legend-category {
+  font-weight: 500;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.legend-amount {
+  font-weight: 600;
+  color: var(--sage-green);
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.2px;
+}
+
+.summary-card {
+  background: var(--cream-white);
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  text-align: center;
+  border: 1px solid rgba(168, 181, 160, 0.2);
+}
+
+.total-amount {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--charcoal);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.currency {
+  font-size: 1rem;
+  color: var(--text-soft);
+  font-style: normal;
+  font-weight: 400;
+}
+
+.expenses-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 25px;
+}
+
+.recent-expenses-title {
+  color: var(--charcoal);
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: "Crimson Text", serif;
+  letter-spacing: 0.4px;
+}
+
+.expense-item {
+  background: var(--paper-white);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--sage-green);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.expense-item:hover {
+  transform: translateX(2px);
+  box-shadow: var(--shadow-card);
+}
+
+.expense-details h4 {
+  color: var(--charcoal);
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.expense-details p {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  font-style: normal;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+.expense-amount {
+  font-weight: 600;
+  color: var(--muted-teal);
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.2px;
+}
+
+.delete-btn {
+  background: var(--dusty-rose);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: 10px;
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.delete-btn:hover {
+  background: #c19a84;
+}
+
+.no-data {
+  text-align: center;
+  color: var(--text-soft);
+  font-style: italic;
+  padding: 40px 20px;
+  background: var(--paper-white);
+  border-radius: 8px;
+  border: 1px dashed var(--warm-gray);
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.loading {
+  text-align: center;
+  color: var(--sage-green);
+  font-size: 1.1rem;
+  padding: 40px;
+  font-weight: 400;
+}
+
+/* Custom scrollbar with elegant theme */
+.expenses-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.expenses-list::-webkit-scrollbar-track {
+  background: var(--cream-white);
+  border-radius: 6px;
+}
+
+.expenses-list::-webkit-scrollbar-thumb {
+  background: var(--sage-green);
+  border-radius: 6px;
+}
+
+.expenses-list::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-teal);
+}
+
+/* Subtle floating elements - minimal like the design */
+.floating-nature {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.nature-element {
+  position: absolute;
+  opacity: 0.08;
+  font-size: 20px;
+  animation: gentle-float 15s ease-in-out infinite;
+}
+
+@keyframes gentle-float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+/* Minimal positioning for floating elements */
+.nature-element:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+.nature-element:nth-child(2) {
+  top: 60%;
+  left: 85%;
+  animation-delay: 5s;
+}
+.nature-element:nth-child(3) {
+  top: 80%;
+  left: 20%;
+  animation-delay: 10s;
+}
+
+/* Right Panel Styling */
+.right-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 2px solid #e6f3e6;
+  padding: 15px;
+  box-shadow: 0 8px 32px rgba(106, 176, 106, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Decorative leaf elements for right panel */
+.right-panel::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path d="M6 20 Q14 9, 20 20 Q26 9, 34 20 Q26 31, 20 20 Q14 31, 6 20 Z" fill="%2368A065" opacity="0.8"/><path d="M9 20 Q15 13, 20 20 Q25 13, 31 20 Q25 27, 20 20 Q15 27, 9 20 Z" fill="%234F7942" opacity="0.6"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 7s ease-in-out infinite;
+}
+
+.right-panel::after {
+  content: "";
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 35px;
+  height: 35px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35"><path d="M5 17 Q11 8, 17 17 Q23 8, 30 17 Q23 26, 17 17 Q11 26, 5 17 Z" fill="%2356B649" opacity="0.7"/><path d="M8 17 Q13 11, 17 17 Q21 11, 27 17 Q21 23, 17 17 Q13 23, 8 17 Z" fill="%2368A065" opacity="0.5"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 9s ease-in-out infinite reverse;
+}
+
+/* Falling Leaves Animation */
+.falling-leaves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.falling-leaf {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M3 10 Q6 6, 10 10 Q14 6, 17 10 Q14 14, 10 10 Q6 14, 3 10 Z" fill="%2368A065" opacity="0.3"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: fall linear infinite;
+}
+
+.falling-leaf:nth-child(1) {
+  left: 15%;
+  animation-duration: 12s;
+  animation-delay: 0s;
+}
+
+.falling-leaf:nth-child(2) {
+  left: 35%;
+  animation-duration: 15s;
+  animation-delay: 3s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"><path d="M3 9 Q6 5, 9 9 Q12 5, 15 9 Q12 13, 9 9 Q6 13, 3 9 Z" fill="%237ba098" opacity="0.25"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(3) {
+  left: 55%;
+  animation-duration: 18s;
+  animation-delay: 6s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"><path d="M4 11 Q7 7, 11 11 Q15 7, 18 11 Q15 15, 11 11 Q7 15, 4 11 Z" fill="%23a8b5a0" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(4) {
+  left: 75%;
+  animation-duration: 14s;
+  animation-delay: 2s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 5, 8 8 Q11 5, 14 8 Q11 11, 8 8 Q5 11, 2 8 Z" fill="%2356B649" opacity="0.3"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(5) {
+  left: 25%;
+  animation-duration: 16s;
+  animation-delay: 8s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19"><path d="M3 9.5 Q6 6, 9.5 9.5 Q13 6, 16 9.5 Q13 13, 9.5 9.5 Q6 13, 3 9.5 Z" fill="%23d4b5a0" opacity="0.25"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(6) {
+  left: 65%;
+  animation-duration: 20s;
+  animation-delay: 10s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21"><path d="M4 10.5 Q7 6.5, 10.5 10.5 Q14 6.5, 17 10.5 Q14 14.5, 10.5 10.5 Q7 14.5, 4 10.5 Z" fill="%239fb3a3" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(7) {
+  left: 10%;
+  animation-duration: 22s;
+  animation-delay: 4s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15"><path d="M2 7.5 Q5 4, 7.5 7.5 Q10 4, 13 7.5 Q10 11, 7.5 7.5 Q5 11, 2 7.5 Z" fill="%23c7c0b8" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(8) {
+  left: 45%;
+  animation-duration: 13s;
+  animation-delay: 7s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17"><path d="M3 8.5 Q6 5, 8.5 8.5 Q11 5, 14 8.5 Q11 12, 8.5 8.5 Q6 12, 3 8.5 Z" fill="%23b8c5b8" opacity="0.25"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(9) {
+  left: 85%;
+  animation-duration: 19s;
+  animation-delay: 1s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14"><path d="M2 7 Q4 4, 7 7 Q10 4, 12 7 Q10 10, 7 7 Q4 10, 2 7 Z" fill="%2395a5a6" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(10) {
+  left: 30%;
+  animation-duration: 25s;
+  animation-delay: 12s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 5, 8 8 Q11 5, 14 8 Q11 11, 8 8 Q5 11, 2 8 Z" fill="%238fb3a3" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(11) {
+  left: 70%;
+  animation-duration: 17s;
+  animation-delay: 9s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13"><path d="M2 6.5 Q4 4, 6.5 6.5 Q9 4, 11 6.5 Q9 9, 6.5 6.5 Q4 9, 2 6.5 Z" fill="%23d1c4b0" opacity="0.25"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.falling-leaf:nth-child(12) {
+  left: 50%;
+  animation-duration: 21s;
+  animation-delay: 15s;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"><path d="M3 9 Q6 6, 9 9 Q12 6, 15 9 Q12 12, 9 9 Q6 12, 3 9 Z" fill="%23a8a8a8" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  20% {
+    transform: translateY(20vh) rotate(45deg);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(40vh) rotate(90deg);
+    opacity: 0.4;
+  }
+  60% {
+    transform: translateY(60vh) rotate(135deg);
+    opacity: 0.3;
+  }
+  80% {
+    transform: translateY(80vh) rotate(180deg);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(calc(100vh + 50px)) rotate(225deg);
+    opacity: 0;
+  }
+}
+
+/* Chart and Info Layout */
+.chart-info-layout {
+  display: flex;
+  gap: 15px;
+  height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Big Chart Container */
+.big-chart-container {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    var(--cream-white),
+    rgba(168, 181, 160, 0.05)
+  );
+  border-radius: 20px;
+  padding: 20px;
+  margin-right: 10px;
+  max-width: calc(100% - 10px);
+  overflow: hidden;
+}
+
+.big-chart-container .chart-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 15px;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.2),
+    rgba(245, 255, 245, 0.8)
+  );
+  padding: 12px 24px;
+  border-radius: 25px;
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  position: relative;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(106, 176, 106, 0.1);
+  font-family: "Crimson Text", serif;
+}
+
+.big-chart-area {
+  width: 100%;
+  max-width: 600px;
+}
+
+.no-data-big {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #6b6b6b;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Info Panel on Right */
+.info-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 250px;
+  background: linear-gradient(
+    135deg,
+    var(--cream-white),
+    rgba(168, 181, 160, 0.05)
+  );
+  border-radius: 20px;
+  padding: 25px;
+}
+
+/* Summary Info */
+.summary-info {
+  background: rgba(245, 255, 245, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #d4e6d4;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Leaf decoration for summary info */
+.summary-info::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 25px;
+  height: 25px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="M3 12 Q8 6, 12 12 Q16 6, 22 12 Q16 18, 12 12 Q8 18, 3 12 Z" fill="%2368A065" opacity="0.9"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 5s ease-in-out infinite;
+}
+
+.summary-info .total-amount {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  font-family: "Playfair Display", serif;
+  letter-spacing: 0.3px;
+}
+
+.summary-info .currency {
+  font-size: 1rem;
+  color: var(--charcoal);
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-family: "Crimson Text", serif;
+  letter-spacing: 0.5px;
+}
+
+.summary-info .expense-count {
+  margin: 0;
+  color: #6b6b6b;
+  font-size: 0.9rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+/* Vertical Chart Legend */
+.chart-legend-vertical {
+  background: rgba(248, 252, 248, 0.9);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e6f3e6;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Leaf decoration for legend */
+.chart-legend-vertical::before {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2 10 Q6 5, 10 10 Q14 5, 18 10 Q14 15, 10 10 Q6 15, 2 10 Z" fill="%2356B649" opacity="0.8"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 6s ease-in-out infinite;
+}
+
+.legend-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin: 0 0 12px 0;
+  font-family: "Crimson Text", serif;
+}
+
+.legend-item-vertical {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.legend-item-vertical:last-child {
+  margin-bottom: 0;
+}
+
+.legend-text-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.legend-text-vertical .legend-category {
+  font-weight: 500;
+  color: var(--charcoal);
+  font-size: 0.85rem;
+  font-family: "Inter", sans-serif;
+}
+
+.legend-text-vertical .legend-amount {
+  font-weight: 600;
+  color: var(--sage-green);
+  font-size: 0.8rem;
+  font-family: "Inter", sans-serif;
+}
+
+/* Latest Expense Info */
+.latest-expense-info {
+  background: rgba(245, 255, 245, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #d4e6d4;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Leaf decoration for latest expense */
+.latest-expense-info::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"><path d="M2 11 Q7 6, 11 11 Q15 6, 20 11 Q15 16, 11 11 Q7 16, 2 11 Z" fill="%234F7942" opacity="0.8"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafFloat 7s ease-in-out infinite reverse;
+}
+
+.latest-expense-info .recent-title {
+  font-size: 1rem;
+  color: #4a6b4a;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  font-family: "Crimson Text", serif;
+}
+
+.expense-item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.expense-item-info .expense-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expense-item-info .expense-desc {
+  font-weight: 500;
+  color: #2d4a2d;
+  font-size: 0.9rem;
+}
+
+.expense-item-info .expense-details {
+  font-size: 0.8rem;
+  color: #6b6b6b;
+}
+
+.expense-item-info .expense-amount {
+  font-weight: 600;
+  color: #2d4a2d;
+  font-size: 0.9rem;
+}
+
+/* Form Input Improvements */
+.expense-form input,
+.expense-form select {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+/* Override to remove rotating flowers from title */
+.header h1::after {
+  display: none !important;
+}
+
+/* Beautiful Tooltip Styling */
+.tooltip {
+  background: rgba(255, 255, 255, 0.98);
+  border: 2px solid var(--sage-green);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(168, 181, 160, 0.3);
+  backdrop-filter: blur(10px);
+  font-family: "Inter", sans-serif;
+  min-width: 200px;
+  z-index: 1000;
+  position: relative;
+}
+
+.tooltip-label {
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 1rem;
+  margin: 0 0 8px 0;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.tooltip-value {
+  font-weight: 500;
+  color: var(--sage-green);
+  font-size: 1.1rem;
+  margin: 0;
+  text-align: center;
+  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Ensure chart container has enough space for tooltips */
+.big-chart-area {
+  position: relative;
+  overflow: visible;
+  padding: 5px;
+}
+
+/* Beautiful Month Display */
+.month-display {
+  text-align: center;
+  margin-bottom: 8px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.month-text {
+  font-family: "Inter", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  padding: 10px 25px;
+  border-radius: 25px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.1),
+    rgba(245, 255, 245, 0.8)
+  );
+  border: 2px solid rgba(168, 181, 160, 0.2);
+  position: relative;
+  letter-spacing: 0.5px;
+  /* Remove the gradient text that was making it invisible */
+}
+
+.month-text::before {
+  content: "";
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="M4 12.5 Q9 6, 12.5 12.5 Q16 6, 21 12.5 Q16 19, 12.5 12.5 Q9 19, 4 12.5 Z" fill="%2368A065" opacity="0.8"/><path d="M6.5 12.5 Q10 8.5, 12.5 12.5 Q15 8.5, 18.5 12.5 Q15 16.5, 12.5 12.5 Q10 16.5, 6.5 12.5 Z" fill="%234F7942" opacity="0.6"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafGlow 4s ease-in-out infinite;
+}
+
+.month-text::after {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="M4 12.5 Q9 6, 12.5 12.5 Q16 6, 21 12.5 Q16 19, 12.5 12.5 Q9 19, 4 12.5 Z" fill="%2368A065" opacity="0.8"/><path d="M6.5 12.5 Q10 8.5, 12.5 12.5 Q15 8.5, 18.5 12.5 Q15 16.5, 12.5 12.5 Q10 16.5, 6.5 12.5 Z" fill="%234F7942" opacity="0.6"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: leafGlow 4s ease-in-out infinite reverse;
+}
+
+@keyframes leafGlow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-50%) scale(1.1);
+  }
+}
+
+/* Dark Mode Enhancements */
+[data-theme="dark"] .big-chart-container {
+  background: var(--soft-beige) !important;
+  border-radius: 20px;
+}
+
+[data-theme="dark"] .info-panel {
+  background: linear-gradient(
+    135deg,
+    var(--soft-beige),
+    rgba(122, 140, 111, 0.1)
+  );
+}
+
+[data-theme="dark"] .summary-info {
+  background: rgba(20, 18, 16, 0.9);
+  border: 1px solid rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .latest-expense-info {
+  background: rgba(20, 18, 16, 0.9);
+  border: 1px solid rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .chart-legend-vertical {
+  background: rgba(20, 18, 16, 0.9);
+  border: 1px solid rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .month-selector {
+  background: var(--paper-white);
+  border: 1px solid rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select {
+  background: var(--paper-white);
+  border: 2px solid var(--warm-gray);
+  color: var(--charcoal);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group select:focus {
+  border-color: var(--sage-green);
+  box-shadow: 0 0 0 4px rgba(122, 140, 111, 0.2),
+    inset 0 2px 4px rgba(122, 140, 111, 0.1);
+}
+
+[data-theme="dark"] .expense-item {
+  background: var(--paper-white);
+  border-left: 3px solid var(--sage-green);
+}
+
+[data-theme="dark"] .month-text {
+  background: linear-gradient(
+    135deg,
+    var(--soft-beige),
+    rgba(122, 140, 111, 0.2)
+  );
+  border: 2px solid rgba(122, 140, 111, 0.3);
+  color: var(--charcoal);
+}
+
+[data-theme="dark"] .big-chart-container .chart-title {
+  background: rgba(45, 45, 45, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .big-chart-area {
+  background: var(--soft-beige);
+  border-radius: 15px;
+}
+
+[data-theme="dark"] .month-display {
+  background: var(--soft-beige);
+  border-radius: 20px;
+  padding: 10px;
+}
+
+[data-theme="dark"] .right-panel {
+  background: var(--soft-beige) !important;
+  border: 2px solid rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .chart-info-layout {
+  background: transparent;
+}
+
+/* Dark Mode Falling Leaves */
+[data-theme="dark"] .falling-leaf:nth-child(1) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M3 10 Q6 6, 10 10 Q14 6, 17 10 Q14 14, 10 10 Q6 14, 3 10 Z" fill="%237a8c6f" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(2) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"><path d="M3 9 Q6 5, 9 9 Q12 5, 15 9 Q12 13, 9 9 Q6 13, 3 9 Z" fill="%235c7a73" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(3) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22"><path d="M4 11 Q7 7, 11 11 Q15 7, 18 11 Q15 15, 11 11 Q7 15, 4 11 Z" fill="%23a08970" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(4) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 5, 8 8 Q11 5, 14 8 Q11 11, 8 8 Q5 11, 2 8 Z" fill="%236b645b" opacity="0.2"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(5) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19"><path d="M3 9.5 Q6 6, 9.5 9.5 Q13 6, 16 9.5 Q13 13, 9.5 9.5 Q6 13, 3 9.5 Z" fill="%237a9380" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(6) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21"><path d="M4 10.5 Q7 6.5, 10.5 10.5 Q14 6.5, 17 10.5 Q14 14.5, 10.5 10.5 Q7 14.5, 4 10.5 Z" fill="%238fa38f" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(7) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15"><path d="M2 7.5 Q5 4, 7.5 7.5 Q10 4, 13 7.5 Q10 11, 7.5 7.5 Q5 11, 2 7.5 Z" fill="%234a453f" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(8) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17"><path d="M3 8.5 Q6 5, 8.5 8.5 Q11 5, 14 8.5 Q11 12, 8.5 8.5 Q6 12, 3 8.5 Z" fill="%238fa38f" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(9) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14"><path d="M2 7 Q4 4, 7 7 Q10 4, 12 7 Q10 10, 7 7 Q4 10, 2 7 Z" fill="%236b7b7c" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(10) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 5, 8 8 Q11 5, 14 8 Q11 11, 8 8 Q5 11, 2 8 Z" fill="%236b8a7a" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(11) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13"><path d="M2 6.5 Q4 4, 6.5 6.5 Q9 4, 11 6.5 Q9 9, 6.5 6.5 Q4 9, 2 6.5 Z" fill="%23a89e87" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .falling-leaf:nth-child(12) {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"><path d="M3 9 Q6 6, 9 9 Q12 6, 15 9 Q12 12, 9 9 Q6 12, 3 9 Z" fill="%237d7d7d" opacity="0.15"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+[data-theme="dark"] .header h1 {
+  background: rgba(45, 45, 45, 0.8) !important;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: var(--soft-beige) !important;
+}
+
+[data-theme="dark"] .title-text {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: white !important;
+  background-clip: unset !important;
+  color: white !important;
+}
+
+/* Dark Mode Tooltip Styling */
+[data-theme="dark"] .tooltip {
+  background: rgba(20, 18, 16, 0.95) !important;
+  border: 2px solid rgba(122, 140, 111, 0.4) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="dark"] .tooltip-label {
+  color: var(--sage-green) !important;
+}
+
+[data-theme="dark"] .tooltip-value {
+  background: linear-gradient(
+    135deg,
+    var(--sage-green),
+    var(--muted-teal)
+  ) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
