@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import type { Expense, MonthlySummary } from "../types";
+import type { Expense, MonthlySummary, Currency } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency, convertCurrency } from "../utils/currency";
 
 interface InfoPanelProps {
   summary: MonthlySummary | null;
@@ -12,7 +12,9 @@ interface InfoPanelProps {
   selectedMonth: number;
   selectedYear: number;
   selectedCurrency: string;
+  currencies: Currency[];
   onMonthYearChange: (month: number, year: number) => void;
+  onCurrencyChange: (currency: string) => void;
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
@@ -22,9 +24,14 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   selectedMonth,
   selectedYear,
   selectedCurrency,
+  currencies,
   onMonthYearChange,
+  onCurrencyChange,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => isDarkModeEnabled());
+  const [convertedAmounts, setConvertedAmounts] = useState<{
+    [key: string]: number;
+  }>({});
 
   useEffect(() => {
     // Listen for theme changes
@@ -39,12 +46,63 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     return () => observer.disconnect();
   }, []);
 
+  // Convert amounts when currency or data changes
+  useEffect(() => {
+    const convertAmounts = async () => {
+      if (!summary) return;
+
+      const converted: { [key: string]: number } = {};
+
+      // Convert total amount
+      converted.total = await convertCurrency(
+        summary.total,
+        "USD",
+        selectedCurrency
+      );
+
+      // Convert category amounts
+      for (const [category, amount] of Object.entries(summary.categories)) {
+        converted[category] = await convertCurrency(
+          amount,
+          "USD",
+          selectedCurrency
+        );
+      }
+
+      // Convert latest expense if exists
+      if (expenses.length > 0) {
+        const latestExpense = expenses[0];
+        const fromCurrency = latestExpense.currency || "USD";
+        converted.latestExpense = await convertCurrency(
+          latestExpense.amount,
+          fromCurrency,
+          selectedCurrency
+        );
+      }
+
+      // Convert recent expenses (first 5)
+      for (let i = 0; i < Math.min(expenses.length, 5); i++) {
+        const expense = expenses[i];
+        const fromCurrency = expense.currency || "USD";
+        converted[`expense_${i}`] = await convertCurrency(
+          expense.amount,
+          fromCurrency,
+          selectedCurrency
+        );
+      }
+
+      setConvertedAmounts(converted);
+    };
+
+    convertAmounts();
+  }, [summary, selectedCurrency, expenses]);
+
   const preparePieData = () => {
     if (!summary || !summary.categories) return [];
 
     return Object.entries(summary.categories).map(([category, amount]) => ({
       name: category,
-      value: amount,
+      value: convertedAmounts[category] || amount,
     }));
   };
 
@@ -140,8 +198,34 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         <>
           {/* Summary Info */}
           <div className="summary-info">
+            <div className="currency-selector-section">
+              <div className="currency-display">
+                <span className="currency-label">Displaying in: </span>
+                <span className="currency-code">{selectedCurrency}</span>
+              </div>
+              <div className="currency-selector">
+                <label htmlFor="display-currency">
+                  Change Display Currency:
+                </label>
+                <select
+                  id="display-currency"
+                  value={selectedCurrency}
+                  onChange={(e) => onCurrencyChange(e.target.value)}
+                  className="currency-select-display"
+                >
+                  {currencies.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.code} ({currency.symbol}) - {currency.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="total-amount">
-              {formatCurrency(summary.total, selectedCurrency)}
+              {formatCurrency(
+                convertedAmounts.total || summary.total,
+                selectedCurrency
+              )}
             </div>
             <div className="currency">
               Total spent in{" "}
@@ -171,7 +255,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                   <div className="legend-text-vertical">
                     <span className="legend-category">{item.name}</span>
                     <span className="legend-amount">
-                      {formatCurrency(item.value, selectedCurrency)}
+                      {formatCurrency(
+                        convertedAmounts[item.name] || item.value,
+                        selectedCurrency
+                      )}
                     </span>
                   </div>
                 </div>
@@ -191,13 +278,69 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                   <span className="expense-details">
                     {expenses[0].category} • {expenses[0].date}
                   </span>
+                  <span className="expense-original-currency">
+                    Original:{" "}
+                    {formatCurrency(
+                      expenses[0].amount,
+                      expenses[0].currency || "USD"
+                    )}
+                  </span>
                 </div>
-                <span className="expense-amount">
-                  {formatCurrency(
-                    expenses[0].amount,
-                    expenses[0].currency || selectedCurrency
+                <div className="expense-amounts">
+                  <span className="expense-amount-converted">
+                    {formatCurrency(
+                      convertedAmounts.latestExpense || expenses[0].amount,
+                      selectedCurrency
+                    )}
+                  </span>
+                  {(expenses[0].currency || "USD") !== selectedCurrency && (
+                    <span className="conversion-indicator">
+                      (converted from {expenses[0].currency || "USD"})
+                    </span>
                   )}
-                </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Recent Expenses List */}
+          {expenses.length > 1 && (
+            <div className="recent-expenses-list">
+              <h4 className="recent-title">Recent Expenses</h4>
+              <div className="expenses-scroll">
+                {expenses.slice(0, 5).map((expense, index) => (
+                  <div key={expense.id || index} className="expense-row">
+                    <div className="expense-row-info">
+                      <span className="expense-row-desc">
+                        {expense.description}
+                      </span>
+                      <span className="expense-row-category">
+                        {expense.category}
+                      </span>
+                      <span className="expense-original-currency">
+                        Original:{" "}
+                        {formatCurrency(
+                          expense.amount,
+                          expense.currency || "USD"
+                        )}
+                      </span>
+                    </div>
+                    <div className="expense-row-amounts">
+                      <span className="expense-row-converted">
+                        {formatCurrency(
+                          convertedAmounts[`expense_${index}`] ||
+                            expense.amount,
+                          selectedCurrency
+                        )}
+                      </span>
+                      {(expense.currency || "USD") !== selectedCurrency && (
+                        <span className="expense-row-conversion">
+                          from {expense.currency || "USD"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

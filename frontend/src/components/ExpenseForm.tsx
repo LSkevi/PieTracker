@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import type { ExpenseFormData, Expense, Currency } from "../types";
-import { formatCurrency } from "../utils/currency";
+import {
+  formatCurrency,
+  convertCurrency,
+  getCacheStatus,
+} from "../utils/currency";
 
 interface ExpenseFormProps {
   categories: string[];
@@ -33,6 +37,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [customCategory, setCustomCategory] = useState("");
   const [customCategoryColor, setCustomCategoryColor] = useState("#a8b5a0");
   const [isExpensesExpanded, setIsExpensesExpanded] = useState(false);
+  const [conversionMessage, setConversionMessage] = useState("");
+  const [rateStatus, setRateStatus] = useState<string>("");
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
     category: "",
@@ -52,7 +58,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   // Handle escape key for closing modal
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showCustomCategory) {
+      if (event.key === "Escape" && showCustomCategory) {
         setShowCustomCategory(false);
         setCustomCategory("");
         setCustomCategoryColor("#a8b5a0");
@@ -60,10 +66,20 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     };
 
     if (showCustomCategory) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
     }
   }, [showCustomCategory]);
+
+  // Update rate status on component mount
+  useEffect(() => {
+    const status = getCacheStatus();
+    if (status.hasCache) {
+      setRateStatus(`Rates updated: ${status.lastUpdate}`);
+    } else {
+      setRateStatus("Fetching exchange rates...");
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,13 +111,46 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     }
   };
 
-  const handleChange = (
+  const handleChange = async (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     const { name, value } = e.target;
-    
+
+    // If currency changes and there's an amount, convert it
+    if (name === "currency" && formData.amount && formData.currency !== value) {
+      const currentAmount = parseFloat(formData.amount);
+      if (!isNaN(currentAmount)) {
+        try {
+          const convertedAmount = await convertCurrency(
+            currentAmount,
+            formData.currency,
+            value
+          );
+          setFormData((prev) => ({
+            ...prev,
+            amount: convertedAmount.toString(),
+            currency: value,
+          }));
+
+          // Show conversion message
+          setConversionMessage(
+            `💱 Converted ${formatCurrency(
+              currentAmount,
+              formData.currency
+            )} to ${formatCurrency(convertedAmount, value)}`
+          );
+          setTimeout(() => setConversionMessage(""), 3000);
+
+          onCurrencyChange(value);
+          return;
+        } catch (error) {
+          console.error("Currency conversion failed:", error);
+        }
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -112,7 +161,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       onCurrencyChange(value);
     }
   };
-
   return (
     <div className="expense-form-tab">
       <div className="expense-form-header">
@@ -167,6 +215,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 ))}
               </select>
             </div>
+            {rateStatus && <div className="rate-status">{rateStatus}</div>}
+            {conversionMessage && (
+              <div className="conversion-message">💱 {conversionMessage}</div>
+            )}
           </div>
 
           <div className="form-group">
@@ -198,7 +250,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 </option>
               ))}
             </select>
-            
+
             <button
               type="button"
               className="add-category-btn"
@@ -207,12 +259,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             >
               + Add
             </button>
-            
+
             {showCustomCategory && (
               <div className="custom-category-modal">
                 <div className="custom-category-content">
                   <h4>Add New Category</h4>
-                  
+
                   <div className="category-form-group">
                     <label>Category Name</label>
                     <input
@@ -224,7 +276,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                       autoFocus
                     />
                   </div>
-                  
+
                   <div className="category-form-group">
                     <label>Category Color</label>
                     <div className="color-picker-group">
@@ -234,10 +286,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                         onChange={(e) => setCustomCategoryColor(e.target.value)}
                         className="color-picker"
                       />
-                      <span className="color-preview" style={{backgroundColor: customCategoryColor}}></span>
+                      <span
+                        className="color-preview"
+                        style={{ backgroundColor: customCategoryColor }}
+                      ></span>
                     </div>
                   </div>
-                  
+
                   <div className="custom-category-buttons">
                     <button
                       type="button"

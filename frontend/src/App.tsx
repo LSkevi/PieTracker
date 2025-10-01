@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import ExpenseForm from "./components/ExpenseForm";
 import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
 import ThemeToggle from "./components/ThemeToggle";
 import { useExpenses } from "./hooks/useExpenses";
-import { formatCurrency } from "./utils/currency";
+import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
 
 const App: React.FC = () => {
@@ -24,6 +24,23 @@ const App: React.FC = () => {
     deleteExpense,
     setMonthYear,
   } = useExpenses();
+
+  const [convertedTotal, setConvertedTotal] = useState<number>(0);
+
+  // Convert total amount when currency or data changes
+  useEffect(() => {
+    const convertTotal = async () => {
+      if (!summary) return;
+      const converted = await convertCurrency(
+        summary.total,
+        "USD",
+        selectedCurrency
+      );
+      setConvertedTotal(converted);
+    };
+
+    convertTotal();
+  }, [summary, selectedCurrency]);
 
   return (
     <div className="app">
@@ -58,7 +75,10 @@ const App: React.FC = () => {
               <div className="insight-item">
                 <span className="insight-label">Daily Average</span>
                 <span className="insight-value">
-                  {formatCurrency(summary.total / 30, selectedCurrency)}
+                  {formatCurrency(
+                    (convertedTotal || summary.total) / 30,
+                    selectedCurrency
+                  )}
                 </span>
               </div>
               <div className="insight-item">
@@ -105,7 +125,9 @@ const App: React.FC = () => {
                 selectedMonth={selectedMonth}
                 selectedYear={selectedYear}
                 selectedCurrency={selectedCurrency}
+                currencies={currencies}
                 onMonthYearChange={setMonthYear}
+                onCurrencyChange={setSelectedCurrency}
               />
             </div>
           </div>

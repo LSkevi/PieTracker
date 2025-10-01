@@ -1,38 +1,11 @@
 [
   {
-    "id": "e7c6039a-23c0-4e5c-800f-39c0bf363a76",
-    "amount": 100.0,
-    "category": "Food",
-    "description": "Cookie",
-    "date": "2025-09-30",
+    "id": "40f083a9-0073-48ed-90bd-668afb39c60b",
+    "amount": 200.0,
+    "category": "Transportation",
+    "description": "Parking",
+    "date": "2025-10-01",
     "currency": "CAD",
-    "created_at": "2025-09-30T15:33:02.224884"
-  },
-  {
-    "id": "8e45a791-d455-44fe-845a-081b6be785d0",
-    "amount": 12.0,
-    "category": "Food",
-    "description": "ad",
-    "date": "2025-09-30",
-    "currency": "CAD",
-    "created_at": "2025-09-30T15:33:32.563802"
-  },
-  {
-    "id": "08f19086-e369-475f-bccc-adaeb4da8eca",
-    "amount": 234.0,
-    "category": "Shopping",
-    "description": "aaa",
-    "date": "2025-09-30",
-    "currency": "CAD",
-    "created_at": "2025-09-30T15:33:38.219179"
-  },
-  {
-    "id": "b335a27f-ee3d-4d50-93bf-c240d00c1f77",
-    "amount": 2545.0,
-    "category": "Entertainment",
-    "description": "awea",
-    "date": "2025-09-30",
-    "currency": "CAD",
-    "created_at": "2025-09-30T15:33:45.769066"
+    "created_at": "2025-10-01T11:48:06.872800"
   }
 ]
