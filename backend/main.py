@@ -147,8 +147,8 @@ async def get_categories():
 async def get_currencies():
     # Supported currencies with their symbols and names
     return [
-        {"code": "CAD", "symbol": "$", "name": "Canadian Dollar"},
-        {"code": "USD", "symbol": "$", "name": "US Dollar"},
+        {"code": "CAD", "symbol": "CA$", "name": "Canadian Dollar"},
+        {"code": "USD", "symbol": "US$", "name": "US Dollar"},
         {"code": "EUR", "symbol": "€", "name": "Euro"},
         {"code": "GBP", "symbol": "£", "name": "British Pound"},
         {"code": "JPY", "symbol": "¥", "name": "Japanese Yen"},

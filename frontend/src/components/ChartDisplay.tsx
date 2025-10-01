@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { MonthlySummary, PieDataItem } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency, convertCurrency } from "../utils/currency";
 
 interface ChartDisplayProps {
   summary: MonthlySummary | null;
@@ -21,12 +21,47 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   selectedYear,
   selectedCurrency,
 }) => {
+  const [convertedAmounts, setConvertedAmounts] = useState<{
+    [key: string]: number;
+  }>({});
+  const [convertedTotal, setConvertedTotal] = useState<number>(0);
+
+  // Convert amounts when currency or data changes
+  useEffect(() => {
+    const convertAmounts = async () => {
+      if (!summary) return;
+
+      const converted: { [key: string]: number } = {};
+
+      // Convert total amount
+      const total = await convertCurrency(
+        summary.total,
+        "USD",
+        selectedCurrency
+      );
+      setConvertedTotal(total);
+
+      // Convert category amounts
+      for (const [category, amount] of Object.entries(summary.categories)) {
+        converted[category] = await convertCurrency(
+          amount,
+          "USD",
+          selectedCurrency
+        );
+      }
+
+      setConvertedAmounts(converted);
+    };
+
+    convertAmounts();
+  }, [summary, selectedCurrency]);
+
   const preparePieData = (): PieDataItem[] => {
     if (!summary || !summary.categories) return [];
 
     return Object.entries(summary.categories).map(([category, amount]) => ({
       name: category,
-      value: amount,
+      value: convertedAmounts[category] || amount,
     }));
   };
 
@@ -36,8 +71,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     if (active && payload && payload.length && summary) {
       const data = payload[0];
 
-      // Calculate percentage from summary total
-      const percentage = ((data.value / summary.total) * 100).toFixed(1);
+      // Calculate percentage from converted total
+      const totalForPercentage = convertedTotal || summary.total;
+      const percentage = ((data.value / totalForPercentage) * 100).toFixed(1);
 
       return (
         <div className="tooltip">
@@ -87,9 +123,11 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   dataKey="value"
                   label={({ value }: { value: number }) => {
                     if (!summary) return "";
-                    const percentage = ((value / summary.total) * 100).toFixed(
-                      1
-                    );
+                    const totalForPercentage = convertedTotal || summary.total;
+                    const percentage = (
+                      (value / totalForPercentage) *
+                      100
+                    ).toFixed(1);
                     return `${percentage}%`;
                   }}
                 >
