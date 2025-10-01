@@ -47,6 +47,45 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     date: format(new Date(), "yyyy-MM-dd"),
   });
 
+  // State for converted expense amounts in the list
+  const [convertedExpenseAmounts, setConvertedExpenseAmounts] = useState<{
+    [key: string]: number;
+  }>({});
+
+  // Convert expense amounts when currency or expenses change
+  useEffect(() => {
+    const convertExpenseAmounts = async () => {
+      const converted: { [key: string]: number } = {};
+
+      for (const expense of expenses) {
+        const fromCurrency = expense.currency || "USD";
+        if (fromCurrency !== selectedCurrency) {
+          try {
+            const convertedAmount = await convertCurrency(
+              expense.amount,
+              fromCurrency,
+              selectedCurrency
+            );
+            converted[expense.id] = convertedAmount;
+          } catch (error) {
+            console.error("Failed to convert expense amount:", error);
+            // Fallback to original amount if conversion fails
+            converted[expense.id] = expense.amount;
+          }
+        } else {
+          // Same currency, no conversion needed
+          converted[expense.id] = expense.amount;
+        }
+      }
+
+      setConvertedExpenseAmounts(converted);
+    };
+
+    if (expenses.length > 0) {
+      convertExpenseAmounts();
+    }
+  }, [expenses, selectedCurrency]);
+
   // Keep form currency in sync with global currency selection
   useEffect(() => {
     setFormData((prev) => ({
@@ -413,10 +452,19 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     <span className="expense-date">{expense.date}</span>
                     <span className="expense-amount-card">
                       {formatCurrency(
-                        expense.amount,
-                        expense.currency || selectedCurrency
+                        convertedExpenseAmounts[expense.id] || expense.amount,
+                        selectedCurrency
                       )}
                     </span>
+                    {(expense.currency || "USD") !== selectedCurrency && (
+                      <span className="expense-original-currency">
+                        Originally:{" "}
+                        {formatCurrency(
+                          expense.amount,
+                          expense.currency || "USD"
+                        )}
+                      </span>
+                    )}
                   </div>
                 </div>
               )
