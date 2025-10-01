@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { format } from "date-fns";
-import type { Expense, MonthlySummary } from "../types";
+import type { Expense, MonthlySummary, Currency } from "../types";
+import { getDefaultCurrency } from "../utils/currency";
 
 const API_BASE = "http://localhost:8000";
 
@@ -9,6 +10,11 @@ export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(getDefaultCurrency());
+  const [availableMonths, setAvailableMonths] = useState<
+    { year: number; month: number; year_month: string }[]
+  >([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
@@ -19,6 +25,24 @@ export const useExpenses = () => {
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    }
+  }, []);
+
+  const fetchCurrencies = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/currencies`);
+      setCurrencies(response.data);
+    } catch (error) {
+      console.error("Error fetching currencies:", error);
+    }
+  }, []);
+
+  const fetchAvailableMonths = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/expenses/available-months`);
+      setAvailableMonths(response.data);
+    } catch (error) {
+      console.error("Error fetching available months:", error);
     }
   }, []);
 
@@ -51,6 +75,7 @@ export const useExpenses = () => {
     amount: number,
     category: string,
     description: string,
+    currency: string,
     date?: string
   ) => {
     try {
@@ -58,6 +83,7 @@ export const useExpenses = () => {
         amount,
         category,
         description,
+        currency,
         date: date || format(new Date(), "yyyy-MM-dd"),
       });
       fetchMonthlySummary();
@@ -84,17 +110,25 @@ export const useExpenses = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchCurrencies();
+    fetchAvailableMonths();
+  }, [fetchCategories, fetchCurrencies, fetchAvailableMonths]);
 
   useEffect(() => {
     fetchMonthlySummary();
     fetchMonthlyExpenses();
-  }, [fetchMonthlySummary, fetchMonthlyExpenses]);
+    // Refresh available months when expenses change
+    fetchAvailableMonths();
+  }, [fetchMonthlySummary, fetchMonthlyExpenses, fetchAvailableMonths]);
 
   return {
     expenses,
     summary,
     categories,
+    currencies,
+    selectedCurrency,
+    setSelectedCurrency,
+    availableMonths,
     selectedMonth,
     selectedYear,
     loading,
