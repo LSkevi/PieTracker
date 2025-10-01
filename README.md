@@ -30,24 +30,26 @@
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/PieTracker.git
    cd PieTracker
    ```
 
 2. **Set up the backend**
+
    ```bash
    cd backend
-   
+
    # Create virtual environment
    python -m venv venv
-   
+
    # Activate virtual environment
    # Windows:
    venv\Scripts\activate
    # macOS/Linux:
    source venv/bin/activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
    ```
@@ -61,10 +63,12 @@
 ### Running the Application
 
 1. **Start the backend server**
+
    ```bash
    cd backend
    python main.py
    ```
+
    Backend will be available at `http://localhost:8000`
 
 2. **Start the frontend development server**
@@ -77,24 +81,28 @@
 ## 📱 Usage
 
 ### Adding Expenses
+
 1. Fill out the expense form with amount, category, and description
 2. Select your preferred currency and date
 3. Click "Add Expense" to save
 4. Watch the pie chart update in real-time!
 
 ### Viewing Data
+
 - **Monthly View**: Use the month/year selectors to browse different periods
 - **Currency Conversion**: Switch between supported currencies for display
 - **Category Breakdown**: View detailed spending by category in the pie chart
 - **Expense List**: See all individual expenses with the ability to delete
 
 ### Custom Categories
+
 - Add new expense categories on-the-fly
 - Categories are automatically saved and persist across sessions
 
 ## �️ Architecture
 
 ### Frontend Stack
+
 - **React 19** with TypeScript for type safety
 - **Vite** for fast development and building
 - **Recharts** for beautiful, interactive charts
@@ -103,12 +111,14 @@
 - **Custom CSS** with modern design patterns
 
 ### Backend Stack
+
 - **FastAPI** for high-performance API
 - **Pydantic** for data validation
 - **Uvicorn** as ASGI server
 - **JSON file storage** (easily replaceable with database)
 
 ### Project Structure
+
 ```
 PieTracker/
 ├── backend/
@@ -129,22 +139,22 @@ PieTracker/
 
 ## 🔌 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Welcome message |
-| `GET` | `/expenses` | Get all expenses |
-| `GET` | `/expenses/month/{year}/{month}` | Get expenses for specific month |
-| `GET` | `/expenses/summary/{year}/{month}` | Get monthly summary with totals |
-| `POST` | `/expenses` | Add new expense |
-| `DELETE` | `/expenses/{expense_id}` | Delete expense |
-| `GET` | `/categories` | Get available categories |
-| `GET` | `/currencies` | Get supported currencies |
-| `GET` | `/expenses/available-months` | Get months with expense data |
+| Method   | Endpoint                           | Description                     |
+| -------- | ---------------------------------- | ------------------------------- |
+| `GET`    | `/`                                | Welcome message                 |
+| `GET`    | `/expenses`                        | Get all expenses                |
+| `GET`    | `/expenses/month/{year}/{month}`   | Get expenses for specific month |
+| `GET`    | `/expenses/summary/{year}/{month}` | Get monthly summary with totals |
+| `POST`   | `/expenses`                        | Add new expense                 |
+| `DELETE` | `/expenses/{expense_id}`           | Delete expense                  |
+| `GET`    | `/categories`                      | Get available categories        |
+| `GET`    | `/currencies`                      | Get supported currencies        |
+| `GET`    | `/expenses/available-months`       | Get months with expense data    |
 
 ## 💱 Supported Currencies
 
 - 🇨🇦 **CAD** - Canadian Dollar
-- 🇺🇸 **USD** - US Dollar  
+- 🇺🇸 **USD** - US Dollar
 - 🇪🇺 **EUR** - Euro
 - 🇬🇧 **GBP** - British Pound
 - 🇯🇵 **JPY** - Japanese Yen
@@ -157,6 +167,7 @@ PieTracker/
 ## 🎨 Customization
 
 ### Colors and Theming
+
 The app uses CSS custom properties for easy theming. Edit `frontend/src/App.css`:
 
 ```css
@@ -168,11 +179,13 @@ The app uses CSS custom properties for easy theming. Edit `frontend/src/App.css`
 ```
 
 ### Adding New Categories
+
 Categories are dynamically managed. Simply use a new category name when adding an expense, and it will be automatically saved for future use.
 
 ## 🚀 Deployment
 
 ### Frontend (Vercel/Netlify)
+
 ```bash
 cd frontend
 npm run build
@@ -180,6 +193,7 @@ npm run build
 ```
 
 ### Backend (Railway/Heroku)
+
 ```bash
 cd backend
 # Add your deployment configuration
@@ -187,7 +201,9 @@ cd backend
 ```
 
 ### Database Migration
+
 The app currently uses JSON file storage. For production, consider migrating to:
+
 - **PostgreSQL** for relational data
 - **MongoDB** for document storage
 - **SQLite** for simple deployments
@@ -198,7 +214,7 @@ We welcome contributions! Here are some ways you can help:
 
 1. **🐛 Bug Reports**: Found a bug? Open an issue with details
 2. **✨ Feature Requests**: Have an idea? Let's discuss it!
-3. **🔧 Pull Requests**: 
+3. **🔧 Pull Requests**:
    - Fork the repository
    - Create a feature branch
    - Make your changes
@@ -206,6 +222,7 @@ We welcome contributions! Here are some ways you can help:
    - Submit a pull request
 
 ### Development Setup
+
 ```bash
 # Install dependencies for both frontend and backend
 npm run install:all  # If you add this script
@@ -217,13 +234,16 @@ npm run dev:all      # If you add this script
 ## 📊 Screenshots
 
 ### Main Dashboard
-*Beautiful expense tracking with real-time pie charts*
+
+_Beautiful expense tracking with real-time pie charts_
 
 ### Monthly Overview
-*Compare spending patterns across different months*
+
+_Compare spending patterns across different months_
 
 ### Multi-Currency Support
-*Track expenses in your preferred currency*
+
+_Track expenses in your preferred currency_
 
 ## 🔜 Roadmap
 
