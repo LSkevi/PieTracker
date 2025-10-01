@@ -1,66 +1,38 @@
 [
   {
-    "id": "0407cab9-0dc0-493a-9147-bd689b362b37",
+    "id": "e7c6039a-23c0-4e5c-800f-39c0bf363a76",
     "amount": 100.0,
+    "category": "Food",
+    "description": "Cookie",
+    "date": "2025-09-30",
+    "currency": "CAD",
+    "created_at": "2025-09-30T15:33:02.224884"
+  },
+  {
+    "id": "8e45a791-d455-44fe-845a-081b6be785d0",
+    "amount": 12.0,
+    "category": "Food",
+    "description": "ad",
+    "date": "2025-09-30",
+    "currency": "CAD",
+    "created_at": "2025-09-30T15:33:32.563802"
+  },
+  {
+    "id": "08f19086-e369-475f-bccc-adaeb4da8eca",
+    "amount": 234.0,
     "category": "Shopping",
-    "description": "cinema",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T03:03:02.817968"
+    "description": "aaa",
+    "date": "2025-09-30",
+    "currency": "CAD",
+    "created_at": "2025-09-30T15:33:38.219179"
   },
   {
-    "id": "42df563b-36be-4501-9a6b-89b6d93a179f",
-    "amount": 200.0,
-    "category": "Food & Dining",
-    "description": "ALMOCO",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T03:13:00.242841"
-  },
-  {
-    "id": "0136d92f-6303-4423-9c88-227d58ea00fa",
-    "amount": 400.0,
-    "category": "Fashion & Accessories",
-    "description": "Clothes",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:23:59.796842"
-  },
-  {
-    "id": "474387b6-7c5e-4ac4-b129-e3b73dc5d955",
-    "amount": 1000.0,
-    "category": "Health & Wellness",
-    "description": "medic",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:24:10.378219"
-  },
-  {
-    "id": "e0624afe-775b-4eab-8a58-cef7902cb301",
-    "amount": 570.0,
+    "id": "b335a27f-ee3d-4d50-93bf-c240d00c1f77",
+    "amount": 2545.0,
     "category": "Entertainment",
-    "description": "Cinema",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:24:48.185975"
-  },
-  {
-    "id": "a34d7040-7de5-4071-9cdd-830ccde33fc2",
-    "amount": 7.0,
-    "category": "Transportation",
-    "description": "bus",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:25:18.282169"
-  },
-  {
-    "id": "80e62f6b-347e-4e83-aa79-1dff921280ed",
-    "amount": 600.0,
-    "category": "Other",
-    "description": "other",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:25:34.435267"
-  },
-  {
-    "id": "3a44679e-fea4-4061-bef2-17e2630cd067",
-    "amount": 567.0,
-    "category": "Transportation",
-    "description": "car",
-    "date": "2025-09-04",
-    "created_at": "2025-09-04T04:50:28.409774"
+    "description": "awea",
+    "date": "2025-09-30",
+    "currency": "CAD",
+    "created_at": "2025-09-30T15:33:45.769066"
   }
 ]

@@ -88,6 +88,7 @@ async def create_expense(expense: dict):
         "category": expense["category"],
         "description": expense["description"],
         "date": expense["date"],
+        "currency": expense.get("currency", "CAD"),
         "created_at": datetime.now().isoformat()
     }
     expenses_db.append(new_expense)
@@ -101,25 +102,61 @@ async def delete_expense(expense_id: str):
     save_expenses()
     return {"message": "Expense deleted successfully"}
 
+@app.get("/expenses/available-months")
+async def get_available_months():
+    """Get all year-month combinations that have expenses"""
+    available_months = set()
+    
+    for expense in expenses_db:
+        # Extract year-month from date (format: YYYY-MM-DD)
+        date_parts = expense["date"].split("-")
+        if len(date_parts) >= 2:
+            year_month = f"{date_parts[0]}-{date_parts[1]}"
+            available_months.add(year_month)
+    
+    # Convert to list of dictionaries with year and month
+    result = []
+    for year_month in sorted(available_months):
+        year, month = year_month.split("-")
+        result.append({
+            "year": int(year),
+            "month": int(month),
+            "year_month": year_month
+        })
+    
+    return result
+
 @app.get("/categories")
 async def get_categories():
-    # Comprehensive expense categories for detailed tracking
+    # Get unique categories from existing expenses plus 4 basic defaults
+    used_categories = set()
+    for expense in expenses_db:
+        if expense.get("category"):
+            used_categories.add(expense["category"])
+    
+    # Only 4 basic default categories
+    default_categories = ["Food", "Transportation", "Shopping", "Entertainment"]
+    
+    # Combine defaults with user-created categories
+    all_categories = list(set(default_categories + list(used_categories)))
+    all_categories.sort()
+    
+    return all_categories
+
+@app.get("/currencies")
+async def get_currencies():
+    # Supported currencies with their symbols and names
     return [
-        "Shopping",
-        "Food & Dining", 
-        "Beauty & Personal Care",
-        "Fashion & Accessories",
-        "Home & Living",
-        "Transportation",
-        "Health & Wellness",
-        "Entertainment",
-        "Education",
-        "Gifts",
-        "Coffee & Treats",
-        "Self Care",
-        "Fitness",
-        "Subscriptions",
-        "Other"
+        {"code": "CAD", "symbol": "$", "name": "Canadian Dollar"},
+        {"code": "USD", "symbol": "$", "name": "US Dollar"},
+        {"code": "EUR", "symbol": "€", "name": "Euro"},
+        {"code": "GBP", "symbol": "£", "name": "British Pound"},
+        {"code": "JPY", "symbol": "¥", "name": "Japanese Yen"},
+        {"code": "AUD", "symbol": "A$", "name": "Australian Dollar"},
+        {"code": "CHF", "symbol": "Fr", "name": "Swiss Franc"},
+        {"code": "CNY", "symbol": "¥", "name": "Chinese Yuan"},
+        {"code": "INR", "symbol": "₹", "name": "Indian Rupee"},
+        {"code": "BRL", "symbol": "R$", "name": "Brazilian Real"}
     ]
 
 if __name__ == "__main__":

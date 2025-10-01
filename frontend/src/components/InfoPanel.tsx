@@ -2,62 +2,35 @@ import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { Expense, MonthlySummary } from "../types";
+import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
+import { formatCurrency } from "../utils/currency";
 
 interface InfoPanelProps {
   summary: MonthlySummary | null;
   expenses: Expense[];
+  availableMonths: { year: number; month: number; year_month: string }[];
   selectedMonth: number;
   selectedYear: number;
+  selectedCurrency: string;
   onMonthYearChange: (month: number, year: number) => void;
 }
-
-const ELEGANT_COLORS = [
-  "#7ba098",
-  "#a8b5a0",
-  "#d4b5a0",
-  "#c7c0b8",
-  "#9fb3a3",
-  "#b8c5b8",
-  "#d1c4b0",
-  "#a8a8a8",
-  "#95a5a6",
-  "#8fb3a3",
-];
-
-const DARK_MODE_COLORS = [
-  "#5c7a73",
-  "#7a8c6f",
-  "#a08970",
-  "#6b645b",
-  "#7a9380",
-  "#8fa38f",
-  "#a89e87",
-  "#7d7d7d",
-  "#6b7b7c",
-  "#6b8a7a",
-];
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
   summary,
   expenses,
+  availableMonths,
   selectedMonth,
   selectedYear,
+  selectedCurrency,
   onMonthYearChange,
 }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => isDarkModeEnabled());
 
   useEffect(() => {
-    // Check initial theme
-    const checkTheme = () => {
-      const isDark =
-        document.documentElement.getAttribute("data-theme") === "dark";
-      setIsDarkMode(isDark);
-    };
-
-    checkTheme();
-
     // Listen for theme changes
-    const observer = new MutationObserver(checkTheme);
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(isDarkModeEnabled());
+    });
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["data-theme"],
@@ -65,17 +38,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
 
     return () => observer.disconnect();
   }, []);
-
-  // Function to get current theme colors
-  const getLegendColors = () => {
-    return isDarkMode ? DARK_MODE_COLORS : ELEGANT_COLORS;
-  };
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
-  };
 
   const preparePieData = () => {
     if (!summary || !summary.categories) return [];
@@ -111,8 +73,20 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     { value: 12, label: "December" },
   ];
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  // Get unique years from available months, fallback to current year range
+  const availableYears =
+    availableMonths.length > 0
+      ? [...new Set(availableMonths.map((item) => item.year))].sort(
+          (a, b) => b - a
+        )
+      : Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+
+  // Check if a month has data for the selected year
+  const hasDataForMonth = (month: number, year: number) => {
+    return availableMonths.some(
+      (item) => item.month === month && item.year === year
+    );
+  };
 
   return (
     <div className="info-panel">
@@ -140,18 +114,21 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           onChange={handleMonthSelectChange}
           className="month-picker"
         >
-          {months.map((month) => (
-            <option key={month.value} value={month.value}>
-              {month.label}
-            </option>
-          ))}
+          {months.map((month) => {
+            const hasData = hasDataForMonth(month.value, selectedYear);
+            return (
+              <option key={month.value} value={month.value}>
+                {month.label} {hasData ? "*" : ""}
+              </option>
+            );
+          })}
         </select>
         <select
           value={selectedYear}
           onChange={handleYearSelectChange}
           className="month-picker"
         >
-          {years.map((year) => (
+          {availableYears.map((year) => (
             <option key={year} value={year}>
               {year}
             </option>
@@ -163,7 +140,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         <>
           {/* Summary Info */}
           <div className="summary-info">
-            <div className="total-amount">{formatCurrency(summary.total)}</div>
+            <div className="total-amount">
+              {formatCurrency(summary.total, selectedCurrency)}
+            </div>
             <div className="currency">
               Total spent in{" "}
               {format(
@@ -181,19 +160,18 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           {Object.keys(summary.categories).length > 0 && (
             <div className="chart-legend-vertical">
               <h4 className="legend-title">Categories</h4>
-              {preparePieData().map((item, index) => (
+              {preparePieData().map((item) => (
                 <div key={item.name} className="legend-item-vertical">
                   <div
                     className="legend-color"
                     style={{
-                      backgroundColor:
-                        getLegendColors()[index % getLegendColors().length],
+                      backgroundColor: getCategoryColor(item.name, isDarkMode),
                     }}
                   ></div>
                   <div className="legend-text-vertical">
                     <span className="legend-category">{item.name}</span>
                     <span className="legend-amount">
-                      {formatCurrency(item.value)}
+                      {formatCurrency(item.value, selectedCurrency)}
                     </span>
                   </div>
                 </div>
@@ -215,7 +193,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                   </span>
                 </div>
                 <span className="expense-amount">
-                  {formatCurrency(expenses[0].amount)}
+                  {formatCurrency(
+                    expenses[0].amount,
+                    expenses[0].currency || selectedCurrency
+                  )}
                 </span>
               </div>
             </div>

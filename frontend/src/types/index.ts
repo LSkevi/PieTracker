@@ -4,6 +4,7 @@ export interface Expense {
   category: string;
   description: string;
   date: string;
+  currency: string;
   created_at: string;
 }
 
@@ -18,6 +19,7 @@ export interface ExpenseFormData {
   amount: string;
   category: string;
   description: string;
+  currency: string;
 }
 
 export interface PieDataItem {
@@ -33,4 +35,10 @@ export interface CustomTooltipProps {
     value: number;
     percentage: string;
   }>;
+}
+
+export interface Currency {
+  code: string;
+  symbol: string;
+  name: string;
 }

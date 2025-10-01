@@ -1,31 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
-import type { ExpenseFormData, Expense } from "../types";
+import type { ExpenseFormData, Expense, Currency } from "../types";
+import { formatCurrency } from "../utils/currency";
 
 interface ExpenseFormProps {
   categories: string[];
+  currencies: Currency[];
+  selectedCurrency: string;
   expenses: Expense[];
   onAddExpense: (
     amount: number,
     category: string,
     description: string,
+    currency: string,
     date: string
   ) => void;
   onDeleteExpense: (expenseId: string) => void;
+  onCurrencyChange: (currency: string) => void;
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   categories,
+  currencies,
+  selectedCurrency,
   expenses,
   onAddExpense,
   onDeleteExpense,
+  onCurrencyChange,
 }) => {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
+  const [customCategoryColor, setCustomCategoryColor] = useState("#a8b5a0");
+  const [isExpensesExpanded, setIsExpensesExpanded] = useState(false);
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
     category: "",
     description: "",
+    currency: selectedCurrency,
     date: format(new Date(), "yyyy-MM-dd"),
   });
+
+  // Keep form currency in sync with global currency selection
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      currency: selectedCurrency,
+    }));
+  }, [selectedCurrency]);
+
+  // Handle escape key for closing modal
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showCustomCategory) {
+        setShowCustomCategory(false);
+        setCustomCategory("");
+        setCustomCategoryColor("#a8b5a0");
+      }
+    };
+
+    if (showCustomCategory) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [showCustomCategory]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,14 +71,21 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       formData.amount &&
       formData.category &&
       formData.description &&
+      formData.currency &&
       formData.date
     ) {
       onAddExpense(
         parseFloat(formData.amount),
         formData.category,
         formData.description,
+        formData.currency,
         formData.date
       );
+
+      // Show success feedback
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+
       setFormData((prev) => ({
         ...prev,
         amount: "",
@@ -55,51 +100,179 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
+    const { name, value } = e.target;
+    
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
-  };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-    }).format(amount);
+    // If currency changes, update the global currency selection
+    if (name === "currency") {
+      onCurrencyChange(value);
+    }
   };
 
   return (
-    <div className="card left-panel">
-      <h2>Add New Expense</h2>
+    <div className="expense-form-tab">
+      <div className="expense-form-header">
+        <h2>Add New Expense</h2>
+        <p className="form-subtitle">Track your spending with style</p>
+      </div>
+
+      {/* Quick Action Buttons */}
+      <div className="quick-actions">
+        <h3>Quick Add</h3>
+        <div className="quick-buttons">
+          {["Food", "Transportation", "Shopping", "Entertainment"].map(
+            (category) => (
+              <button
+                key={category}
+                type="button"
+                className="quick-btn"
+                onClick={() => setFormData((prev) => ({ ...prev, category }))}
+              >
+                {category}
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="expense-form">
-        <div className="form-group">
-          <label>Amount (CAD)</label>
-          <input
-            type="number"
-            name="amount"
-            step="0.01"
-            value={formData.amount}
-            onChange={handleChange}
-            placeholder="0.00"
-            required
-          />
+        <div className="form-row">
+          <div className="form-group">
+            <label>Amount</label>
+            <div className="amount-currency-group">
+              <input
+                type="number"
+                name="amount"
+                step="0.01"
+                value={formData.amount}
+                onChange={handleChange}
+                placeholder="0.00"
+                required
+              />
+              <select
+                name="currency"
+                value={formData.currency}
+                onChange={handleChange}
+                className="currency-select"
+                required
+              >
+                {currencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.code} ({currency.symbol})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Date</label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
         <div className="form-group">
           <label>Category</label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select a category...</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          <div className="category-selection-row">
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              className="category-select"
+            >
+              <option value="">Select a category...</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            
+            <button
+              type="button"
+              className="add-category-btn"
+              onClick={() => setShowCustomCategory(true)}
+              title="Add New Category"
+            >
+              + Add
+            </button>
+            
+            {showCustomCategory && (
+              <div className="custom-category-modal">
+                <div className="custom-category-content">
+                  <h4>Add New Category</h4>
+                  
+                  <div className="category-form-group">
+                    <label>Category Name</label>
+                    <input
+                      type="text"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="Enter category name"
+                      className="category-name-input"
+                      autoFocus
+                    />
+                  </div>
+                  
+                  <div className="category-form-group">
+                    <label>Category Color</label>
+                    <div className="color-picker-group">
+                      <input
+                        type="color"
+                        value={customCategoryColor}
+                        onChange={(e) => setCustomCategoryColor(e.target.value)}
+                        className="color-picker"
+                      />
+                      <span className="color-preview" style={{backgroundColor: customCategoryColor}}></span>
+                    </div>
+                  </div>
+                  
+                  <div className="custom-category-buttons">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customCategory.trim()) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            category: customCategory.trim(),
+                          }));
+                          setShowCustomCategory(false);
+                          setCustomCategory("");
+                          setCustomCategoryColor("#a8b5a0");
+                        }
+                      }}
+                      className="btn-custom-add"
+                      disabled={!customCategory.trim()}
+                    >
+                      Add Category
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCustomCategory(false);
+                        setCustomCategory("");
+                        setCustomCategoryColor("#a8b5a0");
+                      }}
+                      className="btn-custom-cancel"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="form-group">
@@ -109,54 +282,96 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="What did you spend on?"
+            placeholder={
+              formData.category
+                ? `What ${formData.category.toLowerCase()} did you buy?`
+                : "What did you spend on?"
+            }
             required
+            list="description-suggestions"
           />
+          <datalist id="description-suggestions">
+            {formData.category === "Food" && (
+              <>
+                <option value="Restaurant meal" />
+                <option value="Groceries" />
+                <option value="Coffee" />
+                <option value="Takeout" />
+              </>
+            )}
+            {formData.category === "Transportation" && (
+              <>
+                <option value="Gas" />
+                <option value="Uber/Taxi" />
+                <option value="Public transit" />
+                <option value="Parking" />
+              </>
+            )}
+          </datalist>
         </div>
 
-        <div className="form-group">
-          <label>Date</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn-primary">
+        <button type="submit" className="btn-primary-large">
           Add Expense
         </button>
+
+        {/* Success Message */}
+        {showSuccess && (
+          <div className="success-message">✅ Expense added successfully!</div>
+        )}
       </form>
 
-      {/* Recent Expenses */}
-      <div className="expenses-list">
-        <h3 className="recent-expenses-title">Recent Expenses</h3>
+      {/* Expenses */}
+      <div className="expenses-list-tab">
+        <div className="expenses-header">
+          <h3 className="recent-expenses-title">Expenses</h3>
+          <div className="expenses-controls">
+            <span className="expense-count">{expenses.length} items</span>
+            {expenses.length > 0 && (
+              <button
+                type="button"
+                className="expand-toggle-btn"
+                onClick={() => setIsExpensesExpanded(!isExpensesExpanded)}
+              >
+                {isExpensesExpanded ? "Show Less" : "Show All"}
+              </button>
+            )}
+          </div>
+        </div>
         {expenses.length === 0 ? (
           <div className="no-data">No expenses yet this month</div>
         ) : (
-          expenses.map((expense) => (
-            <div key={expense.id} className="expense-item">
-              <div className="expense-details">
-                <h4>{expense.description}</h4>
-                <p>
-                  {expense.category} • {expense.date}
-                </p>
-              </div>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <span className="expense-amount">
-                  {formatCurrency(expense.amount)}
-                </span>
-                <button
-                  onClick={() => onDeleteExpense(expense.id)}
-                  className="delete-btn"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          ))
+          <div className="expenses-grid">
+            {(isExpensesExpanded ? expenses : expenses.slice(0, 6)).map(
+              (expense) => (
+                <div key={expense.id} className="expense-card">
+                  <div className="expense-card-header">
+                    <h4>{expense.description}</h4>
+                    <button
+                      onClick={() => onDeleteExpense(expense.id)}
+                      className="delete-btn-card"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="expense-card-details">
+                    <span className="expense-category">{expense.category}</span>
+                    <span className="expense-date">{expense.date}</span>
+                    <span className="expense-amount-card">
+                      {formatCurrency(
+                        expense.amount,
+                        expense.currency || selectedCurrency
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        )}
+        {!isExpensesExpanded && expenses.length > 6 && (
+          <div className="show-more-expenses">
+            <p>And {expenses.length - 6} more expenses...</p>
+          </div>
         )}
       </div>
     </div>
