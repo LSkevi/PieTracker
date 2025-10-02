@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import type { MonthlySummary, PieDataItem } from "../types";
+import type { MonthlySummary, PieDataItem, Expense } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 import { formatCurrency, convertCurrency } from "../utils/currency";
 
 interface ChartDisplayProps {
   summary: MonthlySummary | null;
+  expenses: Expense[];
   loading: boolean;
   selectedMonth: number;
   selectedYear: number;
@@ -16,6 +17,7 @@ interface ChartDisplayProps {
 
 const ChartDisplay: React.FC<ChartDisplayProps> = ({
   summary,
+  expenses,
   loading,
   selectedMonth,
   selectedYear,
@@ -29,32 +31,37 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   // Convert amounts when currency or data changes
   useEffect(() => {
     const convertAmounts = async () => {
-      if (!summary) return;
+      if (!summary || !expenses.length) return;
 
-      const converted: { [key: string]: number } = {};
+      // Calculate totals by converting each expense individually
+      let totalInTargetCurrency = 0;
+      const categoryTotals: { [key: string]: number } = {};
 
-      // Convert total amount
-      const total = await convertCurrency(
-        summary.total,
-        "USD",
-        selectedCurrency
-      );
-      setConvertedTotal(total);
-
-      // Convert category amounts
-      for (const [category, amount] of Object.entries(summary.categories)) {
-        converted[category] = await convertCurrency(
-          amount,
-          "USD",
+      // Convert each expense from its original currency to target currency
+      for (const expense of expenses) {
+        const fromCurrency = expense.currency || "CAD";
+        const convertedAmount = await convertCurrency(
+          expense.amount,
+          fromCurrency,
           selectedCurrency
         );
+
+        totalInTargetCurrency += convertedAmount;
+
+        // Add to category total
+        if (!categoryTotals[expense.category]) {
+          categoryTotals[expense.category] = 0;
+        }
+        categoryTotals[expense.category] += convertedAmount;
       }
 
-      setConvertedAmounts(converted);
+      // Store converted totals
+      setConvertedTotal(totalInTargetCurrency);
+      setConvertedAmounts(categoryTotals);
     };
 
     convertAmounts();
-  }, [summary, selectedCurrency]);
+  }, [summary, selectedCurrency, expenses]);
 
   const preparePieData = (): PieDataItem[] => {
     if (!summary || !summary.categories) return [];
