@@ -377,7 +377,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                     Original:{" "}
                     {formatCurrency(
                       expenses[0].amount,
-                      expenses[0].currency || "USD"
+                      expenses[0].currency || "CAD"
                     )}
                   </span>
                 </div>
@@ -388,9 +388,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                       selectedCurrency
                     )}
                   </span>
-                  {(expenses[0].currency || "USD") !== selectedCurrency && (
+                  {(expenses[0].currency || "CAD") !== selectedCurrency && (
                     <span className="conversion-indicator">
-                      (converted from {expenses[0].currency || "USD"})
+                      (converted from {expenses[0].currency || "CAD"})
                     </span>
                   )}
                 </div>
@@ -416,7 +416,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                         Original:{" "}
                         {formatCurrency(
                           expense.amount,
-                          expense.currency || "USD"
+                          expense.currency || "CAD"
                         )}
                       </span>
                     </div>
@@ -428,9 +428,9 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                           selectedCurrency
                         )}
                       </span>
-                      {(expense.currency || "USD") !== selectedCurrency && (
+                      {(expense.currency || "CAD") !== selectedCurrency && (
                         <span className="expense-row-conversion">
-                          from {expense.currency || "USD"}
+                          from {expense.currency || "CAD"}
                         </span>
                       )}
                     </div>

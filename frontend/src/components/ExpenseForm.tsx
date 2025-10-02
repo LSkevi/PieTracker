@@ -36,6 +36,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onCurrencyChange,
 }) => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState("");
   const [customCategoryColor, setCustomCategoryColor] = useState("#a8b5a0");
@@ -61,7 +63,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       const converted: { [key: string]: number } = {};
 
       for (const expense of expenses) {
-        const fromCurrency = expense.currency || "USD";
+        const fromCurrency = expense.currency || "CAD";
         if (fromCurrency !== selectedCurrency) {
           try {
             const convertedAmount = await convertCurrency(
@@ -125,32 +127,66 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      formData.amount &&
-      formData.category &&
-      formData.description &&
-      formData.currency &&
-      formData.date
-    ) {
-      onAddExpense(
-        parseFloat(formData.amount),
-        formData.category,
-        formData.description,
-        formData.currency,
-        formData.date
-      );
 
-      // Show success feedback
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 2000);
+    // Reset previous error
+    setShowError(false);
+    setErrorMessage("");
 
-      setFormData((prev) => ({
-        ...prev,
-        amount: "",
-        category: "",
-        description: "",
-      }));
+    // Validation with English error messages
+    if (!formData.amount) {
+      setErrorMessage("Please enter an amount");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
     }
+
+    if (!formData.category) {
+      setErrorMessage("Please select a category");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
+
+    if (!formData.description.trim()) {
+      setErrorMessage("Please enter a description");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
+
+    if (!formData.currency) {
+      setErrorMessage("Please select a currency");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
+
+    if (!formData.date) {
+      setErrorMessage("Please select a date");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3000);
+      return;
+    }
+
+    // If all validation passes, submit the expense
+    onAddExpense(
+      parseFloat(formData.amount),
+      formData.category,
+      formData.description,
+      formData.currency,
+      formData.date
+    );
+
+    // Show success feedback
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 2000);
+
+    setFormData((prev) => ({
+      ...prev,
+      amount: "",
+      category: "",
+      description: "",
+    }));
   };
 
   const handleChange = async (
@@ -491,6 +527,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         {showSuccess && (
           <div className="success-message">✅ Expense added successfully!</div>
         )}
+
+        {/* Error Message */}
+        {showError && <div className="error-message">⚠️ {errorMessage}</div>}
       </form>
 
       {/* Expenses */}
@@ -535,12 +574,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                         selectedCurrency
                       )}
                     </span>
-                    {(expense.currency || "USD") !== selectedCurrency && (
+                    {(expense.currency || "CAD") !== selectedCurrency && (
                       <span className="expense-original-currency">
                         Originally:{" "}
                         {formatCurrency(
                           expense.amount,
-                          expense.currency || "USD"
+                          expense.currency || "CAD"
                         )}
                       </span>
                     )}
