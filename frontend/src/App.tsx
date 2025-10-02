@@ -8,6 +8,33 @@ import { useExpenses } from "./hooks/useExpenses";
 import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
 
+// Simple error boundary for debugging
+const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [hasError, setHasError] = useState(false);
+  
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('App error:', error);
+      setHasError(true);
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+  
+  if (hasError) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>Something went wrong</h1>
+        <p>Check the console for errors</p>
+        <button onClick={() => window.location.reload()}>Reload</button>
+      </div>
+    );
+  }
+  
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   const {
     expenses,
@@ -27,6 +54,13 @@ const App: React.FC = () => {
     deleteCategory,
     setMonthYear,
   } = useExpenses();
+
+  // Debug logging for production
+  useEffect(() => {
+    console.log("App mounted, loading:", loading);
+    console.log("API Base:", import.meta.env.VITE_API_URL || "fallback");
+    console.log("Environment:", import.meta.env.MODE);
+  }, [loading]);
 
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
 
@@ -150,4 +184,10 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+const AppWithErrorBoundary: React.FC = () => (
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
+
+export default AppWithErrorBoundary;

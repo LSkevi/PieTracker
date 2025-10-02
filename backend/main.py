@@ -19,6 +19,7 @@ app.add_middleware(
         "http://localhost:5176", 
         "http://127.0.0.1:5176",
         "https://*.vercel.app",
+        "https://pie-tracker-xi.vercel.app",
         "https://pietracker.vercel.app",
         "https://*.onrender.com",
         "https://pietracker-frontend.onrender.com"
