@@ -312,7 +312,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                       </option>
                     ))}
                   </select>
-                  <div className="currency-icon">💱</div>
                 </div>
               </div>
             </div>
@@ -364,78 +363,40 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           {/* Latest Expense */}
           {expenses.length > 0 && (
             <div className="latest-expense-info">
-              <h4 className="recent-title">Latest Expense</h4>
-              <div className="expense-item-info">
-                <div className="expense-info">
-                  <span className="expense-desc">
+              <h4 className="legend-title">Latest Expense</h4>
+              <div className="legend-item-vertical">
+                <div
+                  className="legend-color"
+                  style={{
+                    backgroundColor: getCategoryColor(
+                      expenses[0].category,
+                      isDarkMode
+                    ),
+                  }}
+                ></div>
+                <div className="legend-text-vertical">
+                  <span className="legend-category">
                     {expenses[0].description}
                   </span>
-                  <span className="expense-details">
-                    {expenses[0].category} • {expenses[0].date}
-                  </span>
-                  <span className="expense-original-currency">
-                    Original:{" "}
-                    {formatCurrency(
-                      expenses[0].amount,
-                      expenses[0].currency || "CAD"
-                    )}
-                  </span>
-                </div>
-                <div className="expense-amounts">
-                  <span className="expense-amount-converted">
+                  <span className="legend-amount">
                     {formatCurrency(
                       convertedAmounts.latestExpense || expenses[0].amount,
                       selectedCurrency
                     )}
                   </span>
+                  <span className="expense-meta">
+                    {expenses[0].category} • {expenses[0].date}
+                  </span>
                   {(expenses[0].currency || "CAD") !== selectedCurrency && (
-                    <span className="conversion-indicator">
-                      (converted from {expenses[0].currency || "CAD"})
+                    <span className="expense-original">
+                      Original:{" "}
+                      {formatCurrency(
+                        expenses[0].amount,
+                        expenses[0].currency || "CAD"
+                      )}
                     </span>
                   )}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Recent Expenses List */}
-          {expenses.length > 1 && (
-            <div className="recent-expenses-list">
-              <h4 className="recent-title">Recent Expenses</h4>
-              <div className="expenses-scroll">
-                {expenses.slice(0, 5).map((expense, index) => (
-                  <div key={expense.id || index} className="expense-row">
-                    <div className="expense-row-info">
-                      <span className="expense-row-desc">
-                        {expense.description}
-                      </span>
-                      <span className="expense-row-category">
-                        {expense.category}
-                      </span>
-                      <span className="expense-original-currency">
-                        Original:{" "}
-                        {formatCurrency(
-                          expense.amount,
-                          expense.currency || "CAD"
-                        )}
-                      </span>
-                    </div>
-                    <div className="expense-row-amounts">
-                      <span className="expense-row-converted">
-                        {formatCurrency(
-                          convertedAmounts[`expense_${index}`] ||
-                            expense.amount,
-                          selectedCurrency
-                        )}
-                      </span>
-                      {(expense.currency || "CAD") !== selectedCurrency && (
-                        <span className="expense-row-conversion">
-                          from {expense.currency || "CAD"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
