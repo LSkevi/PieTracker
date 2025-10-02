@@ -75,24 +75,24 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       
-      // Calculate responsive dimensions
+      // Calculate responsive dimensions (accounting for labels needing extra space)
       let height = 500;
-      let radius = 140;
+      let radius = 160; // This will be multiplied by 0.7 for actual pie size
       
       // Surface Pro and small tablets (768px-1024px)
       if (screenWidth <= 1024 && screenWidth >= 768) {
-        height = Math.min(400, screenHeight * 0.4);
-        radius = Math.min(120, screenWidth * 0.15);
+        height = Math.min(450, screenHeight * 0.45);
+        radius = Math.min(140, screenWidth * 0.18);
       }
       // Mobile devices (less than 768px)
       else if (screenWidth < 768) {
-        height = Math.min(350, screenHeight * 0.35);
-        radius = Math.min(100, screenWidth * 0.2);
+        height = Math.min(400, screenHeight * 0.4);
+        radius = Math.min(120, screenWidth * 0.25);
       }
       // Large screens (more than 1024px)
       else {
-        height = Math.min(600, screenHeight * 0.5);
-        radius = Math.min(160, screenWidth * 0.12);
+        height = Math.min(650, screenHeight * 0.55);
+        radius = Math.min(180, screenWidth * 0.14);
       }
       
       setChartDimensions({ height, radius });
@@ -160,12 +160,12 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           <div className="chart-title">Spending by Category</div>
           <div className="big-chart-area">
             <ResponsiveContainer width="100%" height={chartDimensions.height}>
-              <PieChart>
+              <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                 <Pie
                   data={preparePieData()}
                   cx="50%"
                   cy="50%"
-                  outerRadius={chartDimensions.radius}
+                  outerRadius={chartDimensions.radius * 0.7}
                   fill="#8884d8"
                   dataKey="value"
                   label={({ value }: { value: number }) => {
