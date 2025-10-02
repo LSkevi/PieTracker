@@ -3553,11 +3553,16 @@ body::before {
   font-weight: 600;
 }
 
+.currency-dropdown-item.selected .currency-code {
+  color: white;
+}
+
 .currency-dropdown-item .currency-code {
   font-weight: 700;
   font-size: 0.9rem;
   min-width: 45px;
   letter-spacing: 0.5px;
+  color: var(--sage-green);
 }
 
 .currency-dropdown-item .currency-symbol {
@@ -3592,6 +3597,14 @@ body::before {
 
 [data-theme="dark"] .currency-dropdown-item.selected {
   background: var(--sage-green);
+  color: white;
+}
+
+[data-theme="dark"] .currency-dropdown-item .currency-code {
+  color: var(--sage-green);
+}
+
+[data-theme="dark"] .currency-dropdown-item.selected .currency-code {
   color: white;
 }
 
