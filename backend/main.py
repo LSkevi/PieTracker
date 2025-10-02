@@ -19,7 +19,9 @@ app.add_middleware(
 
 # In-memory storage (in production, use a database)
 expenses_db = []
+categories_db = {}  # Store custom category colors: {category_name: color}
 DATA_FILE = "expenses.json"
+CATEGORIES_FILE = "categories.json"
 
 # Load existing data
 def load_expenses():
@@ -31,13 +33,40 @@ def load_expenses():
         except:
             expenses_db = []
 
+def load_categories():
+    global categories_db
+    if os.path.exists(CATEGORIES_FILE):
+        try:
+            with open(CATEGORIES_FILE, 'r') as f:
+                data = json.load(f)
+                # Handle both old format (list) and new format (dict)
+                if isinstance(data, list):
+                    categories_db = {}
+                elif isinstance(data, dict):
+                    categories_db = data
+                else:
+                    categories_db = {}
+        except:
+            categories_db = {}
+    else:
+        categories_db = {}
+
 # Save data to file
 def save_expenses():
     with open(DATA_FILE, 'w') as f:
         json.dump(expenses_db, f, indent=2)
 
+def save_categories():
+    with open(CATEGORIES_FILE, 'w') as f:
+        json.dump(categories_db, f, indent=2)
+
 # Load expenses on startup
 load_expenses()
+load_categories()
+
+# Ensure categories_db is a dict
+if not isinstance(categories_db, dict):
+    categories_db = {}
 
 @app.get("/")
 async def root():
@@ -137,11 +166,45 @@ async def get_categories():
     # Only 4 basic default categories
     default_categories = ["Food", "Transportation", "Shopping", "Entertainment"]
     
+    # Add custom categories from categories_db
+    custom_categories = list(categories_db.keys()) if isinstance(categories_db, dict) else []
+    
     # Combine defaults with user-created categories
-    all_categories = list(set(default_categories + list(used_categories)))
+    all_categories = list(set(default_categories + list(used_categories) + custom_categories))
     all_categories.sort()
     
     return all_categories
+
+@app.post("/categories")
+async def add_category(category_data: dict):
+    category_name = category_data.get("name", "").strip()
+    category_color = category_data.get("color", "#a8b5a0")
+    
+    if not category_name:
+        raise HTTPException(status_code=400, detail="Category name is required")
+    
+    # Check if category already exists
+    used_categories = set()
+    for expense in expenses_db:
+        if expense.get("category"):
+            used_categories.add(expense["category"])
+    
+    default_categories = ["Food", "Transportation", "Shopping", "Entertainment"]
+    custom_categories = list(categories_db.keys()) if isinstance(categories_db, dict) else []
+    all_categories = list(set(default_categories + list(used_categories) + custom_categories))
+    
+    if category_name in all_categories:
+        raise HTTPException(status_code=400, detail=f"Category '{category_name}' already exists")
+    
+    # Store the category with its color
+    categories_db[category_name] = category_color
+    save_categories()
+    
+    return {"message": f"Category '{category_name}' added successfully", "category": category_name, "color": category_color}
+
+@app.get("/categories/colors")
+async def get_category_colors():
+    return categories_db
 
 @app.delete("/categories/{category_name}")
 async def delete_category(category_name: str):
@@ -150,16 +213,21 @@ async def delete_category(category_name: str):
     if category_name in default_categories:
         raise HTTPException(status_code=400, detail=f"Cannot delete default category: {category_name}")
     
-    # Check if category is in use
-    expenses_with_category = [e for e in expenses_db if e.get("category") == category_name]
-    if expenses_with_category:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Cannot delete category '{category_name}' - it has {len(expenses_with_category)} expense(s) associated with it. Please reassign or delete those expenses first."
-        )
+    # Remove from custom categories
+    if isinstance(categories_db, dict) and category_name in categories_db:
+        del categories_db[category_name]
+        save_categories()
     
-    # Category can be deleted (it's just removed from the list since categories are auto-generated)
-    return {"message": f"Category '{category_name}' deleted successfully"}
+    # Also remove any expenses with this category
+    global expenses_db
+    original_count = len(expenses_db)
+    expenses_db = [exp for exp in expenses_db if exp.get("category") != category_name]
+    deleted_expenses = original_count - len(expenses_db)
+    
+    if deleted_expenses > 0:
+        save_expenses()
+    
+    return {"message": f"Category '{category_name}' deleted successfully. {deleted_expenses} associated expenses were also removed."}
 
 @app.get("/currencies")
 async def get_currencies():

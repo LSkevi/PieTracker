@@ -13,6 +13,7 @@ const App: React.FC = () => {
     expenses,
     summary,
     categories,
+    categoryColors,
     currencies,
     selectedCurrency,
     setSelectedCurrency,
@@ -21,6 +22,7 @@ const App: React.FC = () => {
     selectedYear,
     loading,
     addExpense,
+    addCategory,
     deleteExpense,
     deleteCategory,
     setMonthYear,
@@ -62,10 +64,12 @@ const App: React.FC = () => {
           <div className="expense-form-container">
             <ExpenseForm
               categories={categories}
+              categoryColors={categoryColors}
               currencies={currencies}
               selectedCurrency={selectedCurrency}
               expenses={expenses}
               onAddExpense={addExpense}
+              onAddCategory={addCategory}
               onDeleteExpense={deleteExpense}
               onDeleteCategory={deleteCategory}
               onCurrencyChange={setSelectedCurrency}
@@ -115,6 +119,7 @@ const App: React.FC = () => {
                   selectedMonth={selectedMonth}
                   selectedYear={selectedYear}
                   selectedCurrency={selectedCurrency}
+                  categoryColors={categoryColors}
                 />
               ) : (
                 <div className="no-data-section">
@@ -135,6 +140,7 @@ const App: React.FC = () => {
                 currencies={currencies}
                 onMonthYearChange={setMonthYear}
                 onCurrencyChange={setSelectedCurrency}
+                categoryColors={categoryColors}
               />
             </div>
           </div>
