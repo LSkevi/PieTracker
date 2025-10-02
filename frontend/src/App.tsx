@@ -22,6 +22,7 @@ const App: React.FC = () => {
     loading,
     addExpense,
     deleteExpense,
+    deleteCategory,
     setMonthYear,
   } = useExpenses();
 
@@ -62,6 +63,7 @@ const App: React.FC = () => {
               expenses={expenses}
               onAddExpense={addExpense}
               onDeleteExpense={deleteExpense}
+              onDeleteCategory={deleteCategory}
               onCurrencyChange={setSelectedCurrency}
             />
           </div>

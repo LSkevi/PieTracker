@@ -6,6 +6,7 @@ import {
   convertCurrency,
   getCacheStatus,
 } from "../utils/currency";
+import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 
 interface ExpenseFormProps {
   categories: string[];
@@ -20,6 +21,7 @@ interface ExpenseFormProps {
     date: string
   ) => void;
   onDeleteExpense: (expenseId: string) => void;
+  onDeleteCategory: (categoryName: string) => void;
   onCurrencyChange: (currency: string) => void;
 }
 
@@ -30,6 +32,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   expenses,
   onAddExpense,
   onDeleteExpense,
+  onDeleteCategory,
   onCurrencyChange,
 }) => {
   const [showSuccess, setShowSuccess] = useState(false);
@@ -200,6 +203,39 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       onCurrencyChange(value);
     }
   };
+
+  // Handle category deletion
+  const handleDeleteCategory = async (categoryToDelete: string) => {
+    // Don't allow deletion of default categories
+    if (
+      ["Food", "Transportation", "Shopping", "Entertainment"].includes(
+        categoryToDelete
+      )
+    ) {
+      return;
+    }
+
+    // If the deleted category was selected, clear the selection
+    if (formData.category === categoryToDelete) {
+      setFormData((prev) => ({ ...prev, category: "" }));
+    }
+
+    if (
+      window.confirm(
+        `Are you sure you want to delete the "${categoryToDelete}" category?`
+      )
+    ) {
+      try {
+        await onDeleteCategory(categoryToDelete);
+      } catch (error) {
+        // Show error message from backend
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
+        alert(`Error deleting category: ${errorMessage}`);
+      }
+    }
+  };
+
   return (
     <div className="expense-form-tab">
       <div className="expense-form-header">
@@ -207,23 +243,163 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         <p className="form-subtitle">Track your spending with style</p>
       </div>
 
-      {/* Quick Action Buttons */}
-      <div className="quick-actions">
-        <h3>Quick Add</h3>
-        <div className="quick-buttons">
+      {/* Category Toggle Buttons */}
+      <div className="category-selection-section">
+        <div className="category-buttons-grid">
+          {/* Fixed categories always come first */}
           {["Food", "Transportation", "Shopping", "Entertainment"].map(
             (category) => (
               <button
                 key={category}
                 type="button"
-                className="quick-btn"
+                className={`category-toggle-btn ${
+                  formData.category === category ? "selected" : ""
+                }`}
                 onClick={() => setFormData((prev) => ({ ...prev, category }))}
+                style={{
+                  backgroundColor:
+                    formData.category === category
+                      ? getCategoryColor(category, isDarkModeEnabled())
+                      : "transparent",
+                  borderColor: getCategoryColor(category, isDarkModeEnabled()),
+                  color:
+                    formData.category === category
+                      ? "white"
+                      : getCategoryColor(category, isDarkModeEnabled()),
+                }}
               >
                 {category}
               </button>
             )
           )}
+
+          {/* Custom categories with delete buttons */}
+          {categories
+            .filter(
+              (cat) =>
+                ![
+                  "Food",
+                  "Transportation",
+                  "Shopping",
+                  "Entertainment",
+                ].includes(cat)
+            )
+            .map((category) => (
+              <div key={category} className="custom-category-wrapper">
+                <button
+                  type="button"
+                  className={`category-toggle-btn custom-category ${
+                    formData.category === category ? "selected" : ""
+                  }`}
+                  onClick={() => setFormData((prev) => ({ ...prev, category }))}
+                  style={{
+                    backgroundColor:
+                      formData.category === category
+                        ? getCategoryColor(category, isDarkModeEnabled())
+                        : "transparent",
+                    borderColor: getCategoryColor(
+                      category,
+                      isDarkModeEnabled()
+                    ),
+                    color:
+                      formData.category === category
+                        ? "white"
+                        : getCategoryColor(category, isDarkModeEnabled()),
+                  }}
+                >
+                  {category}
+                </button>
+                {formData.category !== category && (
+                  <button
+                    type="button"
+                    className="delete-category-btn"
+                    onClick={() => handleDeleteCategory(category)}
+                    title={`Delete ${category} category`}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+
+          {/* Add new category button */}
+          <button
+            type="button"
+            className="add-category-toggle-btn"
+            onClick={() => setShowCustomCategory(true)}
+          >
+            + Add Category
+          </button>
         </div>
+
+        {/* Custom category modal */}
+        {showCustomCategory && (
+          <div className="custom-category-modal">
+            <div className="custom-category-content">
+              <h4>Add New Category</h4>
+
+              <div className="category-form-group">
+                <label>Category Name</label>
+                <input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Enter category name"
+                  className="category-name-input"
+                  autoFocus
+                />
+              </div>
+
+              <div className="category-form-group">
+                <label>Category Color</label>
+                <div className="color-picker-group">
+                  <input
+                    type="color"
+                    value={customCategoryColor}
+                    onChange={(e) => setCustomCategoryColor(e.target.value)}
+                    className="color-picker"
+                  />
+                  <span
+                    className="color-preview"
+                    style={{ backgroundColor: customCategoryColor }}
+                  ></span>
+                </div>
+              </div>
+
+              <div className="custom-category-buttons">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (customCategory.trim()) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        category: customCategory.trim(),
+                      }));
+                      setShowCustomCategory(false);
+                      setCustomCategory("");
+                      setCustomCategoryColor("#a8b5a0");
+                    }
+                  }}
+                  className="btn-custom-add"
+                  disabled={!customCategory.trim()}
+                >
+                  Add Category
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCustomCategory(false);
+                    setCustomCategory("");
+                    setCustomCategoryColor("#a8b5a0");
+                  }}
+                  className="btn-custom-cancel"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="expense-form">
@@ -269,103 +445,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               onChange={handleChange}
               required
             />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Category</label>
-          <div className="category-selection-row">
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-              className="category-select"
-            >
-              <option value="">Select a category...</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              className="add-category-btn"
-              onClick={() => setShowCustomCategory(true)}
-              title="Add New Category"
-            >
-              + Add
-            </button>
-
-            {showCustomCategory && (
-              <div className="custom-category-modal">
-                <div className="custom-category-content">
-                  <h4>Add New Category</h4>
-
-                  <div className="category-form-group">
-                    <label>Category Name</label>
-                    <input
-                      type="text"
-                      value={customCategory}
-                      onChange={(e) => setCustomCategory(e.target.value)}
-                      placeholder="Enter category name"
-                      className="category-name-input"
-                      autoFocus
-                    />
-                  </div>
-
-                  <div className="category-form-group">
-                    <label>Category Color</label>
-                    <div className="color-picker-group">
-                      <input
-                        type="color"
-                        value={customCategoryColor}
-                        onChange={(e) => setCustomCategoryColor(e.target.value)}
-                        className="color-picker"
-                      />
-                      <span
-                        className="color-preview"
-                        style={{ backgroundColor: customCategoryColor }}
-                      ></span>
-                    </div>
-                  </div>
-
-                  <div className="custom-category-buttons">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (customCategory.trim()) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            category: customCategory.trim(),
-                          }));
-                          setShowCustomCategory(false);
-                          setCustomCategory("");
-                          setCustomCategoryColor("#a8b5a0");
-                        }
-                      }}
-                      className="btn-custom-add"
-                      disabled={!customCategory.trim()}
-                    >
-                      Add Category
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowCustomCategory(false);
-                        setCustomCategory("");
-                        setCustomCategoryColor("#a8b5a0");
-                      }}
-                      className="btn-custom-cancel"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

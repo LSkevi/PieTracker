@@ -1,47 +1,37 @@
 // Shared color constants and utility functions for consistent theming
 
 export const ELEGANT_COLORS = [
-  "#7ba098", // 0 - Shopping
-  "#a8b5a0", // 1 - Food & Dining
-  "#d4b5a0", // 2 - Beauty & Personal Care
-  "#d4af9a", // 3 - Fashion & Accessories (warmer rose-tan)
-  "#9fb3a3", // 4 - Home & Living
-  "#8db3a0", // 5 - Transportation (deeper sage-teal)
-  "#d1c4b0", // 6 - Health & Wellness
-  "#c8b4a6", // 7 - Entertainment (warm taupe instead of gray)
-  "#b3a895", // 8 - Education (soft brown instead of blue-gray)
-  "#8fb3a3", // 9 - Gifts
+  "#525B02", // 0 - Transportation (Deep forest green)
+  "#9B9E56", // 1 - Food (Fresh sage green)
+  "#A2B7B0", // 2 - Entertainment (Soft mint)
+  "#BCA3A4", // 3 - Shopping (Dusty rose)
+  "#695216", // 4 - Additional categories (Warm earth brown)
+  "#2d4a22", // 5 - Deep olive
+  "#b8860b", // 6 - Dark goldenrod
+  "#8fbc8f", // 7 - Dark sea green
+  "#daa520", // 8 - Goldenrod
+  "#5f9ea0", // 9 - Cadet blue
 ];
 
 export const DARK_MODE_COLORS = [
-  "#5c7a73", // 0 - Shopping
-  "#7a8c6f", // 1 - Food & Dining
-  "#a08970", // 2 - Beauty & Personal Care
-  "#b8956f", // 3 - Fashion & Accessories (warmer dark rose-tan)
-  "#7a9380", // 4 - Home & Living
-  "#6b9688", // 5 - Transportation (deeper dark sage-teal)
-  "#a89e87", // 6 - Health & Wellness
-  "#9d8b73", // 7 - Entertainment (dark warm taupe instead of gray)
-  "#8b7d6b", // 8 - Education (dark soft brown instead of blue-gray)
-  "#6b8a7a", // 9 - Gifts
+  "#6b7d03", // 0 - Transportation (Brighter forest)
+  "#b5b869", // 1 - Food (Brighter sage)
+  "#b5c9c1", // 2 - Entertainment (Brighter mint)
+  "#d0b5b6", // 3 - Shopping (Brighter dusty rose)
+  "#7a601c", // 4 - Additional categories (Brighter earth)
+  "#3e5e32", // 5 - Brighter olive
+  "#daa520", // 6 - Bright goldenrod
+  "#98c098", // 7 - Brighter sea green
+  "#ffd700", // 8 - Gold
+  "#70a3a6", // 9 - Brighter cadet blue
 ];
 
-// Category order matching backend
+// Category order matching our system (simplified for main categories)
 export const CATEGORY_ORDER = [
-  "Shopping",
-  "Food & Dining",
-  "Beauty & Personal Care",
-  "Fashion & Accessories",
-  "Home & Living",
+  "Food",
   "Transportation",
-  "Health & Wellness",
+  "Shopping",
   "Entertainment",
-  "Education",
-  "Gifts",
-  "Coffee & Treats",
-  "Self Care",
-  "Fitness",
-  "Subscriptions",
   "Other",
 ];
 
@@ -50,12 +40,23 @@ export const getCategoryColor = (
   isDarkMode: boolean
 ): string => {
   const colors = isDarkMode ? DARK_MODE_COLORS : ELEGANT_COLORS;
-  const index = CATEGORY_ORDER.indexOf(categoryName);
-  if (index === -1) {
-    // If category not found, use last color (Other)
-    return colors[colors.length - 1];
+
+  // Direct mapping for our main categories
+  const categoryColorMap: { [key: string]: number } = {
+    Food: 1, // Fresh sage green
+    Transportation: 0, // Deep forest green
+    Shopping: 3, // Dusty rose
+    Entertainment: 2, // Soft mint
+  };
+
+  if (categoryColorMap[categoryName] !== undefined) {
+    return colors[categoryColorMap[categoryName]];
   }
-  return colors[index % colors.length];
+
+  // For custom categories, use a hash to consistently assign colors
+  const hash = categoryName.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
+  const colorIndex = 4 + (hash % (colors.length - 4)); // Start from index 4 for custom categories
+  return colors[colorIndex];
 };
 
 // Utility function to check if dark mode is enabled
