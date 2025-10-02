@@ -450,14 +450,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 value={formData.amount}
                 onChange={handleChange}
                 placeholder="0.00"
-                required
               />
               <select
                 name="currency"
                 value={formData.currency}
                 onChange={handleChange}
                 className="currency-select"
-                required
               >
                 {currencies.map((currency) => (
                   <option key={currency.code} value={currency.code}>
@@ -479,7 +477,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               name="date"
               value={formData.date}
               onChange={handleChange}
-              required
             />
           </div>
         </div>
@@ -496,7 +493,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 ? `What ${formData.category.toLowerCase()} did you buy?`
                 : "What did you spend on?"
             }
-            required
             list="description-suggestions"
           />
           <datalist id="description-suggestions">
