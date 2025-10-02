@@ -51,11 +51,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [isExpensesExpanded, setIsExpensesExpanded] = useState(false);
   const [conversionMessage, setConversionMessage] = useState("");
   const [rateStatus, setRateStatus] = useState<string>("");
-  
+
   // Confirmation modal state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string>("");
-  
+
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
     category: "",
@@ -660,9 +660,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <span className="category-name">"{categoryToDelete}"</span>{" "}
                 category?
               </p>
-              <p className="modal-warning">
-                This action cannot be undone.
-              </p>
+              <p className="modal-warning">This action cannot be undone.</p>
             </div>
             <div className="modal-actions">
               <button
