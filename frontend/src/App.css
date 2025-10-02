@@ -351,7 +351,7 @@ body::before {
 
 .main-container {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 180px 1fr;
   gap: 40px;
   max-width: 100%;
   width: 100%;
@@ -362,7 +362,7 @@ body::before {
 /* New Tabbed Layout Styles */
 .main-container-tabbed {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 180px;
   grid-template-rows: auto 1fr;
   gap: 20px;
   max-width: 100%;
@@ -613,7 +613,7 @@ body::before {
 
 .info-area {
   flex: 1;
-  min-width: 300px;
+  min-width: 180px;
 }
 
 .no-data-section {
