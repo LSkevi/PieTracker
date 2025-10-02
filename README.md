@@ -192,12 +192,14 @@ Categories are dynamically managed. Simply use a new category name when adding a
 ### Backend on Render
 
 1. **Create a new Web Service on Render**
+
    - Connect your GitHub repository
    - Set root directory to `backend`
    - Build Command: `pip install -r requirements.txt`
    - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
 2. **Environment Variables** (if needed)
+
    - Set `PYTHON_VERSION` to `3.11.0`
 
 3. **Your backend will be available at**: `https://your-service-name.onrender.com`
@@ -205,19 +207,21 @@ Categories are dynamically managed. Simply use a new category name when adding a
 ### Frontend on Vercel
 
 1. **Deploy to Vercel**
+
    - Connect your GitHub repository
    - Set root directory to `frontend`
    - Build Command: `npm run build`
    - Output Directory: `dist`
 
 2. **Environment Variables**
+
    - Add `VITE_API_URL` = `https://your-backend-url.onrender.com`
 
 3. **Your frontend will be available at**: `https://your-project.vercel.app`
 
 ### Alternative: Local Production Build
 
-```bash
+````bash
 # Backend
 cd backend
 pip install -r requirements.txt
@@ -232,7 +236,7 @@ npm run preview
 cd backend
 # Add your deployment configuration
 # Update CORS origins for production
-```
+````
 
 ### Database Migration
 

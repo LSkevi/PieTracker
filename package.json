@@ -15,7 +15,13 @@
     "type": "git",
     "url": "https://github.com/LSkevi/PieTracker.git"
   },
-  "keywords": ["expense-tracker", "react", "fastapi", "typescript", "charts"],
+  "keywords": [
+    "expense-tracker",
+    "react",
+    "fastapi",
+    "typescript",
+    "charts"
+  ],
   "author": "LSkevi",
   "license": "MIT",
   "devDependencies": {
