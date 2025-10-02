@@ -51,6 +51,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [isExpensesExpanded, setIsExpensesExpanded] = useState(false);
   const [conversionMessage, setConversionMessage] = useState("");
   const [rateStatus, setRateStatus] = useState<string>("");
+  
+  // Confirmation modal state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string>("");
+  
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
     category: "",
@@ -258,25 +263,34 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       return;
     }
 
+    // Show confirmation modal
+    setCategoryToDelete(categoryToDelete);
+    setShowDeleteConfirm(true);
+  };
+
+  // Confirm category deletion
+  const confirmDeleteCategory = async () => {
     // If the deleted category was selected, clear the selection
     if (formData.category === categoryToDelete) {
       setFormData((prev) => ({ ...prev, category: "" }));
     }
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete the "${categoryToDelete}" category?`
-      )
-    ) {
-      try {
-        await onDeleteCategory(categoryToDelete);
-      } catch (error) {
-        // Show error message from backend
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error occurred";
-        alert(`Error deleting category: ${errorMessage}`);
-      }
+    try {
+      await onDeleteCategory(categoryToDelete);
+      setShowDeleteConfirm(false);
+      setCategoryToDelete("");
+    } catch (error) {
+      // Show error message from backend
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      alert(`Error deleting category: ${errorMessage}`);
     }
+  };
+
+  // Cancel category deletion
+  const cancelDeleteCategory = () => {
+    setShowDeleteConfirm(false);
+    setCategoryToDelete("");
   };
 
   return (
@@ -632,6 +646,43 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
         )}
       </div>
+
+      {/* Delete Category Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay" onClick={cancelDeleteCategory}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Delete Category</h3>
+            </div>
+            <div className="modal-body">
+              <p>
+                Are you sure you want to delete the{" "}
+                <span className="category-name">"{categoryToDelete}"</span>{" "}
+                category?
+              </p>
+              <p className="modal-warning">
+                This action cannot be undone.
+              </p>
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="modal-btn modal-btn-cancel"
+                onClick={cancelDeleteCategory}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="modal-btn modal-btn-delete"
+                onClick={confirmDeleteCategory}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

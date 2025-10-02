@@ -112,19 +112,19 @@ export const useExpenses = () => {
       setLoading(true);
       const url = `${API_BASE}/expenses/summary/${selectedYear}/${selectedMonth}`;
       console.log("Fetching from:", url);
-      
+
       const response = await axios.get(url, {
         timeout: 10000, // 10 second timeout
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
-      
+
       console.log("Summary response:", response.data);
       setSummary(response.data);
     } catch (error) {
       console.error("Error fetching summary:", error);
-      
+
       // More detailed error logging
       if (axios.isAxiosError(error)) {
         console.error("Axios error details:", {
@@ -132,10 +132,10 @@ export const useExpenses = () => {
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
-          code: error.code
+          code: error.code,
         });
       }
-      
+
       // Set a default empty summary if API fails
       setSummary({
         total: 0,
@@ -152,29 +152,29 @@ export const useExpenses = () => {
     try {
       const url = `${API_BASE}/expenses/month/${selectedYear}/${selectedMonth}`;
       console.log("Fetching expenses from:", url);
-      
+
       const response = await axios.get(url, {
         timeout: 10000,
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
-      
+
       console.log("Expenses response:", response.data);
       setExpenses(response.data);
     } catch (error) {
       console.error("Error fetching expenses:", error);
-      
+
       if (axios.isAxiosError(error)) {
         console.error("Axios error details:", {
           message: error.message,
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
-          code: error.code
+          code: error.code,
         });
       }
-      
+
       setExpenses([]);
     }
   }, [selectedYear, selectedMonth]);
