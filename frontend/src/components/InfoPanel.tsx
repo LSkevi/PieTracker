@@ -33,6 +33,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     [key: string]: number;
   }>({});
   const [showCalendarPopup, setShowCalendarPopup] = useState(false);
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
   useEffect(() => {
     // Listen for theme changes
@@ -47,19 +48,24 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  // Handle escape key for closing calendar popup
+  // Handle escape key for closing popups
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && showCalendarPopup) {
-        setShowCalendarPopup(false);
+      if (event.key === "Escape") {
+        if (showCalendarPopup) {
+          setShowCalendarPopup(false);
+        }
+        if (showCurrencyDropdown) {
+          setShowCurrencyDropdown(false);
+        }
       }
     };
 
-    if (showCalendarPopup) {
+    if (showCalendarPopup || showCurrencyDropdown) {
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [showCalendarPopup]);
+  }, [showCalendarPopup, showCurrencyDropdown]);
 
   // Convert amounts when currency or data changes
   useEffect(() => {
@@ -291,28 +297,47 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           <div className="summary-info">
             <div className="currency-selector-section">
               <div className="chart-title">Displaying in</div>
-              <div className="currency-display-trigger">
-                <div className="current-currency">
-                  <span className="currency-code-main">{selectedCurrency}</span>
-                  <span className="currency-name">
-                    {currencies.find((c) => c.code === selectedCurrency)
-                      ?.name || selectedCurrency}
-                  </span>
+              <div className="currency-selector-container">
+                <div
+                  className="currency-display-trigger"
+                  onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
+                >
+                  <div className="current-currency">
+                    <span className="currency-code-main">
+                      {selectedCurrency}
+                    </span>
+                    <span className="currency-name">
+                      {currencies.find((c) => c.code === selectedCurrency)
+                        ?.name || selectedCurrency}
+                    </span>
+                  </div>
                 </div>
-                <div className="currency-dropdown">
-                  <select
-                    id="display-currency"
-                    value={selectedCurrency}
-                    onChange={(e) => onCurrencyChange(e.target.value)}
-                    className="currency-select-styled"
-                  >
+
+                {/* Simple Currency Dropdown */}
+                {showCurrencyDropdown && (
+                  <div className="currency-dropdown-menu">
                     {currencies.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
-                        {currency.code} ({currency.symbol}) - {currency.name}
-                      </option>
+                      <div
+                        key={currency.code}
+                        className={`currency-dropdown-item ${
+                          currency.code === selectedCurrency ? "selected" : ""
+                        }`}
+                        onClick={() => {
+                          onCurrencyChange(currency.code);
+                          setShowCurrencyDropdown(false);
+                        }}
+                      >
+                        <span className="currency-code">{currency.code}</span>
+                        <span className="currency-symbol">
+                          ({currency.symbol})
+                        </span>
+                        <span className="currency-full-name">
+                          - {currency.name}
+                        </span>
+                      </div>
                     ))}
-                  </select>
-                </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="total-amount">
