@@ -2436,6 +2436,7 @@ body::before {
   );
   border-radius: 20px;
   padding: 25px;
+  overflow: visible;
 }
 
 /* Summary Info */
@@ -2446,7 +2447,7 @@ body::before {
   border: 1px solid #d4e6d4;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Leaf decoration for summary info */
@@ -3330,6 +3331,7 @@ body::before {
   margin-top: 1.5rem;
   border-top: 2px solid rgba(168, 181, 160, 0.2);
   padding-top: 1.5rem;
+  overflow: visible;
 }
 
 .currency-display-trigger {
@@ -3466,6 +3468,131 @@ body::before {
 
 [data-theme="dark"] .currency-icon {
   color: var(--charcoal);
+}
+
+/* Custom Currency Dropdown Styling */
+.currency-selector-container {
+  position: relative;
+}
+
+.currency-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--paper-white);
+  border: 2px solid var(--sage-green);
+  border-radius: 12px;
+  box-shadow: var(--shadow-button);
+  backdrop-filter: blur(10px);
+  max-height: 250px;
+  overflow-y: scroll;
+  z-index: 1000;
+  margin-top: 4px;
+  animation: dropdownSlideIn 0.2s ease-out;
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+.currency-dropdown-menu::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.currency-dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.currency-dropdown-menu::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* Hide scrollbar for Firefox */
+.currency-dropdown-menu {
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for IE and older Edge */
+.currency-dropdown-menu {
+  -ms-overflow-style: none;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.currency-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(168, 181, 160, 0.1);
+  font-family: "Inter", sans-serif;
+}
+
+.currency-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.currency-dropdown-item:hover {
+  background: var(--gradient-sage);
+  color: white;
+}
+
+.currency-dropdown-item.selected {
+  background: var(--sage-green);
+  color: white;
+  font-weight: 600;
+}
+
+.currency-dropdown-item .currency-code {
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-width: 45px;
+  letter-spacing: 0.5px;
+}
+
+.currency-dropdown-item .currency-symbol {
+  font-weight: 500;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  min-width: 40px;
+}
+
+.currency-dropdown-item .currency-full-name {
+  font-weight: 400;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  flex: 1;
+}
+
+/* Dark mode currency dropdown */
+[data-theme="dark"] .currency-dropdown-menu {
+  background: var(--paper-white);
+  border-color: var(--sage-green);
+}
+
+[data-theme="dark"] .currency-dropdown-item {
+  color: var(--charcoal);
+  border-bottom-color: rgba(122, 140, 111, 0.2);
+}
+
+[data-theme="dark"] .currency-dropdown-item:hover {
+  background: var(--gradient-sage);
+  color: white;
+}
+
+[data-theme="dark"] .currency-dropdown-item.selected {
+  background: var(--sage-green);
+  color: white;
 }
 
 .currency-display {
