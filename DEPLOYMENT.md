@@ -3,6 +3,7 @@
 ## Quick Deployment Summary
 
 ### 1. Backend Deployment (Render)
+
 - Platform: [Render.com](https://render.com)
 - Repository: Connect to your GitHub repo
 - Service Type: Web Service
@@ -12,6 +13,7 @@
 - Health Check: `/health`
 
 ### 2. Frontend Deployment (Vercel)
+
 - Platform: [Vercel.com](https://vercel.com)
 - Repository: Connect to your GitHub repo
 - Root Directory: `frontend`
@@ -58,6 +60,7 @@
 ## Post-Deployment
 
 ### Update CORS (If needed)
+
 If your frontend URL is different from the defaults, update `backend/main.py`:
 
 ```python
@@ -68,11 +71,14 @@ allow_origins=[
 ```
 
 ### Custom Domain (Optional)
+
 Both Render and Vercel support custom domains:
+
 - **Render**: Dashboard → Settings → Custom Domains
 - **Vercel**: Project Settings → Domains
 
 ### Monitoring
+
 - **Backend Health**: Visit `https://your-backend-url.onrender.com/health`
 - **API Docs**: Visit `https://your-backend-url.onrender.com/docs`
 
@@ -86,17 +92,20 @@ Both Render and Vercel support custom domains:
 4. **Free Tier Limitations**: Render free tier may spin down after inactivity
 
 ### Logs and Debugging
+
 - **Render**: Dashboard → Service → Logs
 - **Vercel**: Dashboard → Project → Functions/Deployments
 
 ## Free Tier Limits
 
 ### Render (Backend)
+
 - ✅ 750 hours/month (enough for 24/7)
 - ⚠️ Spins down after 15 minutes of inactivity
 - ⚠️ Cold start delays (10-15 seconds)
 
 ### Vercel (Frontend)
+
 - ✅ Unlimited static hosting
 - ✅ 100GB bandwidth/month
 - ✅ Instant cold starts
@@ -104,6 +113,7 @@ Both Render and Vercel support custom domains:
 ## Upgrading for Production
 
 For production use, consider:
+
 - **Database**: Replace JSON files with PostgreSQL/MongoDB
 - **Authentication**: Add user accounts and authentication
 - **Monitoring**: Set up error tracking and analytics
