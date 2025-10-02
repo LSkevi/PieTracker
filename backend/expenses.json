@@ -36,15 +36,6 @@
     "created_at": "2025-10-01T21:44:04.427256"
   },
   {
-    "id": "d8dd5372-2045-45e7-9ec5-35dc0785dfe7",
-    "amount": 100.0,
-    "category": "Sweets",
-    "description": "Cookie",
-    "date": "2025-10-01",
-    "currency": "CAD",
-    "created_at": "2025-10-01T23:46:21.635167"
-  },
-  {
     "id": "003e83c7-0a82-4c46-bd49-4ec7673a513f",
     "amount": 10.0,
     "category": "Entertainment",
