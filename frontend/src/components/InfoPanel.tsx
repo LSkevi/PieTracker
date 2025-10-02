@@ -15,6 +15,7 @@ interface InfoPanelProps {
   currencies: Currency[];
   onMonthYearChange: (month: number, year: number) => void;
   onCurrencyChange: (currency: string) => void;
+  categoryColors?: { [key: string]: string };
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
@@ -27,6 +28,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   currencies,
   onMonthYearChange,
   onCurrencyChange,
+  categoryColors,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => isDarkModeEnabled());
   const [convertedAmounts, setConvertedAmounts] = useState<{
@@ -357,7 +359,11 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                   <div
                     className="legend-color"
                     style={{
-                      backgroundColor: getCategoryColor(item.name, isDarkMode),
+                      backgroundColor: getCategoryColor(
+                        item.name,
+                        isDarkMode,
+                        categoryColors
+                      ),
                     }}
                   ></div>
                   <div className="legend-text-vertical">

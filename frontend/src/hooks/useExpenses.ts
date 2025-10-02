@@ -10,6 +10,9 @@ export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  const [categoryColors, setCategoryColors] = useState<{
+    [key: string]: string;
+  }>({});
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [selectedCurrency, setSelectedCurrency] = useState<string>(
     getDefaultCurrency()
@@ -27,6 +30,15 @@ export const useExpenses = () => {
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+    }
+  }, []);
+
+  const fetchCategoryColors = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/categories/colors`);
+      setCategoryColors(response.data);
+    } catch (error) {
+      console.error("Error fetching category colors:", error);
     }
   }, []);
 
@@ -88,10 +100,31 @@ export const useExpenses = () => {
         currency,
         date: date || format(new Date(), "yyyy-MM-dd"),
       });
+      fetchCategories(); // Refresh categories in case new category was used
       fetchMonthlySummary();
       fetchMonthlyExpenses();
     } catch (error) {
       console.error("Error adding expense:", error);
+    }
+  };
+
+  const addCategory = async (
+    categoryName: string,
+    categoryColor: string = "#a8b5a0"
+  ) => {
+    try {
+      await axios.post(`${API_BASE}/categories`, {
+        name: categoryName,
+        color: categoryColor,
+      });
+
+      // Refresh categories and colors
+      await fetchCategories();
+      await fetchCategoryColors();
+      return true;
+    } catch (error) {
+      console.error("Error adding category:", error);
+      return false;
     }
   };
 
@@ -109,6 +142,7 @@ export const useExpenses = () => {
     try {
       await axios.delete(`${API_BASE}/categories/${categoryName}`);
       fetchCategories(); // Refresh categories list
+      fetchCategoryColors(); // Refresh category colors
       fetchMonthlySummary(); // Refresh summary
       fetchMonthlyExpenses(); // Refresh expenses
     } catch (error) {
@@ -124,9 +158,15 @@ export const useExpenses = () => {
 
   useEffect(() => {
     fetchCategories();
+    fetchCategoryColors();
     fetchCurrencies();
     fetchAvailableMonths();
-  }, [fetchCategories, fetchCurrencies, fetchAvailableMonths]);
+  }, [
+    fetchCategories,
+    fetchCategoryColors,
+    fetchCurrencies,
+    fetchAvailableMonths,
+  ]);
 
   useEffect(() => {
     fetchMonthlySummary();
@@ -139,6 +179,7 @@ export const useExpenses = () => {
     expenses,
     summary,
     categories,
+    categoryColors,
     currencies,
     selectedCurrency,
     setSelectedCurrency,
@@ -147,6 +188,7 @@ export const useExpenses = () => {
     selectedYear,
     loading,
     addExpense,
+    addCategory,
     deleteExpense,
     deleteCategory,
     setMonthYear,

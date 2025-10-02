@@ -37,8 +37,14 @@ export const CATEGORY_ORDER = [
 
 export const getCategoryColor = (
   categoryName: string,
-  isDarkMode: boolean
+  isDarkMode: boolean,
+  customColors?: { [key: string]: string }
 ): string => {
+  // Check for custom colors first
+  if (customColors && customColors[categoryName]) {
+    return customColors[categoryName];
+  }
+
   const colors = isDarkMode ? DARK_MODE_COLORS : ELEGANT_COLORS;
 
   // Direct mapping for our main categories
