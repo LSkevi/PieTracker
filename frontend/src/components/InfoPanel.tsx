@@ -68,26 +68,40 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
 
       const converted: { [key: string]: number } = {};
 
-      // Convert total amount
-      converted.total = await convertCurrency(
-        summary.total,
-        "USD",
-        selectedCurrency
-      );
+      // Calculate totals by converting each expense individually
+      let totalInTargetCurrency = 0;
+      const categoryTotals: { [key: string]: number } = {};
 
-      // Convert category amounts
-      for (const [category, amount] of Object.entries(summary.categories)) {
-        converted[category] = await convertCurrency(
-          amount,
-          "USD",
+      // Convert each expense from its original currency to target currency
+      for (const expense of expenses) {
+        const fromCurrency = expense.currency || "CAD";
+        const convertedAmount = await convertCurrency(
+          expense.amount,
+          fromCurrency,
           selectedCurrency
         );
+
+        totalInTargetCurrency += convertedAmount;
+
+        // Add to category total
+        if (!categoryTotals[expense.category]) {
+          categoryTotals[expense.category] = 0;
+        }
+        categoryTotals[expense.category] += convertedAmount;
+      }
+
+      // Store converted totals
+      converted.total = totalInTargetCurrency;
+
+      // Store converted category amounts
+      for (const [category, amount] of Object.entries(categoryTotals)) {
+        converted[category] = amount;
       }
 
       // Convert latest expense if exists
       if (expenses.length > 0) {
         const latestExpense = expenses[0];
-        const fromCurrency = latestExpense.currency || "USD";
+        const fromCurrency = latestExpense.currency || "CAD";
         converted.latestExpense = await convertCurrency(
           latestExpense.amount,
           fromCurrency,
@@ -98,7 +112,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
       // Convert recent expenses (first 5)
       for (let i = 0; i < Math.min(expenses.length, 5); i++) {
         const expense = expenses[i];
-        const fromCurrency = expense.currency || "USD";
+        const fromCurrency = expense.currency || "CAD";
         converted[`expense_${i}`] = await convertCurrency(
           expense.amount,
           fromCurrency,
@@ -115,6 +129,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   const preparePieData = () => {
     if (!summary || !summary.categories) return [];
 
+    // Use converted amounts if available, otherwise fall back to original
     return Object.entries(summary.categories).map(([category, amount]) => ({
       name: category,
       value: convertedAmounts[category] || amount,

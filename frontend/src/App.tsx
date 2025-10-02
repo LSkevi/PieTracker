@@ -31,17 +31,25 @@ const App: React.FC = () => {
   // Convert total amount when currency or data changes
   useEffect(() => {
     const convertTotal = async () => {
-      if (!summary) return;
-      const converted = await convertCurrency(
-        summary.total,
-        "USD",
-        selectedCurrency
-      );
-      setConvertedTotal(converted);
+      if (!summary || !expenses.length) return;
+
+      // Calculate total by converting each expense individually
+      let totalInTargetCurrency = 0;
+      for (const expense of expenses) {
+        const fromCurrency = expense.currency || "CAD";
+        const convertedAmount = await convertCurrency(
+          expense.amount,
+          fromCurrency,
+          selectedCurrency
+        );
+        totalInTargetCurrency += convertedAmount;
+      }
+
+      setConvertedTotal(totalInTargetCurrency);
     };
 
     convertTotal();
-  }, [summary, selectedCurrency]);
+  }, [summary, selectedCurrency, expenses]);
 
   return (
     <div className="app">
@@ -106,6 +114,7 @@ const App: React.FC = () => {
               ) : summary ? (
                 <ChartDisplay
                   summary={summary}
+                  expenses={expenses}
                   loading={loading}
                   selectedMonth={selectedMonth}
                   selectedYear={selectedYear}
