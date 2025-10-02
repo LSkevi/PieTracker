@@ -59,10 +59,6 @@ const App: React.FC = () => {
       <div className="main-container-new">
         {/* Add Expenses Section - No longer collapsible */}
         <div className="expense-section">
-          <div className="expense-section-header">
-            <h2>Add Expenses</h2>
-          </div>
-
           <div className="expense-form-container">
             <ExpenseForm
               categories={categories}
