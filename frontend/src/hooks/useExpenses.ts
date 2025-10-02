@@ -4,7 +4,16 @@ import { format } from "date-fns";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getDefaultCurrency } from "../utils/currency";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Use environment variable or fallback to your backend for production
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? "https://pietracker.onrender.com" : "http://localhost:8000");
+
+// Debug logging
+console.log('Environment:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  PROD: import.meta.env.PROD,
+  API_BASE
+});
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -30,6 +39,11 @@ export const useExpenses = () => {
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      // Set default categories if API fails
+      setCategories([
+        "Food", "Transportation", "Shopping", "Entertainment", 
+        "Health", "Bills", "Travel", "Education", "Other"
+      ]);
     }
   }, []);
 
@@ -39,6 +53,8 @@ export const useExpenses = () => {
       setCategoryColors(response.data);
     } catch (error) {
       console.error("Error fetching category colors:", error);
+      // Set empty colors object if API fails
+      setCategoryColors({});
     }
   }, []);
 
@@ -48,6 +64,14 @@ export const useExpenses = () => {
       setCurrencies(response.data);
     } catch (error) {
       console.error("Error fetching currencies:", error);
+      // Set default currencies if API fails
+      setCurrencies([
+        { code: "USD", name: "US Dollar", symbol: "$" },
+        { code: "CAD", name: "Canadian Dollar", symbol: "CA$" },
+        { code: "EUR", name: "Euro", symbol: "€" },
+        { code: "GBP", name: "British Pound", symbol: "£" },
+        { code: "JPY", name: "Japanese Yen", symbol: "¥" }
+      ]);
     }
   }, []);
 
@@ -57,18 +81,33 @@ export const useExpenses = () => {
       setAvailableMonths(response.data);
     } catch (error) {
       console.error("Error fetching available months:", error);
+      // Set current month as default if API fails
+      const currentDate = new Date();
+      setAvailableMonths([{
+        year: currentDate.getFullYear(),
+        month: currentDate.getMonth() + 1,
+        year_month: `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}`
+      }]);
     }
   }, []);
 
   const fetchMonthlySummary = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("Fetching from:", `${API_BASE}/expenses/summary/${selectedYear}/${selectedMonth}`);
       const response = await axios.get(
         `${API_BASE}/expenses/summary/${selectedYear}/${selectedMonth}`
       );
       setSummary(response.data);
     } catch (error) {
       console.error("Error fetching summary:", error);
+      // Set a default empty summary if API fails
+      setSummary({
+        total: 0,
+        categories: {},
+        month: selectedMonth.toString(),
+        expense_count: 0
+      });
     } finally {
       setLoading(false);
     }
