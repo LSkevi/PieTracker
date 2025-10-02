@@ -11,7 +11,9 @@ export const useExpenses = () => {
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
-  const [selectedCurrency, setSelectedCurrency] = useState<string>(getDefaultCurrency());
+  const [selectedCurrency, setSelectedCurrency] = useState<string>(
+    getDefaultCurrency()
+  );
   const [availableMonths, setAvailableMonths] = useState<
     { year: number; month: number; year_month: string }[]
   >([]);
@@ -103,6 +105,18 @@ export const useExpenses = () => {
     }
   };
 
+  const deleteCategory = async (categoryName: string) => {
+    try {
+      await axios.delete(`${API_BASE}/categories/${categoryName}`);
+      fetchCategories(); // Refresh categories list
+      fetchMonthlySummary(); // Refresh summary
+      fetchMonthlyExpenses(); // Refresh expenses
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      throw error; // Re-throw so the component can handle it
+    }
+  };
+
   const setMonthYear = (month: number, year: number) => {
     setSelectedMonth(month);
     setSelectedYear(year);
@@ -134,6 +148,7 @@ export const useExpenses = () => {
     loading,
     addExpense,
     deleteExpense,
+    deleteCategory,
     setMonthYear,
   };
 };

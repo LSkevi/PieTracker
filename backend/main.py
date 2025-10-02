@@ -143,6 +143,24 @@ async def get_categories():
     
     return all_categories
 
+@app.delete("/categories/{category_name}")
+async def delete_category(category_name: str):
+    # Don't allow deletion of default categories
+    default_categories = ["Food", "Transportation", "Shopping", "Entertainment"]
+    if category_name in default_categories:
+        raise HTTPException(status_code=400, detail=f"Cannot delete default category: {category_name}")
+    
+    # Check if category is in use
+    expenses_with_category = [e for e in expenses_db if e.get("category") == category_name]
+    if expenses_with_category:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete category '{category_name}' - it has {len(expenses_with_category)} expense(s) associated with it. Please reassign or delete those expenses first."
+        )
+    
+    # Category can be deleted (it's just removed from the list since categories are auto-generated)
+    return {"message": f"Category '{category_name}' deleted successfully"}
+
 @app.get("/currencies")
 async def get_currencies():
     # Supported currencies with their symbols and names
