@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+
+# Build outputs
+frontend/dist/
+frontend/.vite/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Database
+*.db
+*.sqlite
+
+# JSON data files (optional - remove if you want to commit data)
+backend/expenses.json
+backend/categories.json
