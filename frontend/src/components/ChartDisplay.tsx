@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
@@ -29,6 +29,13 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     [key: string]: number;
   }>({});
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
+  const [chartDimensions, setChartDimensions] = useState({
+    width: 500,
+    height: 500,
+    radius: 150
+  });
+  
+  const chartContainerRef = useRef<HTMLDivElement>(null);
 
   // Convert amounts when currency or data changes
   useEffect(() => {
@@ -64,6 +71,41 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
 
     convertAmounts();
   }, [summary, selectedCurrency, expenses]);
+
+  // Handle dynamic sizing based on container dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (chartContainerRef.current) {
+        const container = chartContainerRef.current;
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        
+        // Calculate optimal dimensions with padding for labels
+        const padding = 60; // Space for labels and legend
+        const maxRadius = Math.min(
+          (containerWidth - padding * 2) / 2,
+          (containerHeight - padding * 2) / 2
+        );
+        
+        setChartDimensions({
+          width: containerWidth,
+          height: containerHeight,
+          radius: Math.max(60, Math.min(maxRadius, 200)) // Min 60px, max 200px
+        });
+      }
+    };
+
+    updateDimensions();
+    
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const preparePieData = (): PieDataItem[] => {
     if (!summary || !summary.categories) return [];
@@ -120,14 +162,14 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
             </span>
           </div>
           <div className="chart-title">Spending by Category</div>
-          <div className="big-chart-area">
-            <ResponsiveContainer width="100%" height={600}>
+          <div className="big-chart-area" ref={chartContainerRef}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={preparePieData()}
                   cx="50%"
                   cy="50%"
-                  outerRadius={160}
+                  outerRadius={chartDimensions.radius}
                   fill="#8884d8"
                   dataKey="value"
                   label={({ value }: { value: number }) => {
