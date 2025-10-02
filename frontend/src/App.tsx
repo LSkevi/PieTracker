@@ -9,29 +9,31 @@ import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
 
 // Simple error boundary for debugging
-const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [hasError, setHasError] = useState(false);
-  
+
   useEffect(() => {
     const handleError = (error: ErrorEvent) => {
-      console.error('App error:', error);
+      console.error("App error:", error);
       setHasError(true);
     };
-    
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
+
+    window.addEventListener("error", handleError);
+    return () => window.removeEventListener("error", handleError);
   }, []);
-  
+
   if (hasError) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ padding: "20px", textAlign: "center" }}>
         <h1>Something went wrong</h1>
         <p>Check the console for errors</p>
         <button onClick={() => window.location.reload()}>Reload</button>
       </div>
     );
   }
-  
+
   return <>{children}</>;
 };
 
