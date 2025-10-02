@@ -104,17 +104,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         converted[category] = amount;
       }
 
-      // Convert latest expense if exists
-      if (expenses.length > 0) {
-        const latestExpense = expenses[0];
-        const fromCurrency = latestExpense.currency || "CAD";
-        converted.latestExpense = await convertCurrency(
-          latestExpense.amount,
-          fromCurrency,
-          selectedCurrency
-        );
-      }
-
       // Convert recent expenses (first 5)
       for (let i = 0; i < Math.min(expenses.length, 5); i++) {
         const expense = expenses[i];
@@ -382,47 +371,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Latest Expense */}
-          {expenses.length > 0 && (
-            <div className="latest-expense-info">
-              <h4 className="legend-title">Latest Expense</h4>
-              <div className="legend-item-vertical">
-                <div
-                  className="legend-color"
-                  style={{
-                    backgroundColor: getCategoryColor(
-                      expenses[0].category,
-                      isDarkMode
-                    ),
-                  }}
-                ></div>
-                <div className="legend-text-vertical">
-                  <span className="legend-category">
-                    {expenses[0].description}
-                  </span>
-                  <span className="legend-amount">
-                    {formatCurrency(
-                      convertedAmounts.latestExpense || expenses[0].amount,
-                      selectedCurrency
-                    )}
-                  </span>
-                  <span className="expense-meta">
-                    {expenses[0].category} • {expenses[0].date}
-                  </span>
-                  {(expenses[0].currency || "CAD") !== selectedCurrency && (
-                    <span className="expense-original">
-                      Original:{" "}
-                      {formatCurrency(
-                        expenses[0].amount,
-                        expenses[0].currency || "CAD"
-                      )}
-                    </span>
-                  )}
-                </div>
-              </div>
             </div>
           )}
         </>
