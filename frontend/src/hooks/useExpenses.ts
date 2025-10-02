@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getDefaultCurrency } from "../utils/currency";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
