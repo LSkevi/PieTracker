@@ -351,7 +351,7 @@ body::before {
 
 .main-container {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 40px;
   max-width: 100%;
   width: 100%;
@@ -362,7 +362,7 @@ body::before {
 /* New Tabbed Layout Styles */
 .main-container-tabbed {
   display: grid;
-  grid-template-columns: 1fr 140px;
+  grid-template-columns: 1fr 300px;
   grid-template-rows: auto 1fr;
   gap: 20px;
   max-width: 100%;
@@ -551,7 +551,7 @@ body::before {
 /* New Layout - Collapsible Expense Form + Always Visible Charts */
 .main-container-new {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 30px;
   max-width: 100%;
   width: 100%;
@@ -613,7 +613,7 @@ body::before {
 
 .info-area {
   flex: 1;
-  min-width: 140px;
+  min-width: 300px;
 }
 
 .no-data-section {
@@ -698,34 +698,6 @@ body::before {
 
   .chart-info-layout {
     flex-direction: column;
-    gap: 15px;
-  }
-  
-  /* Surface Pro specific optimizations */
-  .chart-area {
-    padding: 20px;
-    min-height: 350px;
-  }
-  
-  .info-area {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-/* Specific Surface Pro 8 optimizations (1344x896 typical resolution) */
-@media (max-width: 1366px) and (min-width: 1200px) and (max-height: 1000px) {
-  .chart-info-layout {
-    gap: 15px;
-  }
-  
-  .chart-area {
-    padding: 25px;
-    min-height: 400px;
-  }
-  
-  .big-chart-area {
-    max-width: 550px;
   }
 }
 
@@ -2583,71 +2555,6 @@ body::before {
 .big-chart-area {
   width: 100%;
   max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Responsive chart adjustments for different screen sizes */
-@media (max-width: 1024px) and (min-width: 768px) {
-  /* Surface Pro and tablet styles */
-  .big-chart-area {
-    max-width: 500px;
-    padding: 15px;
-  }
-  
-  .chart-title {
-    font-size: 1.3rem !important;
-    margin-bottom: 15px !important;
-  }
-  
-  .big-chart-container .total-amount {
-    font-size: 1.8rem !important;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Mobile styles */
-  .big-chart-area {
-    max-width: 100%;
-    padding: 10px;
-  }
-  
-  .chart-title {
-    font-size: 1.2rem !important;
-    margin-bottom: 10px !important;
-  }
-  
-  .big-chart-container .total-amount {
-    font-size: 1.5rem !important;
-  }
-  
-  .big-chart-container {
-    padding: 15px !important;
-  }
-}
-
-@media (min-width: 1025px) {
-  /* Large screen styles */
-  .big-chart-area {
-    max-width: 700px;
-    padding: 25px;
-  }
-}
-
-/* Touch-friendly adjustments for tablets */
-@media (pointer: coarse) {
-  .big-chart-area {
-    padding: 15px;
-  }
-  
-  /* Larger touch targets for pie chart interactions */
-  .recharts-pie-sector {
-    cursor: pointer;
-  }
 }
 
 .no-data-big {
