@@ -29,6 +29,10 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     [key: string]: number;
   }>({});
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
+  const [chartDimensions, setChartDimensions] = useState({
+    height: 500,
+    radius: 140
+  });
 
   // Convert amounts when currency or data changes
   useEffect(() => {
@@ -64,6 +68,40 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
 
     convertAmounts();
   }, [summary, selectedCurrency, expenses]);
+
+  // Update chart dimensions based on screen size
+  useEffect(() => {
+    const updateDimensions = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      
+      // Calculate responsive dimensions
+      let height = 500;
+      let radius = 140;
+      
+      // Surface Pro and small tablets (768px-1024px)
+      if (screenWidth <= 1024 && screenWidth >= 768) {
+        height = Math.min(400, screenHeight * 0.4);
+        radius = Math.min(120, screenWidth * 0.15);
+      }
+      // Mobile devices (less than 768px)
+      else if (screenWidth < 768) {
+        height = Math.min(350, screenHeight * 0.35);
+        radius = Math.min(100, screenWidth * 0.2);
+      }
+      // Large screens (more than 1024px)
+      else {
+        height = Math.min(600, screenHeight * 0.5);
+        radius = Math.min(160, screenWidth * 0.12);
+      }
+      
+      setChartDimensions({ height, radius });
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   const preparePieData = (): PieDataItem[] => {
     if (!summary || !summary.categories) return [];
@@ -121,13 +159,13 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           </div>
           <div className="chart-title">Spending by Category</div>
           <div className="big-chart-area">
-            <ResponsiveContainer width="100%" height={600}>
+            <ResponsiveContainer width="100%" height={chartDimensions.height}>
               <PieChart>
                 <Pie
                   data={preparePieData()}
                   cx="50%"
                   cy="50%"
-                  outerRadius={160}
+                  outerRadius={chartDimensions.radius}
                   fill="#8884d8"
                   dataKey="value"
                   label={({ value }: { value: number }) => {
@@ -139,6 +177,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                     ).toFixed(1);
                     return `${percentage}%`;
                   }}
+                  labelLine={false}
                 >
                   {preparePieData().map((entry, index) => (
                     <Cell
