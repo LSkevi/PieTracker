@@ -1197,7 +1197,7 @@ body::before {
 /* Category Selection Section */
 .category-selection-section {
   margin-bottom: 24px;
-  padding: 20px;
+  padding: 24px;
   background: rgba(168, 181, 160, 0.05);
   border-radius: 12px;
   border: 1px solid rgba(168, 181, 160, 0.1);
@@ -1206,7 +1206,7 @@ body::before {
 .category-buttons-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .category-toggle-btn {
