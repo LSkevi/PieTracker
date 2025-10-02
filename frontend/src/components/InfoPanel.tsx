@@ -32,6 +32,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   const [convertedAmounts, setConvertedAmounts] = useState<{
     [key: string]: number;
   }>({});
+  const [showCalendarPopup, setShowCalendarPopup] = useState(false);
 
   useEffect(() => {
     // Listen for theme changes
@@ -45,6 +46,20 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
 
     return () => observer.disconnect();
   }, []);
+
+  // Handle escape key for closing calendar popup
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && showCalendarPopup) {
+        setShowCalendarPopup(false);
+      }
+    };
+
+    if (showCalendarPopup) {
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [showCalendarPopup]);
 
   // Convert amounts when currency or data changes
   useEffect(() => {
@@ -106,16 +121,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     }));
   };
 
-  const handleMonthSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const month = parseInt(e.target.value);
-    onMonthYearChange(month, selectedYear);
-  };
-
-  const handleYearSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const year = parseInt(e.target.value);
-    onMonthYearChange(selectedMonth, year);
-  };
-
   const months = [
     { value: 1, label: "January" },
     { value: 2, label: "February" },
@@ -131,13 +136,15 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     { value: 12, label: "December" },
   ];
 
-  // Get unique years from available months, fallback to current year range
-  const availableYears =
+  // Get extended year range (2020-2030) plus any additional years from data
+  const baseYears = Array.from({ length: 11 }, (_, i) => 2020 + i); // 2020-2030
+  const dataYears =
     availableMonths.length > 0
-      ? [...new Set(availableMonths.map((item) => item.year))].sort(
-          (a, b) => b - a
-        )
-      : Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+      ? [...new Set(availableMonths.map((item) => item.year))]
+      : [];
+  const allYears = [...new Set([...baseYears, ...dataYears])].sort(
+    (a, b) => b - a
+  );
 
   // Check if a month has data for the selected year
   const hasDataForMonth = (month: number, year: number) => {
@@ -164,34 +171,103 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         <div className="falling-leaf"></div>
       </div>
 
-      {/* Month Selector */}
-      <div className="month-selector">
-        <label>Select Month & Year:</label>
-        <select
-          value={selectedMonth}
-          onChange={handleMonthSelectChange}
-          className="month-picker"
+      {/* Calendar Period Selector */}
+      <div className="calendar-selector">
+        <div className="chart-title">Select Period</div>
+        <div
+          className="calendar-trigger"
+          onClick={() => setShowCalendarPopup(true)}
         >
-          {months.map((month) => {
-            const hasData = hasDataForMonth(month.value, selectedYear);
-            return (
-              <option key={month.value} value={month.value}>
-                {month.label} {hasData ? "*" : ""}
-              </option>
-            );
-          })}
-        </select>
-        <select
-          value={selectedYear}
-          onChange={handleYearSelectChange}
-          className="month-picker"
-        >
-          {availableYears.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+          <div className="current-period">
+            <span className="month-name">
+              {months[selectedMonth - 1]?.label}
+            </span>
+            <span className="year-name">{selectedYear}</span>
+          </div>
+          <div className="calendar-icon">📅</div>
+        </div>
+
+        {/* Calendar Popup */}
+        {showCalendarPopup && (
+          <div
+            className="calendar-popup-overlay"
+            onClick={() => setShowCalendarPopup(false)}
+          >
+            <div
+              className="calendar-popup"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="calendar-header">
+                <div className="chart-title">Choose Month & Year</div>
+                <button
+                  className="close-btn"
+                  onClick={() => setShowCalendarPopup(false)}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="calendar-instructions">
+                <p>First select a year, then choose your month</p>
+              </div>
+
+              {/* Year Selector */}
+              <div className="year-grid">
+                <div className="year-grid-title">Select Year (2020-2030)</div>
+                <div className="year-buttons">
+                  {allYears.map((year) => (
+                    <button
+                      key={year}
+                      className={`year-btn ${
+                        year === selectedYear ? "selected" : ""
+                      }`}
+                      onClick={() => {
+                        // Update year but keep popup open for month selection
+                        onMonthYearChange(selectedMonth, year);
+                      }}
+                    >
+                      {year}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Separator */}
+              <div className="calendar-separator"></div>
+
+              {/* Month Selector */}
+              <div className="month-grid-popup">
+                <div className="month-grid-title">
+                  Select Month for {selectedYear}
+                </div>
+                <div className="month-buttons">
+                  {months.map((month) => {
+                    const hasData = hasDataForMonth(month.value, selectedYear);
+                    const isSelected = month.value === selectedMonth;
+                    return (
+                      <button
+                        key={month.value}
+                        className={`month-btn-popup ${
+                          isSelected ? "selected" : ""
+                        } ${hasData ? "has-data" : "no-data"}`}
+                        onClick={() => {
+                          onMonthYearChange(month.value, selectedYear);
+                          setShowCalendarPopup(false);
+                        }}
+                      >
+                        <span className="month-short">
+                          {month.label.slice(0, 3)}
+                        </span>
+                        <span className="month-full">{month.label}</span>
+                        {hasData && <div className="data-indicator"></div>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {summary && (
@@ -199,26 +275,30 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           {/* Summary Info */}
           <div className="summary-info">
             <div className="currency-selector-section">
-              <div className="currency-display">
-                <span className="currency-label">Displaying in: </span>
-                <span className="currency-code">{selectedCurrency}</span>
-              </div>
-              <div className="currency-selector">
-                <label htmlFor="display-currency">
-                  Change Display Currency:
-                </label>
-                <select
-                  id="display-currency"
-                  value={selectedCurrency}
-                  onChange={(e) => onCurrencyChange(e.target.value)}
-                  className="currency-select-display"
-                >
-                  {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.code} ({currency.symbol}) - {currency.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="chart-title">Displaying in</div>
+              <div className="currency-display-trigger">
+                <div className="current-currency">
+                  <span className="currency-code-main">{selectedCurrency}</span>
+                  <span className="currency-name">
+                    {currencies.find((c) => c.code === selectedCurrency)
+                      ?.name || selectedCurrency}
+                  </span>
+                </div>
+                <div className="currency-dropdown">
+                  <select
+                    id="display-currency"
+                    value={selectedCurrency}
+                    onChange={(e) => onCurrencyChange(e.target.value)}
+                    className="currency-select-styled"
+                  >
+                    {currencies.map((currency) => (
+                      <option key={currency.code} value={currency.code}>
+                        {currency.code} ({currency.symbol}) - {currency.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="currency-icon">💱</div>
+                </div>
               </div>
             </div>
             <div className="total-amount">
