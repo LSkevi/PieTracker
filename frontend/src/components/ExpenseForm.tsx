@@ -159,13 +159,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       return;
     }
 
-    if (!formData.description.trim()) {
-      setErrorMessage("Please enter a description");
-      setShowError(true);
-      setTimeout(() => setShowError(false), 3000);
-      return;
-    }
-
+    // Description is now optional - no validation needed
+    
     if (!formData.currency) {
       setErrorMessage("Please select a currency");
       setShowError(true);
@@ -537,7 +532,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         </div>
 
         <div className="form-group">
-          <label>Description</label>
+          <label>Description (Optional)</label>
           <input
             type="text"
             name="description"
@@ -608,7 +603,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               (expense) => (
                 <div key={expense.id} className="expense-card">
                   <div className="expense-card-header">
-                    <h4>{expense.description}</h4>
+                    <h4>{expense.description || "No description"}</h4>
                     <button
                       onClick={() => onDeleteExpense(expense.id)}
                       className="delete-btn-card"
