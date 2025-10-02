@@ -10,6 +10,7 @@ import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 
 interface ExpenseFormProps {
   categories: string[];
+  categoryColors: { [key: string]: string };
   currencies: Currency[];
   selectedCurrency: string;
   expenses: Expense[];
@@ -20,6 +21,10 @@ interface ExpenseFormProps {
     currency: string,
     date: string
   ) => void;
+  onAddCategory: (
+    categoryName: string,
+    categoryColor: string
+  ) => Promise<boolean>;
   onDeleteExpense: (expenseId: string) => void;
   onDeleteCategory: (categoryName: string) => void;
   onCurrencyChange: (currency: string) => void;
@@ -27,10 +32,12 @@ interface ExpenseFormProps {
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   categories,
+  categoryColors,
   currencies,
   selectedCurrency,
   expenses,
   onAddExpense,
+  onAddCategory,
   onDeleteExpense,
   onDeleteCategory,
   onCurrencyChange,
@@ -295,13 +302,25 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 style={{
                   backgroundColor:
                     formData.category === category
-                      ? getCategoryColor(category, isDarkModeEnabled())
+                      ? getCategoryColor(
+                          category,
+                          isDarkModeEnabled(),
+                          categoryColors
+                        )
                       : "transparent",
-                  borderColor: getCategoryColor(category, isDarkModeEnabled()),
+                  borderColor: getCategoryColor(
+                    category,
+                    isDarkModeEnabled(),
+                    categoryColors
+                  ),
                   color:
                     formData.category === category
                       ? "white"
-                      : getCategoryColor(category, isDarkModeEnabled()),
+                      : getCategoryColor(
+                          category,
+                          isDarkModeEnabled(),
+                          categoryColors
+                        ),
                 }}
               >
                 {category}
@@ -331,16 +350,25 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   style={{
                     backgroundColor:
                       formData.category === category
-                        ? getCategoryColor(category, isDarkModeEnabled())
+                        ? getCategoryColor(
+                            category,
+                            isDarkModeEnabled(),
+                            categoryColors
+                          )
                         : "transparent",
                     borderColor: getCategoryColor(
                       category,
-                      isDarkModeEnabled()
+                      isDarkModeEnabled(),
+                      categoryColors
                     ),
                     color:
                       formData.category === category
                         ? "white"
-                        : getCategoryColor(category, isDarkModeEnabled()),
+                        : getCategoryColor(
+                            category,
+                            isDarkModeEnabled(),
+                            categoryColors
+                          ),
                   }}
                 >
                   {category}
@@ -405,15 +433,28 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <div className="custom-category-buttons">
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     if (customCategory.trim()) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: customCategory.trim(),
-                      }));
-                      setShowCustomCategory(false);
-                      setCustomCategory("");
-                      setCustomCategoryColor("#a8b5a0");
+                      const success = await onAddCategory(
+                        customCategory.trim(),
+                        customCategoryColor
+                      );
+                      if (success) {
+                        // Select the newly added category
+                        setFormData((prev) => ({
+                          ...prev,
+                          category: customCategory.trim(),
+                        }));
+                        setShowCustomCategory(false);
+                        setCustomCategory("");
+                        setCustomCategoryColor("#a8b5a0");
+                      } else {
+                        setErrorMessage(
+                          "Failed to add category. Please try again."
+                        );
+                        setShowError(true);
+                        setTimeout(() => setShowError(false), 3000);
+                      }
                     }
                   }}
                   className="btn-custom-add"

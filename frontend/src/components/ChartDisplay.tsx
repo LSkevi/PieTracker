@@ -13,6 +13,7 @@ interface ChartDisplayProps {
   selectedMonth: number;
   selectedYear: number;
   selectedCurrency: string;
+  categoryColors?: { [key: string]: string };
 }
 
 const ChartDisplay: React.FC<ChartDisplayProps> = ({
@@ -22,6 +23,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   selectedMonth,
   selectedYear,
   selectedCurrency,
+  categoryColors,
 }) => {
   const [convertedAmounts, setConvertedAmounts] = useState<{
     [key: string]: number;
@@ -125,7 +127,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   data={preparePieData()}
                   cx="50%"
                   cy="50%"
-                  outerRadius={200}
+                  outerRadius={160}
                   fill="#8884d8"
                   dataKey="value"
                   label={({ value }: { value: number }) => {
@@ -141,7 +143,11 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   {preparePieData().map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={getCategoryColor(entry.name, isDarkModeEnabled())}
+                      fill={getCategoryColor(
+                        entry.name,
+                        isDarkModeEnabled(),
+                        categoryColors
+                      )}
                     />
                   ))}
                 </Pie>
