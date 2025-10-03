@@ -169,17 +169,39 @@ if not isinstance(categories_db, dict):
 
 DEFAULT_CATEGORIES = ["Food", "Transportation", "Shopping", "Entertainment"]
 
-def get_user_id(x_user_id: Optional[str] = Header(default=None), token_user: Optional[Dict[str, str]] = Depends(lambda: None)) -> str:
-    """Resolve user id preferentially from JWT, fallback to header legacy id.
-    This keeps old behavior working while new auth rolls out."""
-    # If request included Authorization header, FastAPI dependency (not used yet) would parse; we manually decode if header present
-    # Simpler: try reading bearer token from environment of request path? For minimal intrusion we leave as legacy unless updated flows call protected endpoints.
-    # For now we'll keep header-based until endpoints start requiring auth.
+def get_user_id(
+    x_user_id: Optional[str] = Header(default=None),
+    authorization: Optional[str] = Header(default=None)
+) -> str:
+    """Resolve user id from JWT if provided, else from X-User-Id header, else public anon.
+    This prevents a client from spoofing a different user's id via header when authenticated."""
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1]
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            sub = payload.get("sub")
+            if isinstance(sub, str) and sub.strip():
+                return sub.strip()
+        except JWTError:
+            # fall back to header/public if token invalid
+            pass
     if x_user_id and x_user_id.strip():
         return x_user_id.strip()
     return "public-anon-user"
 
+def ensure_user_category_init(user_id: str):
+    """If legacy categories exist and user has none yet, clone them into user's own space.
+    This avoids shared mutations and enables true per-user customization."""
+    if user_id in categories_db:
+        return
+    if "__legacy__" in categories_db:
+        legacy = categories_db.get("__legacy__", {})
+        if isinstance(legacy, dict):
+            categories_db[user_id] = dict(legacy)  # copy
+            save_categories()
+
 def get_user_custom_categories(user_id: str) -> Dict[str, str]:
+    ensure_user_category_init(user_id)
     return categories_db.get(user_id, {})
 
 def set_user_category(user_id: str, name: str, color: str):
@@ -275,9 +297,7 @@ async def get_available_months(user_id: str = Depends(get_user_id)):
 async def get_categories(user_id: str = Depends(get_user_id)):
     used_categories = {exp["category"] for exp in expenses_db if exp.get("user_id") == user_id and exp.get("category")}
     custom = set(get_user_custom_categories(user_id).keys())
-    # Include legacy custom categories only if user has none yet
-    if user_id not in categories_db and "__legacy__" in categories_db:
-        custom |= set(categories_db.get("__legacy__", {}).keys())
+    # No longer merge legacy directly; they are cloned on first access via ensure_user_category_init
     all_categories = sorted(set(DEFAULT_CATEGORIES) | used_categories | custom)
     return all_categories
 
@@ -295,18 +315,18 @@ async def add_category(category_data: dict, user_id: str = Depends(get_user_id))
 
 @app.get("/categories/colors")
 async def get_category_colors(user_id: str = Depends(get_user_id)):
-    # Merge legacy colors (if present) only for users without custom categories defined
-    colors = {}
-    if user_id not in categories_db and "__legacy__" in categories_db:
-        colors.update(categories_db.get("__legacy__", {}))
-    colors.update(get_user_custom_categories(user_id))
-    return colors
+    # After initialization legacy colors copied, just return user's custom map
+    return get_user_custom_categories(user_id)
 
 @app.delete("/categories/{category_name}")
 async def delete_category(category_name: str, user_id: str = Depends(get_user_id)):
     if category_name in DEFAULT_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"Cannot delete default category: {category_name}")
-    # Remove custom category for this user only
+    # Only operate within user's custom categories
+    existing_custom = get_user_custom_categories(user_id)
+    if category_name not in existing_custom:
+        # Silently succeed to avoid information leakage
+        return {"message": f"Category '{category_name}' not found for user"}
     delete_user_category(user_id, category_name)
     global expenses_db
     before = len(expenses_db)
@@ -314,7 +334,7 @@ async def delete_category(category_name: str, user_id: str = Depends(get_user_id
     removed = before - len(expenses_db)
     if removed:
         save_expenses()
-    return {"message": f"Category '{category_name}' deleted successfully. {removed} associated expenses were also removed."}
+    return {"message": f"Category '{category_name}' deleted for user. {removed} associated expenses removed."}
 
 @app.get("/currencies")
 async def get_currencies():
