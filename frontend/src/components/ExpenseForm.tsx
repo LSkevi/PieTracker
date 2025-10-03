@@ -160,7 +160,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     }
 
     // Description is now optional - no validation needed
-    
+
     if (!formData.currency) {
       setErrorMessage("Please select a currency");
       setShowError(true);
