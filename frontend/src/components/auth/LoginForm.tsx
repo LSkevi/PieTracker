@@ -27,7 +27,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev: LoginData) => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error when user starts typing
     if (validationErrors[name as keyof typeof validationErrors]) {
       setValidationErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -57,7 +57,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -77,11 +77,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form-content">
-          {error && (
-            <div className="auth-error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="auth-error-message">{error}</div>}
 
           <div className="auth-form-group">
             <label htmlFor="email">Email Address</label>
@@ -116,7 +112,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
               maxLength={100}
             />
             {validationErrors.password && (
-              <span className="auth-field-error">{validationErrors.password}</span>
+              <span className="auth-field-error">
+                {validationErrors.password}
+              </span>
             )}
           </div>
 

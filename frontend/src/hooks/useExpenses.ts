@@ -43,7 +43,9 @@ export const useExpenses = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-  const response = await axios.get(`${API_BASE}/categories`, { headers: getHeaders() });
+      const response = await axios.get(`${API_BASE}/categories`, {
+        headers: getHeaders(),
+      });
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -64,7 +66,9 @@ export const useExpenses = () => {
 
   const fetchCategoryColors = useCallback(async () => {
     try {
-  const response = await axios.get(`${API_BASE}/categories/colors`, { headers: getHeaders() });
+      const response = await axios.get(`${API_BASE}/categories/colors`, {
+        headers: getHeaders(),
+      });
       setCategoryColors(response.data);
     } catch (error) {
       console.error("Error fetching category colors:", error);
@@ -92,7 +96,10 @@ export const useExpenses = () => {
 
   const fetchAvailableMonths = useCallback(async () => {
     try {
-  const response = await axios.get(`${API_BASE}/expenses/available-months`, { headers: getHeaders() });
+      const response = await axios.get(
+        `${API_BASE}/expenses/available-months`,
+        { headers: getHeaders() }
+      );
       setAvailableMonths(response.data);
     } catch (error) {
       console.error("Error fetching available months:", error);
@@ -230,7 +237,9 @@ export const useExpenses = () => {
 
   const deleteExpense = async (expenseId: string) => {
     try {
-  await axios.delete(`${API_BASE}/expenses/${expenseId}`, { headers: getHeaders() });
+      await axios.delete(`${API_BASE}/expenses/${expenseId}`, {
+        headers: getHeaders(),
+      });
       fetchMonthlySummary();
       fetchMonthlyExpenses();
     } catch (error) {
@@ -240,7 +249,9 @@ export const useExpenses = () => {
 
   const deleteCategory = async (categoryName: string) => {
     try {
-  await axios.delete(`${API_BASE}/categories/${categoryName}`, { headers: getHeaders() });
+      await axios.delete(`${API_BASE}/categories/${categoryName}`, {
+        headers: getHeaders(),
+      });
       fetchCategories(); // Refresh categories list
       fetchCategoryColors(); // Refresh category colors
       fetchMonthlySummary(); // Refresh summary

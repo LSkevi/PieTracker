@@ -30,10 +30,18 @@ const AuthContainer: React.FC = () => {
           <div className="nature-element">🌿</div>
           <div className="nature-element">🌸</div>
         </div>
-        
+
         <div className="auth-content">
           <div className="auth-brand">
-            <div className="auth-brand-header-row" style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px'}}>
+            <div
+              className="auth-brand-header-row"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "12px",
+              }}
+            >
               <div>
                 <h1>🥧 Pie Tracker</h1>
                 <p>Beautiful expense tracking made simple</p>
