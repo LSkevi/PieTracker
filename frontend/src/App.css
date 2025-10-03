@@ -850,10 +850,18 @@ body::before {
 }
 
 /* Ensure dropdowns are not clipped */
-.expense-form-tab, .expense-form, .form-group, .amount-currency-group { overflow: visible; }
+.expense-form-tab,
+.expense-form,
+.form-group,
+.amount-currency-group {
+  overflow: visible;
+}
 
-.category-toggle-btn:focus-visible, .add-category-toggle-btn:focus-visible, .delete-category-btn:focus-visible, .currency-select:focus-visible {
-  outline: 3px solid rgba(168,181,160,0.55);
+.category-toggle-btn:focus-visible,
+.add-category-toggle-btn:focus-visible,
+.delete-category-btn:focus-visible,
+.currency-select:focus-visible {
+  outline: 3px solid rgba(168, 181, 160, 0.55);
   outline-offset: 2px;
 }
 
@@ -1522,7 +1530,7 @@ body::before {
 }
 
 /* Insights Banner */
- .insights-banner {
+.insights-banner {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
@@ -1531,7 +1539,7 @@ body::before {
   border-radius: 12px;
   margin: 0 0 24px 0;
   box-shadow: var(--shadow-card);
- }
+}
 
 /* Full-width global banner above grid */
 .insights-banner-global {
@@ -1547,7 +1555,9 @@ body::before {
   margin: 0 0 28px 0;
 }
 
-.insights-banner-global .insight-item { flex: 1; }
+.insights-banner-global .insight-item {
+  flex: 1;
+}
 
 [data-theme="dark"] .insights-banner,
 [data-theme="dark"] .insights-banner-global {
@@ -1556,13 +1566,19 @@ body::before {
 }
 
 [data-theme="dark"] .insights-banner .insight-item,
-[data-theme="dark"] .insights-banner-global .insight-item { color: #ffffff; }
+[data-theme="dark"] .insights-banner-global .insight-item {
+  color: #ffffff;
+}
 
 [data-theme="dark"] .insights-banner .insight-label,
-[data-theme="dark"] .insights-banner-global .insight-label { color: #f5f9f3; }
+[data-theme="dark"] .insights-banner-global .insight-label {
+  color: #f5f9f3;
+}
 
 [data-theme="dark"] .insights-banner .insight-value,
-[data-theme="dark"] .insights-banner-global .insight-value { color: #ffffff; }
+[data-theme="dark"] .insights-banner-global .insight-value {
+  color: #ffffff;
+}
 
 .insight-item {
   text-align: center;
