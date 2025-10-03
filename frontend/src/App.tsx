@@ -94,8 +94,34 @@ const App: React.FC = () => {
       <ThemeToggle />
       <Header />
 
+      {summary && summary.total > 0 && (
+        <div className="insights-banner insights-banner-global">
+          <div className="insight-item">
+            <span className="insight-label">Daily Average</span>
+            <span className="insight-value">
+              {formatCurrency(
+                (convertedTotal || summary.total) / 30,
+                selectedCurrency
+              )}
+            </span>
+          </div>
+            <div className="insight-item">
+            <span className="insight-label">Top Category</span>
+            <span className="insight-value">
+              {Object.entries(summary.categories || {}).sort(
+                ([, a], [, b]) => b - a
+              )[0]?.[0] || "None"}
+            </span>
+          </div>
+          <div className="insight-item">
+            <span className="insight-label">Total Expenses</span>
+            <span className="insight-value">{summary.expense_count}</span>
+          </div>
+        </div>
+      )}
+
       <div className="main-container-new">
-        {/* Add Expenses Section - No longer collapsible */}
+        {/* Add Expenses Section */}
         <div className="expense-section">
           <div className="expense-form-container">
             <ExpenseForm
@@ -113,35 +139,8 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Charts and Info Panel Side by Side */}
+        {/* Charts and Info Panel */}
         <div className="charts-info-section">
-          {/* Spending Insights Banner */}
-          {summary && summary.total > 0 && (
-            <div className="insights-banner">
-              <div className="insight-item">
-                <span className="insight-label">Daily Average</span>
-                <span className="insight-value">
-                  {formatCurrency(
-                    (convertedTotal || summary.total) / 30,
-                    selectedCurrency
-                  )}
-                </span>
-              </div>
-              <div className="insight-item">
-                <span className="insight-label">Top Category</span>
-                <span className="insight-value">
-                  {Object.entries(summary.categories || {}).sort(
-                    ([, a], [, b]) => b - a
-                  )[0]?.[0] || "None"}
-                </span>
-              </div>
-              <div className="insight-item">
-                <span className="insight-label">Total Expenses</span>
-                <span className="insight-value">{summary.expense_count}</span>
-              </div>
-            </div>
-          )}
-
           {/* Chart and Info Side by Side */}
           <div className="chart-info-layout">
             <div className="chart-area">

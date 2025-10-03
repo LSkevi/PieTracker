@@ -164,7 +164,8 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           <div className="chart-title">Spending by Category</div>
           <div className="big-chart-area" ref={chartContainerRef}>
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              {/* Margins give breathing room for outside labels */}
+              <PieChart margin={{ top: 32, right: 40, bottom: 32, left: 40 }}>
                 <Pie
                   data={preparePieData()}
                   cx="50%"
@@ -172,14 +173,54 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   outerRadius={chartDimensions.radius}
                   fill="#8884d8"
                   dataKey="value"
-                  label={({ value }: { value: number }) => {
-                    if (!summary) return "";
-                    const totalForPercentage = convertedTotal || summary.total;
-                    const percentage = (
-                      (value / totalForPercentage) *
-                      100
-                    ).toFixed(1);
-                    return `${percentage}%`;
+                  labelLine={false}
+                  // Custom label positioned just outside each slice while keeping within padded chart area
+                  label={({
+                    cx,
+                    cy,
+                    midAngle,
+                    outerRadius,
+                    percent,
+                    name,
+                  }: {
+                    cx: number;
+                    cy: number;
+                    midAngle: number;
+                    outerRadius: number;
+                    percent: number;
+                    name: string;
+                  }) => {
+                    if (!summary) return null;
+                    if (percent * 100 < 2) return null; // skip tiny slices
+                    // position slightly outside the slice
+                    const RAD = Math.PI / 180;
+                    const radius = outerRadius + 18; // push outside but within margins
+                    const x = cx + radius * Math.cos(-midAngle * RAD);
+                    const y = cy + radius * Math.sin(-midAngle * RAD);
+                    const fillColor = getCategoryColor(
+                      name,
+                      isDarkModeEnabled(),
+                      categoryColors
+                    );
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill={fillColor}
+                        textAnchor={x > cx ? "start" : "end"}
+                        dominantBaseline="central"
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          paintOrder: "stroke",
+                          stroke: isDarkModeEnabled() ? "#000" : "#fff",
+                          strokeWidth: 2,
+                          strokeLinejoin: "round",
+                        }}
+                      >
+                        {(percent * 100).toFixed(1)}%
+                      </text>
+                    );
                   }}
                 >
                   {preparePieData().map((entry, index) => (

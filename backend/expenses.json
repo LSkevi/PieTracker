@@ -1,47 +1,11 @@
 [
   {
-    "id": "cf7a6e65-bc64-41a8-b5cd-a4a2543615ae",
-    "amount": 100.0,
-    "category": "Food",
-    "description": "Restaurant meal",
-    "date": "2025-10-01",
+    "id": "f22e88d1-a552-4f62-a067-4dc9faa7dcd7",
+    "amount": 200.0,
+    "category": "Brownies",
+    "description": "",
+    "date": "2025-10-03",
     "currency": "CAD",
-    "created_at": "2025-10-01T21:43:42.079865"
-  },
-  {
-    "id": "7b4358e6-e83d-4b9d-8c34-7053eaebf69b",
-    "amount": 100.0,
-    "category": "Transportation",
-    "description": "Gas",
-    "date": "2025-10-01",
-    "currency": "CAD",
-    "created_at": "2025-10-01T21:43:46.350426"
-  },
-  {
-    "id": "a32b8654-8d87-4a00-8346-025431b25f7b",
-    "amount": 100.0,
-    "category": "Shopping",
-    "description": "Jewewls",
-    "date": "2025-10-01",
-    "currency": "CAD",
-    "created_at": "2025-10-01T21:43:56.758753"
-  },
-  {
-    "id": "5ab5fc49-5fc6-48da-9b47-5adabeadf086",
-    "amount": 100.0,
-    "category": "Entertainment",
-    "description": "cinbema",
-    "date": "2025-10-01",
-    "currency": "CAD",
-    "created_at": "2025-10-01T21:44:04.427256"
-  },
-  {
-    "id": "003e83c7-0a82-4c46-bd49-4ec7673a513f",
-    "amount": 10.0,
-    "category": "Entertainment",
-    "description": "cinema",
-    "date": "2025-10-01",
-    "currency": "CAD",
-    "created_at": "2025-10-01T23:47:32.423010"
+    "created_at": "2025-10-03T00:05:48.468279"
   }
 ]
