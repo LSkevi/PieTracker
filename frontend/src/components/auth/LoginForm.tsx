@@ -4,6 +4,8 @@ import type { LoginData } from "../../types/auth";
 interface LoginFormProps {
   onSubmit: (data: LoginData) => Promise<void>;
   onSwitchToSignup: () => void;
+  onForgotPassword: () => void;
+  onUseResetToken: () => void;
   isLoading: boolean;
   error: string | null;
 }
@@ -11,6 +13,8 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   onSwitchToSignup,
+  onForgotPassword,
+  onUseResetToken,
   isLoading,
   error,
 }) => {
@@ -136,6 +140,27 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 disabled={isLoading}
               >
                 Sign Up
+              </button>
+            </p>
+            <p style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                className="auth-switch-btn"
+                onClick={onForgotPassword}
+                disabled={isLoading}
+              >
+                Forgot Password
+              </button>
+              <span style={{ margin: "0 6px", color: "var(--text-soft)" }}>
+                ·
+              </span>
+              <button
+                type="button"
+                className="auth-switch-btn"
+                onClick={onUseResetToken}
+                disabled={isLoading}
+              >
+                Have Token?
               </button>
             </p>
           </div>

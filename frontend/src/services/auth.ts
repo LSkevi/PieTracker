@@ -1,5 +1,14 @@
 import axios from "axios";
-import type { LoginData, SignupData, AuthResponse, User } from "../types/auth";
+import type {
+  LoginData,
+  SignupData,
+  AuthResponse,
+  User,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+} from "../types/auth";
 
 const API_BASE =
   import.meta.env.VITE_API_URL ||
@@ -112,6 +121,42 @@ export class AuthService {
       console.warn("Token verification failed:", error);
       this.clearAuth();
       return null;
+    }
+  }
+
+  // Request password reset (always resolves with generic message if user exists or not)
+  static async forgotPassword(
+    data: ForgotPasswordRequest
+  ): Promise<ForgotPasswordResponse> {
+    try {
+      const response = await axios.post(
+        `${API_BASE}/auth/forgot-password`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.detail || "Request failed");
+      }
+      throw new Error("Network error occurred");
+    }
+  }
+
+  // Reset password using token provided via email (simulated)
+  static async resetPassword(
+    data: ResetPasswordRequest
+  ): Promise<ResetPasswordResponse> {
+    try {
+      const response = await axios.post(
+        `${API_BASE}/auth/reset-password`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.detail || "Reset failed");
+      }
+      throw new Error("Network error occurred");
     }
   }
 }

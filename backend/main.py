@@ -9,6 +9,10 @@ from pydantic import BaseModel, EmailStr, Field
 import json
 import os
 from collections import defaultdict
+import uuid
+
+# In-memory password reset token store (token -> {user_id, exp})
+PASSWORD_RESET_TOKENS: Dict[str, Dict[str, str]] = {}
 
 app = FastAPI(title="PieTracker - Elegant Finance App")
 
@@ -352,6 +356,13 @@ class AuthResponse(BaseModel):
     token: str
     message: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=6, max_length=256)
+
 @app.post("/auth/signup", response_model=AuthResponse)
 async def signup(req: SignupRequest):
     email = req.email.lower().strip()
@@ -416,6 +427,46 @@ async def me(authorization: Optional[str] = Header(default=None)):
         return {"user": {k: user[k] for k in ["id", "email", "name", "created_at"]}}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+@app.post("/auth/forgot-password")
+async def forgot_password(req: ForgotPasswordRequest):
+    """Generate a password reset token and (simulate) email sending.
+    For security, always return 200 generic message regardless of user existence."""
+    email = req.email.lower().strip()
+    user = get_user_by_email(email)
+    if user:
+        token = str(uuid.uuid4())
+        expires = (datetime.utcnow() + timedelta(minutes=15)).isoformat() + "Z"
+        PASSWORD_RESET_TOKENS[token] = {"user_id": user["id"], "exp": expires}
+        # Simulate email by logging token (in production, send an email with link)
+        print(f"[Password Reset] Token for {email}: {token}")
+    return {"message": "If the email exists, a reset link has been sent."}
+
+@app.post("/auth/reset-password")
+async def reset_password(req: ResetPasswordRequest):
+    record = PASSWORD_RESET_TOKENS.get(req.token)
+    if not record:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    # Check expiry
+    try:
+        exp_dt = datetime.fromisoformat(record["exp"].replace("Z", ""))
+        if datetime.utcnow() > exp_dt:
+            del PASSWORD_RESET_TOKENS[req.token]
+            raise HTTPException(status_code=400, detail="Invalid or expired token")
+    except Exception:
+        del PASSWORD_RESET_TOKENS[req.token]
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    user_id = record["user_id"]
+    user = users_db.get(user_id)
+    if not user:
+        del PASSWORD_RESET_TOKENS[req.token]
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    if len(req.new_password) > 256:
+        raise HTTPException(status_code=400, detail="Password must be 256 characters or fewer")
+    user["password_hash"] = hash_password(req.new_password)
+    save_users()
+    del PASSWORD_RESET_TOKENS[req.token]
+    return {"message": "Password reset successful. You may now log in."}
 
 if __name__ == "__main__":
     import uvicorn
