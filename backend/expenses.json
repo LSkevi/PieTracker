@@ -7,5 +7,25 @@
     "date": "2025-10-03",
     "currency": "CAD",
     "created_at": "2025-10-03T00:05:48.468279"
+  },
+  {
+    "id": "62ac7fa9-ea02-4fb6-8031-a25a06d30485",
+    "user_id": "51646cc4-b2b2-4d44-974e-f2b270ee970b",
+    "amount": 12.34,
+    "category": "Food",
+    "description": "Smoke Test",
+    "date": "2025-10-03",
+    "currency": "USD",
+    "created_at": "2025-10-03T01:15:40.951065"
+  },
+  {
+    "id": "f6d3fc09-171e-4049-ae31-d02b6e337e8f",
+    "user_id": "2ca4c2b4-54ce-40b6-b596-280daa8b063c",
+    "amount": 100.0,
+    "category": "Brownies",
+    "description": "",
+    "date": "2025-10-03",
+    "currency": "CAD",
+    "created_at": "2025-10-03T01:18:02.814497"
   }
 ]

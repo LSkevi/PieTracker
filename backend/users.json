@@ -1,0 +1,23 @@
+{
+  "51646cc4-b2b2-4d44-974e-f2b270ee970b": {
+    "id": "51646cc4-b2b2-4d44-974e-f2b270ee970b",
+    "email": "smoke_20251003041540_ckob@example.com",
+    "name": "Smoke Test",
+    "password_hash": "$pbkdf2-sha256$29000$3zuHUKrVOkfI.f./F2IsZQ$KmRn4yQMEtB0IorvMyfCX.dQ4jqS7RynAHsCEMsgm8g",
+    "created_at": "2025-10-03T04:15:40.861844Z"
+  },
+  "2ca4c2b4-54ce-40b6-b596-280daa8b063c": {
+    "id": "2ca4c2b4-54ce-40b6-b596-280daa8b063c",
+    "email": "lucas.stankevi@gmail.com",
+    "name": "Lucas Stankevicius",
+    "password_hash": "$pbkdf2-sha256$29000$/h.DcA4hpPSes3ZuTUkJoQ$n04xqfcrbeL8V2WbPM2qTdQo1o1xUTwdWKOJaNdZF20",
+    "created_at": "2025-10-03T04:17:21.110361Z"
+  },
+  "08835201-6db8-4e05-8415-c836957e6939": {
+    "id": "08835201-6db8-4e05-8415-c836957e6939",
+    "email": "jabronius@gmail.com",
+    "name": "Jabronius",
+    "password_hash": "$pbkdf2-sha256$29000$TukdIwQgBKAUgnBuzXkPQQ$1a9l2rfoyzM5Ch6F1w194mCYahDQQ4uOQdVix8EURdM",
+    "created_at": "2025-10-03T04:18:23.897884Z"
+  }
+}

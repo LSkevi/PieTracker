@@ -4,6 +4,9 @@ import ExpenseForm from "./components/ExpenseForm";
 import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
 import ThemeToggle from "./components/ThemeToggle";
+import AuthContainer from "./components/auth/AuthContainer";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 import { useExpenses } from "./hooks/useExpenses";
 import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
@@ -37,7 +40,8 @@ const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
-const App: React.FC = () => {
+const AuthenticatedApp: React.FC = () => {
+  const { logout, user } = useAuth();
   const {
     expenses,
     summary,
@@ -62,7 +66,8 @@ const App: React.FC = () => {
     console.log("App mounted, loading:", loading);
     console.log("API Base:", import.meta.env.VITE_API_URL || "fallback");
     console.log("Environment:", import.meta.env.MODE);
-  }, [loading]);
+    console.log("User:", user?.name);
+  }, [loading, user]);
 
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
 
@@ -89,9 +94,29 @@ const App: React.FC = () => {
     convertTotal();
   }, [summary, selectedCurrency, expenses]);
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
     <div className="app">
-      <ThemeToggle />
+      {/* User Header with Theme + Logout */}
+      <div className="user-header">
+        <div className="user-header-left">
+          <span className="user-greeting">Welcome, {user?.name}!</span>
+        </div>
+        <div className="user-header-actions">
+          <ThemeToggle />
+          <button onClick={handleLogout} className="logout-btn">
+            Logout
+          </button>
+        </div>
+      </div>
+      
       <Header />
 
       {summary && summary.total > 0 && (
@@ -187,8 +212,27 @@ const App: React.FC = () => {
 
 const AppWithErrorBoundary: React.FC = () => (
   <ErrorBoundary>
-    <App />
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   </ErrorBoundary>
 );
+
+const AppContent: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-content">
+          <h1>🥧 Pie Tracker</h1>
+          <div className="loading">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return isAuthenticated ? <AuthenticatedApp /> : <AuthContainer />;
+};
 
 export default AppWithErrorBoundary;

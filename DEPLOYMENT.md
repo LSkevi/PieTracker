@@ -123,3 +123,21 @@ For production use, consider:
 ---
 
 Your PieTracker app is now ready for the world! 🎉
+
+## Per-User Isolation (File Storage Mode)
+
+The backend now tags each expense with a `user_id` derived from the `X-User-Id` header. The frontend supplies a stable value stored in `localStorage` so different visitors do not see or modify each other's data.
+
+### Legacy Data
+Existing `expenses.json` entries created before this change have no `user_id` field and will no longer be returned to new users. They remain in the file for archival purposes. You can:
+1. Leave them untouched (hidden).
+2. Migrate them to a specific user by adding `"user_id": "<some-user-id>"` inside each legacy object.
+
+### Categories
+Categories are now stored per user in `categories.json` as `{ "<user_id>": { "Category": "#color" } }`. A legacy flat format, if detected, is namespaced under `__legacy__` and only merged for users who have not yet created custom categories.
+
+### Deploy Safety
+Because we still use JSON files, redeploying the backend (on platforms that persist disk between deploys) will retain data. If your platform wipes the filesystem on each deploy, switch to a database (see Supabase option) to prevent loss.
+
+### Frontend Behavior
+Each browser profile/tab gets its own generated ID once; clearing site data or using incognito mode creates a fresh dataset.
