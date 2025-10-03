@@ -32,9 +32,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   const [chartDimensions, setChartDimensions] = useState({
     width: 500,
     height: 500,
-    radius: 150
+    radius: 150,
   });
-  
+
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   // Convert amounts when currency or data changes
@@ -79,24 +79,24 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
         const container = chartContainerRef.current;
         const containerWidth = container.offsetWidth;
         const containerHeight = container.offsetHeight;
-        
+
         // Calculate optimal dimensions with padding for labels
         const padding = 60; // Space for labels and legend
         const maxRadius = Math.min(
           (containerWidth - padding * 2) / 2,
           (containerHeight - padding * 2) / 2
         );
-        
+
         setChartDimensions({
           width: containerWidth,
           height: containerHeight,
-          radius: Math.max(50, maxRadius) // Ensure chart is visible and usable
+          radius: Math.max(50, maxRadius), // Ensure chart is visible and usable
         });
       }
     };
 
     updateDimensions();
-    
+
     const resizeObserver = new ResizeObserver(updateDimensions);
     if (chartContainerRef.current) {
       resizeObserver.observe(chartContainerRef.current);
