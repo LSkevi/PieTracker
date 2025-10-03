@@ -492,28 +492,30 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         <div className="form-row">
           <div className="form-group">
             <label>Amount</label>
-            <div className="amount-currency-group">
-              <input
-                type="number"
-                name="amount"
-                step="0.01"
-                value={formData.amount}
-                onChange={handleChange}
-                placeholder="0.00"
-              />
-              <select
-                name="currency"
-                value={formData.currency}
-                onChange={handleChange}
-                className="currency-select"
-              >
-                {currencies.map((currency) => (
-                  <option key={currency.code} value={currency.code}>
-                    {currency.code} ({currency.symbol})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <input
+              type="number"
+              name="amount"
+              step="0.01"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="0.00"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Currency</label>
+            <select
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              className="currency-select"
+            >
+              {currencies.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.code} ({currency.symbol})
+                </option>
+              ))}
+            </select>
             {rateStatus && <div className="rate-status">{rateStatus}</div>}
             {conversionMessage && (
               <div className="conversion-message">💱 {conversionMessage}</div>
