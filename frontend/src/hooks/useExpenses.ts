@@ -15,8 +15,8 @@ const API_BASE =
 // Headers helper to unify auth + legacy fallback
 function getHeaders() {
   const headers = AuthService.getAuthHeaders();
-  // For any unauthenticated session, maintain legacy public user id to segregate data
-  if (!headers["X-User-Id"]) {
+  // Only add legacy public user id if there's no JWT token
+  if (!headers["Authorization"] && !headers["X-User-Id"]) {
     // Provide a stable public bucket so existing data still loads
     headers["X-User-Id"] = "public-anon-user";
   }
