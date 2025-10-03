@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import ForgotPasswordForm from "./ForgotPasswordForm";
+import ResetPasswordForm from "./ResetPasswordForm";
 import { useAuth } from "../../hooks/useAuth";
 import ThemeToggle from "../ThemeToggle";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "forgot" | "reset";
 
 const AuthContainer: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -18,6 +20,16 @@ const AuthContainer: React.FC = () => {
   const switchToLogin = () => {
     clearError();
     setMode("login");
+  };
+
+  const switchToForgot = () => {
+    clearError();
+    setMode("forgot");
+  };
+
+  const switchToReset = () => {
+    clearError();
+    setMode("reset");
   };
 
   return (
@@ -50,20 +62,29 @@ const AuthContainer: React.FC = () => {
             </div>
           </div>
 
-          {mode === "login" ? (
+          {mode === "login" && (
             <LoginForm
               onSubmit={login}
               onSwitchToSignup={switchToSignup}
+              onForgotPassword={switchToForgot}
+              onUseResetToken={switchToReset}
               isLoading={isLoading}
               error={error}
             />
-          ) : (
+          )}
+          {mode === "signup" && (
             <SignupForm
               onSubmit={signup}
               onSwitchToLogin={switchToLogin}
               isLoading={isLoading}
               error={error}
             />
+          )}
+          {mode === "forgot" && (
+            <ForgotPasswordForm onBackToLogin={switchToLogin} />
+          )}
+          {mode === "reset" && (
+            <ResetPasswordForm onBackToLogin={switchToLogin} />
           )}
         </div>
       </div>
