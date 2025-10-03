@@ -45,7 +45,7 @@ export class AuthService {
   static getAuthHeaders(): Record<string, string> {
     const token = this.getToken();
     const user = this.getUser();
-    
+
     return {
       ...(token && { Authorization: `Bearer ${token}` }),
       ...(user && { "X-User-Id": user.id }),
@@ -57,7 +57,7 @@ export class AuthService {
     try {
       const response = await axios.post(`${API_BASE}/auth/login`, data);
       const authData: AuthResponse = response.data;
-      
+
       this.setAuth(authData.token, authData.user);
       return authData;
     } catch (error) {
@@ -77,7 +77,7 @@ export class AuthService {
         name: data.name,
       });
       const authData: AuthResponse = response.data;
-      
+
       this.setAuth(authData.token, authData.user);
       return authData;
     } catch (error) {

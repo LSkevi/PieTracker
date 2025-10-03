@@ -116,7 +116,7 @@ const AuthenticatedApp: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       <Header />
 
       {summary && summary.total > 0 && (

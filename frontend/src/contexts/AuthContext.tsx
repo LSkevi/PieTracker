@@ -61,7 +61,9 @@ interface AuthContextType extends AuthState {
 }
 
 // Create context
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 // Auth provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -73,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const checkAuth = async () => {
       dispatch({ type: "LOADING" });
-      
+
       try {
         if (AuthService.isAuthenticated()) {
           const user = await AuthService.verifyToken();
@@ -101,9 +103,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await AuthService.login(data);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.user });
     } catch (error) {
-      dispatch({ 
-        type: "ERROR", 
-        payload: error instanceof Error ? error.message : "Login failed"
+      dispatch({
+        type: "ERROR",
+        payload: error instanceof Error ? error.message : "Login failed",
       });
       throw error;
     }
@@ -116,9 +118,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await AuthService.signup(data);
       dispatch({ type: "LOGIN_SUCCESS", payload: response.user });
     } catch (error) {
-      dispatch({ 
-        type: "ERROR", 
-        payload: error instanceof Error ? error.message : "Registration failed"
+      dispatch({
+        type: "ERROR",
+        payload: error instanceof Error ? error.message : "Registration failed",
       });
       throw error;
     }

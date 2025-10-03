@@ -31,7 +31,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev: SignupData) => ({ ...prev, [name]: value }));
-    
+
     // Clear validation error when user starts typing
     if (validationErrors[name as keyof typeof validationErrors]) {
       setValidationErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -60,7 +60,8 @@ const SignupForm: React.FC<SignupFormProps> = ({
     } else if (formData.password.length > 256) {
       errors.password = "Password must be 256 characters or fewer";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      errors.password = "Password must contain uppercase, lowercase, and number";
+      errors.password =
+        "Password must contain uppercase, lowercase, and number";
     }
 
     if (!formData.confirmPassword) {
@@ -75,7 +76,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -95,11 +96,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form-content">
-          {error && (
-            <div className="auth-error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="auth-error-message">{error}</div>}
 
           <div className="auth-form-group">
             <label htmlFor="name">Full Name</label>
@@ -152,7 +149,9 @@ const SignupForm: React.FC<SignupFormProps> = ({
               maxLength={100}
             />
             {validationErrors.password && (
-              <span className="auth-field-error">{validationErrors.password}</span>
+              <span className="auth-field-error">
+                {validationErrors.password}
+              </span>
             )}
           </div>
 
@@ -171,7 +170,9 @@ const SignupForm: React.FC<SignupFormProps> = ({
               maxLength={100}
             />
             {validationErrors.confirmPassword && (
-              <span className="auth-field-error">{validationErrors.confirmPassword}</span>
+              <span className="auth-field-error">
+                {validationErrors.confirmPassword}
+              </span>
             )}
           </div>
 
