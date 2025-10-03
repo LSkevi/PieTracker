@@ -105,7 +105,7 @@ const App: React.FC = () => {
               )}
             </span>
           </div>
-            <div className="insight-item">
+          <div className="insight-item">
             <span className="insight-label">Top Category</span>
             <span className="insight-value">
               {Object.entries(summary.categories || {}).sort(
