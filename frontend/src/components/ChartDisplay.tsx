@@ -90,7 +90,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
         setChartDimensions({
           width: containerWidth,
           height: containerHeight,
-          radius: Math.max(20, maxRadius) // Small minimum to ensure chart is visible
+          radius: Math.max(50, maxRadius) // Ensure chart is visible and usable
         });
       }
     };
