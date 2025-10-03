@@ -3,6 +3,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getDefaultCurrency } from "../utils/currency";
+import { AuthService } from "../services/auth";
 
 // Use environment variable or fallback to your backend for production
 const API_BASE =
@@ -11,12 +12,16 @@ const API_BASE =
     ? "https://pietracker.onrender.com"
     : "http://localhost:8000");
 
-// Debug logging
-console.log("Environment:", {
-  VITE_API_URL: import.meta.env.VITE_API_URL,
-  PROD: import.meta.env.PROD,
-  API_BASE,
-});
+// Headers helper to unify auth + legacy fallback
+function getHeaders() {
+  const headers = AuthService.getAuthHeaders();
+  // For any unauthenticated session, maintain legacy public user id to segregate data
+  if (!headers["X-User-Id"]) {
+    // Provide a stable public bucket so existing data still loads
+    headers["X-User-Id"] = "public-anon-user";
+  }
+  return headers;
+}
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -38,7 +43,7 @@ export const useExpenses = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/categories`);
+  const response = await axios.get(`${API_BASE}/categories`, { headers: getHeaders() });
       setCategories(response.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -59,7 +64,7 @@ export const useExpenses = () => {
 
   const fetchCategoryColors = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/categories/colors`);
+  const response = await axios.get(`${API_BASE}/categories/colors`, { headers: getHeaders() });
       setCategoryColors(response.data);
     } catch (error) {
       console.error("Error fetching category colors:", error);
@@ -87,7 +92,7 @@ export const useExpenses = () => {
 
   const fetchAvailableMonths = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/expenses/available-months`);
+  const response = await axios.get(`${API_BASE}/expenses/available-months`, { headers: getHeaders() });
       setAvailableMonths(response.data);
     } catch (error) {
       console.error("Error fetching available months:", error);
@@ -114,10 +119,8 @@ export const useExpenses = () => {
       console.log("Fetching from:", url);
 
       const response = await axios.get(url, {
-        timeout: 10000, // 10 second timeout
-        headers: {
-          "Content-Type": "application/json",
-        },
+        timeout: 10000,
+        headers: { "Content-Type": "application/json", ...getHeaders() },
       });
 
       console.log("Summary response:", response.data);
@@ -155,9 +158,7 @@ export const useExpenses = () => {
 
       const response = await axios.get(url, {
         timeout: 10000,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json", ...getHeaders() },
       });
 
       console.log("Expenses response:", response.data);
@@ -187,13 +188,17 @@ export const useExpenses = () => {
     date?: string
   ) => {
     try {
-      await axios.post(`${API_BASE}/expenses`, {
-        amount,
-        category,
-        description,
-        currency,
-        date: date || format(new Date(), "yyyy-MM-dd"),
-      });
+      await axios.post(
+        `${API_BASE}/expenses`,
+        {
+          amount,
+          category,
+          description,
+          currency,
+          date: date || format(new Date(), "yyyy-MM-dd"),
+        },
+        { headers: getHeaders() }
+      );
       fetchCategories(); // Refresh categories in case new category was used
       fetchMonthlySummary();
       fetchMonthlyExpenses();
@@ -207,10 +212,11 @@ export const useExpenses = () => {
     categoryColor: string = "#a8b5a0"
   ) => {
     try {
-      await axios.post(`${API_BASE}/categories`, {
-        name: categoryName,
-        color: categoryColor,
-      });
+      await axios.post(
+        `${API_BASE}/categories`,
+        { name: categoryName, color: categoryColor },
+        { headers: getHeaders() }
+      );
 
       // Refresh categories and colors
       await fetchCategories();
@@ -224,7 +230,7 @@ export const useExpenses = () => {
 
   const deleteExpense = async (expenseId: string) => {
     try {
-      await axios.delete(`${API_BASE}/expenses/${expenseId}`);
+  await axios.delete(`${API_BASE}/expenses/${expenseId}`, { headers: getHeaders() });
       fetchMonthlySummary();
       fetchMonthlyExpenses();
     } catch (error) {
@@ -234,7 +240,7 @@ export const useExpenses = () => {
 
   const deleteCategory = async (categoryName: string) => {
     try {
-      await axios.delete(`${API_BASE}/categories/${categoryName}`);
+  await axios.delete(`${API_BASE}/categories/${categoryName}`, { headers: getHeaders() });
       fetchCategories(); // Refresh categories list
       fetchCategoryColors(); // Refresh category colors
       fetchMonthlySummary(); // Refresh summary
