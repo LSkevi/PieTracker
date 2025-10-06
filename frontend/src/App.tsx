@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Header from "./components/Header";
 import ExpenseForm from "./components/ExpenseForm";
 import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
@@ -104,10 +103,21 @@ const AuthenticatedApp: React.FC = () => {
 
   return (
     <div className="app">
-      {/* User Header with Theme + Logout */}
+      {/* Minimal floating elements background */}
+      <div className="floating-nature">
+        <div className="nature-element"></div>
+        <div className="nature-element">🌿</div>
+      </div>
+
+      {/* User Header with Title, Theme + Logout */}
       <div className="user-header">
         <div className="user-header-left">
           <span className="user-greeting">Welcome, {user?.name}!</span>
+        </div>
+        <div className="user-header-center">
+          <h1 className="header-title">
+            <span className="title-text">Pie Tracker</span>
+          </h1>
         </div>
         <div className="user-header-actions">
           <ThemeToggle />
@@ -116,8 +126,6 @@ const AuthenticatedApp: React.FC = () => {
           </button>
         </div>
       </div>
-
-      <Header />
 
       {summary && summary.total > 0 && (
         <div className="insights-banner insights-banner-global">
