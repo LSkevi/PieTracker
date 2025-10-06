@@ -1,0 +1,17 @@
+name: Keep Render App Awake
+
+on:
+  schedule:
+    # Ping every 10 minutes (adjust as needed)
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping PieTracker
+        run: |
+          echo "Pinging PieTracker to keep it awake..."
+          curl -f https://pietracker.onrender.com/ || echo "Ping failed, but that's okay"
+          echo "Ping completed at $(date)"

@@ -4580,8 +4580,8 @@ body::before {
 
 /* User Header */
 .user-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 12px 24px;
   background: var(--paper-white);
@@ -4589,10 +4589,30 @@ body::before {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.user-header-left {
+  justify-self: start;
+}
+
+.user-header-center {
+  justify-self: center;
+}
+
 .user-header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-self: end;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--forest-green);
+}
+
+.title-text {
+  color: var(--forest-green);
 }
 
 .user-header .theme-toggle {
