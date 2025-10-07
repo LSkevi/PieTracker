@@ -3185,7 +3185,7 @@ body::before {
     min-width: 200px !important;
     animation: fadeInScale 0.2s ease-out;
   }
-  
+
   [data-theme="dark"] .tooltip {
     background: rgba(30, 30, 30, 0.98) !important;
     border-color: var(--sage-green) !important;
@@ -3218,12 +3218,12 @@ body::before {
   .recharts-wrapper * {
     outline: none !important;
   }
-  
+
   .recharts-sector {
     outline: none !important;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   .recharts-pie-sector {
     outline: none !important;
     -webkit-tap-highlight-color: transparent;
