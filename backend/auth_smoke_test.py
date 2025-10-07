@@ -32,11 +32,11 @@ summary = []
 stamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
 rand = ''.join(random.choices(string.ascii_lowercase+string.digits, k=4))
 email = f"smoke_{stamp}_{rand}@example.com"
+username = f"smoke_{rand}_{stamp}".lower()[:30]
 password = "Passw0rd!"  # meets complexity
-name = "Smoke Test"
 
-# 1. Signup
-code, body = request("POST", "/auth/signup", {"email": email, "password": password, "name": name})
+# 1. Signup (username + email)
+code, body = request("POST", "/auth/signup", {"email": email, "username": username, "password": password})
 summary.append(("signup", code, body))
 if code not in (200, 400):
     print("FAIL signup unexpected status", code, body)
@@ -44,8 +44,8 @@ if code not in (200, 400):
     raise SystemExit(1)
 
 # If user existed (unlikely), continue using same creds
-# 2. Login
-code, body = request("POST", "/auth/login", {"email": email, "password": password})
+# 2. Login (username based)
+code, body = request("POST", "/auth/login", {"username": username, "password": password})
 summary.append(("login", code, body))
 if code != 200:
     print("FAIL login", code, body)

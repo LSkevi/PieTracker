@@ -196,7 +196,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-        <h1>�️ Super Admin Dashboard</h1>
+        <h1>👑 Super Admin Dashboard 👑 </h1>
         <p>Complete user management and system control</p>
       </div>
 
