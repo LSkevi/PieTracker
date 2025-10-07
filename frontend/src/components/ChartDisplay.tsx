@@ -58,7 +58,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   const [showAllLabels, setShowAllLabels] = useState(false);
 
   // Check if device supports touch
-  const isTouchDevice = 'ontouchstart' in window;
+  const isTouchDevice = "ontouchstart" in window;
 
   // Convert amounts when currency or data changes
   useEffect(() => {
@@ -237,7 +237,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
         return expenseDate.getFullYear() === selectedYear;
       })
       .reduce((total, expense) => total + expense.amount, 0);
-    
+
     return yearlyTotal;
   };
 
@@ -329,7 +329,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
             </span>
           </div>
           <div className="chart-title">Spending by Category</div>
-          
+
           {/* Show Labels Button for Touch Devices */}
           {isTouchDevice && (
             <button
@@ -392,7 +392,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                           fontSize: 12,
                           fontWeight: 600,
                           paintOrder: "stroke",
-                          stroke: isDarkModeEnabled() ? "#000" : "var(--paper-white)",
+                          stroke: isDarkModeEnabled()
+                            ? "#000"
+                            : "var(--paper-white)",
                           strokeWidth: 2,
                           strokeLinejoin: "round",
                         }}
@@ -424,15 +426,20 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
               <h3>Category Breakdown</h3>
               <div className="labels-grid">
                 {preparePieData().map((entry) => {
-                  const percentage = convertedTotal > 0 
-                    ? ((entry.value / convertedTotal) * 100).toFixed(1) + "%" 
-                    : "0%";
+                  const percentage =
+                    convertedTotal > 0
+                      ? ((entry.value / convertedTotal) * 100).toFixed(1) + "%"
+                      : "0%";
                   return (
                     <div key={entry.name} className="label-item">
                       <div
                         className="color-dot"
                         style={{
-                          backgroundColor: getCategoryColor(entry.name, isDarkModeEnabled(), categoryColors),
+                          backgroundColor: getCategoryColor(
+                            entry.name,
+                            isDarkModeEnabled(),
+                            categoryColors
+                          ),
                         }}
                       ></div>
                       <div className="label-info">
@@ -463,10 +470,12 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           <span className="month-text">{selectedYear}</span>
         </div>
         <div className="chart-title">Yearly Spending Trends</div>
-        
+
         {/* Yearly Total Display */}
         <div className="yearly-total-display">
-          <div className="yearly-total-label">Total {selectedYear} Expenses:</div>
+          <div className="yearly-total-label">
+            Total {selectedYear} Expenses:
+          </div>
           <div className="yearly-total-amount">
             {formatCurrency(calculateYearlyTotal(), selectedCurrency)}
           </div>
