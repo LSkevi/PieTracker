@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import type { ExpenseFormData, Expense, Currency } from "../types";
 import {
@@ -56,6 +56,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   // Confirmation modal state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string>("");
+
+  // Date input ref for custom picker
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
@@ -245,6 +248,28 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     // If currency changes, update the global currency selection
     if (name === "currency") {
       onCurrencyChange(value);
+    }
+  };
+
+  // Handle date picker click
+  const handleDatePickerClick = () => {
+    if (dateInputRef.current) {
+      try {
+        // Try to use the modern showPicker API first
+        if (
+          "showPicker" in dateInputRef.current &&
+          typeof dateInputRef.current.showPicker === "function"
+        ) {
+          dateInputRef.current.showPicker();
+        } else {
+          // Fallback to focus and click for older browsers
+          dateInputRef.current.focus();
+          dateInputRef.current.click();
+        }
+      } catch {
+        // Last resort fallback
+        dateInputRef.current.focus();
+      }
     }
   };
 
@@ -525,12 +550,27 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
           <div className="form-group">
             <label>Date</label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-            />
+            <div className="date-input-wrapper">
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className="date-input-hidden"
+                ref={dateInputRef}
+              />
+              <div
+                className="date-input-display"
+                onClick={handleDatePickerClick}
+              >
+                <span className="date-value">
+                  {formData.date
+                    ? format(new Date(formData.date), "dd/MM/yyyy")
+                    : "Select date"}
+                </span>
+                <span className="calendar-icon">📅</span>
+              </div>
+            </div>
           </div>
         </div>
 
