@@ -3793,6 +3793,164 @@ body::before {
   }
 }
 
+/* Custom Date Picker Calendar Styles */
+.calendar-year-section, .calendar-month-section, .calendar-day-section {
+  margin-bottom: 25px;
+}
+
+.calendar-year-section h4, .calendar-month-section h4, .calendar-day-section h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 15px;
+  font-family: "Crimson Text", serif;
+  text-align: center;
+}
+
+.calendar-year-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.calendar-year-btn {
+  padding: 10px 16px;
+  background: var(--cream-white);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 8px;
+  color: var(--charcoal);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.calendar-year-btn:hover {
+  background: rgba(168, 181, 160, 0.1);
+  border-color: var(--sage-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.calendar-year-btn.selected {
+  background: var(--sage-green);
+  color: white;
+  border-color: var(--sage-green);
+}
+
+.calendar-month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.calendar-month-btn {
+  padding: 12px 8px;
+  background: var(--cream-white);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 8px;
+  color: var(--charcoal);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.calendar-month-btn:hover {
+  background: rgba(168, 181, 160, 0.1);
+  border-color: var(--sage-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.calendar-month-btn.selected {
+  background: var(--sage-green);
+  color: white;
+  border-color: var(--sage-green);
+}
+
+.calendar-month-btn .month-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.calendar-month-btn .month-full {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.calendar-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+}
+
+.calendar-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-btn {
+  aspect-ratio: 1;
+  background: var(--cream-white);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 6px;
+  color: var(--charcoal);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day-btn:hover:not(.empty):not(:disabled) {
+  background: rgba(168, 181, 160, 0.1);
+  border-color: var(--sage-green);
+  transform: scale(1.05);
+}
+
+.calendar-day-btn.selected {
+  background: var(--sage-green);
+  color: white;
+  border-color: var(--sage-green);
+}
+
+.calendar-day-btn.empty {
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-soft);
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(168, 181, 160, 0.1);
+  color: var(--charcoal);
+}
+
 /* Dark Mode Enhancements */
 [data-theme="dark"] .big-chart-container {
   background: var(--soft-beige) !important;
@@ -4804,6 +4962,43 @@ body::before {
 [data-theme="dark"] .calendar-separator::after {
   background: var(--soft-beige);
   color: var(--sage-green);
+}
+
+/* Dark mode for custom date picker */
+[data-theme="dark"] .calendar-year-btn,
+[data-theme="dark"] .calendar-month-btn,
+[data-theme="dark"] .calendar-day-btn {
+  background: var(--soft-beige);
+  border-color: rgba(122, 140, 111, 0.3);
+  color: var(--charcoal);
+}
+
+[data-theme="dark"] .calendar-year-btn:hover,
+[data-theme="dark"] .calendar-month-btn:hover,
+[data-theme="dark"] .calendar-day-btn:hover:not(.empty):not(:disabled) {
+  background: rgba(122, 140, 111, 0.1);
+  border-color: var(--sage-green);
+}
+
+[data-theme="dark"] .calendar-year-btn.selected,
+[data-theme="dark"] .calendar-month-btn.selected,
+[data-theme="dark"] .calendar-day-btn.selected {
+  background: var(--sage-green);
+  color: white;
+  border-color: var(--sage-green);
+}
+
+[data-theme="dark"] .calendar-day-headers {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .modal-close-btn {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .modal-close-btn:hover {
+  background: rgba(122, 140, 111, 0.1);
+  color: var(--charcoal);
 }
 
 /* === AUTHENTICATION STYLES === */
