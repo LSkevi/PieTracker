@@ -404,16 +404,14 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                     );
                   }}
                 >
-                  {preparePieData().map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={getCategoryColor(
-                        entry.name,
-                        isDarkModeEnabled(),
-                        categoryColors
-                      )}
-                    />
-                  ))}
+                  {preparePieData().map((entry, index) => {
+                    const color = getCategoryColor(
+                      entry.name,
+                      isDarkModeEnabled(),
+                      categoryColors
+                    );
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
                 </Pie>
                 <Tooltip content={CustomTooltipWithSummary} offset={20} />
               </PieChart>
