@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, StreamingResponse
 from typing import List, Dict, Optional
 from datetime import datetime, date, timedelta
 from jose import JWTError, jwt
@@ -8,6 +9,8 @@ from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr, Field
 import json
 import os
+import shutil
+import tempfile
 from collections import defaultdict
 import uuid
 
@@ -44,9 +47,51 @@ def load_users():
         except Exception:
             users_db = {}
 
+BACKUP_DIR = "backups"
+os.makedirs(BACKUP_DIR, exist_ok=True)
+BACKUP_RETENTION = 20  # keep last N backups per file
+
+def _rotate_backups(original_path: str):
+    """Ensure only the most recent BACKUP_RETENTION backups are kept for a given file base name."""
+    base = os.path.basename(original_path)
+    prefix = base + "."
+    backups = [f for f in os.listdir(BACKUP_DIR) if f.startswith(prefix)]
+    # Sort newest first (timestamp is part of filename, we used ISO so lexical works)
+    backups.sort(reverse=True)
+    for old in backups[BACKUP_RETENTION:]:
+        try:
+            os.remove(os.path.join(BACKUP_DIR, old))
+        except Exception:
+            pass
+
+def _safe_write_json(path: str, data):
+    """Atomically write JSON with simple timestamped backup of previous version.
+    This reduces the risk of data loss from partial writes or accidental overwrites."""
+    try:
+        if os.path.exists(path):
+            # Backup current file before overwrite
+            ts = datetime.utcnow().strftime('%Y%m%dT%H%M%S')
+            backup_name = f"{os.path.basename(path)}.{ts}.bak"
+            shutil.copy2(path, os.path.join(BACKUP_DIR, backup_name))
+            _rotate_backups(path)
+        # Write to temp then replace
+        dir_name = os.path.dirname(path) or "."
+        fd, tmp_path = tempfile.mkstemp(dir=dir_name, prefix="._tmp_", suffix=".json")
+        try:
+            with os.fdopen(fd, 'w') as tmp_f:
+                json.dump(data, tmp_f, indent=2)
+            os.replace(tmp_path, path)  # atomic on same filesystem
+        finally:
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f"[WARN] Failed safe write for {path}: {e}")
+
 def save_users():
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users_db, f, indent=2)
+    _safe_write_json(USERS_FILE, users_db)
 
 load_users()
 
@@ -180,12 +225,10 @@ def load_categories():
 
 # Save data to file
 def save_expenses():
-    with open(DATA_FILE, 'w') as f:
-        json.dump(expenses_db, f, indent=2)
+    _safe_write_json(DATA_FILE, expenses_db)
 
 def save_categories():
-    with open(CATEGORIES_FILE, 'w') as f:
-        json.dump(categories_db, f, indent=2)
+    _safe_write_json(CATEGORIES_FILE, categories_db)
 
 # Load expenses on startup
 load_expenses()
@@ -727,6 +770,49 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
         "inactive_users": total_users - active_users,
         "users_with_expense_data": users_with_data
     }
+
+# =====================
+# Backup & Export Endpoints
+# =====================
+
+@app.post("/admin/backup/trigger", dependencies=[Depends(get_current_user)])
+async def trigger_backup(current_user: dict = Depends(get_current_user)):
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    save_users()
+    save_expenses()
+    save_categories()
+    return {"message": "Backup created"}
+
+@app.get("/admin/backup/list", dependencies=[Depends(get_current_user)])
+async def list_backups(file: str, current_user: dict = Depends(get_current_user)):
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    allowed = {os.path.basename(USERS_FILE), os.path.basename(DATA_FILE), os.path.basename(CATEGORIES_FILE)}
+    if file not in allowed:
+        raise HTTPException(status_code=400, detail="Unsupported file")
+    prefix = file + "."
+    backups = [f for f in os.listdir(BACKUP_DIR) if f.startswith(prefix)]
+    backups.sort(reverse=True)
+    return {"file": file, "backups": backups}
+
+@app.get("/admin/backup/download", dependencies=[Depends(get_current_user)])
+async def download_backup(name: str, current_user: dict = Depends(get_current_user)):
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    path = os.path.join(BACKUP_DIR, name)
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=404, detail="Backup not found")
+    def iterfile():
+        with open(path, 'rb') as f:
+            yield from f
+    return StreamingResponse(iterfile(), media_type='application/json', headers={'Content-Disposition': f'attachment; filename={name}'})
+
+@app.get("/export/expenses", dependencies=[Depends(get_current_user)])
+async def export_expenses(current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("id")
+    data = [e for e in expenses_db if e.get("user_id") == user_id]
+    return JSONResponse(content=data)
 
 if __name__ == "__main__":
     import uvicorn
