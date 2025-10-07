@@ -2888,6 +2888,16 @@ body::before {
   font-family: "Crimson Text", serif;
 }
 
+/* Yearly Trends Container - Specific spacing */
+.yearly-trends-container {
+  margin-top: 30px;
+  margin-right: 0;
+}
+
+.yearly-trends-container .big-chart-area {
+  height: 350px; /* Specific height for line chart */
+}
+
 .big-chart-area {
   width: 100%;
   height: 400px;
@@ -3655,6 +3665,15 @@ body::before {
   background: rgba(45, 45, 45, 0.8);
   border: 2px solid rgba(255, 255, 255, 0.1);
   color: var(--soft-beige);
+}
+
+/* Dark mode yearly trends styles */
+[data-theme="dark"] .yearly-trends-container {
+  background: linear-gradient(
+    135deg,
+    var(--paper-white),
+    rgba(122, 140, 111, 0.05)
+  );
 }
 
 [data-theme="dark"] .big-chart-area {
