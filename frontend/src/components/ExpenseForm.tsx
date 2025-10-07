@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import type { ExpenseFormData, Expense, Currency } from "../types";
 import {
@@ -57,8 +57,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string>("");
 
-  // Date input ref for custom picker
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  // Custom date picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
   const [formData, setFormData] = useState<ExpenseFormData & { date: string }>({
     amount: "",
@@ -253,24 +255,38 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   // Handle date picker click
   const handleDatePickerClick = () => {
-    if (dateInputRef.current) {
-      try {
-        // Try to use the modern showPicker API first
-        if (
-          "showPicker" in dateInputRef.current &&
-          typeof dateInputRef.current.showPicker === "function"
-        ) {
-          dateInputRef.current.showPicker();
-        } else {
-          // Fallback to focus and click for older browsers
-          dateInputRef.current.focus();
-          dateInputRef.current.click();
-        }
-      } catch {
-        // Last resort fallback
-        dateInputRef.current.focus();
-      }
+    // Initialize year/month from current form date or today
+    const currentDate = formData.date ? new Date(formData.date) : new Date();
+    setSelectedYear(currentDate.getFullYear());
+    setSelectedMonth(currentDate.getMonth());
+    setShowDatePicker(true);
+  };
+
+  // Handle date selection from custom picker
+  const handleDateSelect = (day: number) => {
+    const selectedDate = new Date(selectedYear, selectedMonth, day);
+    const dateString = format(selectedDate, "yyyy-MM-dd");
+    setFormData(prev => ({ ...prev, date: dateString }));
+    setShowDatePicker(false);
+  };
+
+  // Generate days for the selected month
+  const getDaysInMonth = () => {
+    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+    const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(null);
     }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    
+    return days;
   };
 
   // Handle category deletion
@@ -557,7 +573,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 value={formData.date}
                 onChange={handleChange}
                 className="date-input-hidden"
-                ref={dateInputRef}
               />
               <div
                 className="date-input-display"
@@ -739,6 +754,96 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           );
         })()}
       </div>
+
+      {/* Custom Date Picker Modal */}
+      {showDatePicker && (
+        <div className="calendar-popup-overlay" onClick={() => setShowDatePicker(false)}>
+          <div className="calendar-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="calendar-header">
+              <h3>Choose Date</h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowDatePicker(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="calendar-instructions">
+              First select a year, then choose your month
+            </div>
+
+            <div className="calendar-year-section">
+              <h4>Select Year (2020-2030)</h4>
+              <div className="calendar-year-grid">
+                {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                  <button
+                    key={year}
+                    type="button"
+                    className={`calendar-year-btn ${selectedYear === year ? 'selected' : ''}`}
+                    onClick={() => setSelectedYear(year)}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="calendar-month-section">
+              <h4>Select Month for {selectedYear}</h4>
+              <div className="calendar-month-grid">
+                {[
+                  { name: 'Jan', full: 'January', value: 0 },
+                  { name: 'Feb', full: 'February', value: 1 },
+                  { name: 'Mar', full: 'March', value: 2 },
+                  { name: 'Apr', full: 'April', value: 3 },
+                  { name: 'May', full: 'May', value: 4 },
+                  { name: 'Jun', full: 'June', value: 5 },
+                  { name: 'Jul', full: 'July', value: 6 },
+                  { name: 'Aug', full: 'August', value: 7 },
+                  { name: 'Sep', full: 'September', value: 8 },
+                  { name: 'Oct', full: 'October', value: 9 },
+                  { name: 'Nov', full: 'November', value: 10 },
+                  { name: 'Dec', full: 'December', value: 11 }
+                ].map(month => (
+                  <button
+                    key={month.value}
+                    type="button"
+                    className={`calendar-month-btn ${selectedMonth === month.value ? 'selected' : ''}`}
+                    onClick={() => setSelectedMonth(month.value)}
+                  >
+                    <div className="month-name">{month.name}</div>
+                    <div className="month-full">{month.full}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="calendar-day-section">
+              <h4>Select Day</h4>
+              <div className="calendar-day-headers">
+                <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+              </div>
+              <div className="calendar-day-grid">
+                {getDaysInMonth().map((day, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`calendar-day-btn ${!day ? 'empty' : ''} ${
+                      day && formData.date === format(new Date(selectedYear, selectedMonth, day), "yyyy-MM-dd") ? 'selected' : ''
+                    }`}
+                    onClick={() => day && handleDateSelect(day)}
+                    disabled={!day}
+                  >
+                    {day || ''}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Category Confirmation Modal */}
       {showDeleteConfirm && (
