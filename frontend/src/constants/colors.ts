@@ -40,23 +40,28 @@ export const getCategoryColor = (
   isDarkMode: boolean,
   customColors?: { [key: string]: string }
 ): string => {
-  // Check for custom colors first
-  if (customColors && customColors[categoryName]) {
+  // Check for custom colors first (only if customColors is not empty)
+  if (
+    customColors &&
+    Object.keys(customColors).length > 0 &&
+    customColors[categoryName]
+  ) {
     return customColors[categoryName];
   }
 
   const colors = isDarkMode ? DARK_MODE_COLORS : ELEGANT_COLORS;
 
-  // Direct mapping for our main categories
+  // Direct mapping for our main categories (case-insensitive)
   const categoryColorMap: { [key: string]: number } = {
-    Food: 1, // Fresh sage green
-    Transportation: 0, // Deep forest green
-    Shopping: 3, // Dusty rose
-    Entertainment: 2, // Soft mint
+    food: 1, // Fresh sage green
+    transportation: 0, // Deep forest green
+    shopping: 3, // Dusty rose
+    entertainment: 2, // Soft mint
   };
 
-  if (categoryColorMap[categoryName] !== undefined) {
-    return colors[categoryColorMap[categoryName]];
+  const normalizedCategory = categoryName.toLowerCase();
+  if (categoryColorMap[normalizedCategory] !== undefined) {
+    return colors[categoryColorMap[normalizedCategory]];
   }
 
   // For custom categories, use a hash to consistently assign colors
@@ -67,5 +72,11 @@ export const getCategoryColor = (
 
 // Utility function to check if dark mode is enabled
 export const isDarkModeEnabled = (): boolean => {
-  return document.documentElement.getAttribute("data-theme") === "dark";
+  // Add null check for document
+  if (typeof document === "undefined" || !document.documentElement) {
+    return false;
+  }
+
+  const theme = document.documentElement.getAttribute("data-theme");
+  return theme === "dark";
 };
