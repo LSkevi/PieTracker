@@ -2893,6 +2893,114 @@ body::before {
   font-family: "Crimson Text", serif;
 }
 
+/* Show Labels Button for Touch Devices */
+.show-labels-btn {
+  display: block;
+  margin: 15px auto;
+  padding: 10px 20px;
+  background: linear-gradient(
+    135deg,
+    var(--sage-green),
+    rgba(168, 181, 160, 0.8)
+  );
+  color: var(--paper-white);
+  border: 2px solid rgba(168, 181, 160, 0.5);
+  border-radius: 20px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(122, 140, 111, 0.2);
+}
+
+.show-labels-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 140, 111, 0.9),
+    rgba(168, 181, 160, 0.9)
+  );
+  border-color: rgba(168, 181, 160, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(122, 140, 111, 0.3);
+}
+
+/* All Labels Display */
+.all-labels-display {
+  margin: 20px auto;
+  padding: 20px;
+  background: rgba(245, 255, 245, 0.95);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.all-labels-display h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  text-align: center;
+  font-family: "Crimson Text", serif;
+  border-bottom: 2px solid rgba(168, 181, 160, 0.2);
+  padding-bottom: 10px;
+}
+
+.labels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.labels-grid .label-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(168, 181, 160, 0.2);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.labels-grid .label-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(168, 181, 160, 0.4);
+  transform: translateY(-1px);
+}
+
+.labels-grid .color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.labels-grid .label-info {
+  flex: 1;
+}
+
+.labels-grid .label-name {
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.labels-grid .label-amount {
+  font-weight: 500;
+  color: var(--sage-green);
+  font-size: 0.85rem;
+}
+
+.labels-grid .label-percentage {
+  font-weight: 400;
+  color: #666;
+  font-size: 0.8rem;
+}
+
 /* Yearly Trends Container - Specific spacing */
 .yearly-trends-container {
   margin-top: 30px;
@@ -2901,6 +3009,42 @@ body::before {
 
 .yearly-trends-container .big-chart-area {
   height: 350px; /* Specific height for line chart */
+}
+
+/* Yearly Total Display */
+.yearly-total-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 15px 25px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.15),
+    rgba(245, 255, 245, 0.7)
+  );
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(122, 140, 111, 0.1);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.yearly-total-label {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 1rem;
+}
+
+.yearly-total-amount {
+  font-family: "Crimson Text", serif;
+  font-weight: 700;
+  color: var(--sage-green);
+  font-size: 1.4rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .big-chart-area {
@@ -3685,6 +3829,24 @@ body::before {
   background: var(--soft-beige);
   border-radius: 15px;
   color: #ffffff;
+}
+
+/* Dark mode yearly total display */
+[data-theme="dark"] .yearly-total-display {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 140, 111, 0.15),
+    rgba(45, 45, 45, 0.8)
+  );
+  border: 2px solid rgba(122, 140, 111, 0.4);
+}
+
+[data-theme="dark"] .yearly-total-label {
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .yearly-total-amount {
+  color: rgba(168, 181, 160, 0.9);
 }
 
 [data-theme="dark"] .month-display {
@@ -5049,4 +5211,59 @@ body::before {
 
 [data-theme="dark"] .user-greeting {
   color: #e8e8e8;
+}
+
+/* Dark Mode Show Labels Button & Display */
+[data-theme="dark"] .show-labels-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 140, 111, 0.8),
+    rgba(168, 181, 160, 0.6)
+  );
+  border: 2px solid rgba(122, 140, 111, 0.4);
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .show-labels-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 140, 111, 0.9),
+    rgba(168, 181, 160, 0.7)
+  );
+  border-color: rgba(122, 140, 111, 0.6);
+  box-shadow: 0 6px 20px rgba(122, 140, 111, 0.25);
+}
+
+[data-theme="dark"] .all-labels-display {
+  background: rgba(45, 45, 45, 0.95);
+  border: 2px solid rgba(122, 140, 111, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .all-labels-display h3 {
+  color: var(--soft-beige);
+  border-bottom-color: rgba(122, 140, 111, 0.3);
+}
+
+[data-theme="dark"] .labels-grid .label-item {
+  background: rgba(122, 140, 111, 0.1);
+  border: 1px solid rgba(122, 140, 111, 0.2);
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .labels-grid .label-item:hover {
+  background: rgba(122, 140, 111, 0.2);
+  border-color: rgba(122, 140, 111, 0.4);
+}
+
+[data-theme="dark"] .labels-grid .label-name {
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .labels-grid .label-amount {
+  color: rgba(168, 181, 160, 0.9);
+}
+
+[data-theme="dark"] .labels-grid .label-percentage {
+  color: #aaa;
 }
