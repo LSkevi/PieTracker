@@ -4,9 +4,9 @@
 
 :root {
   --sage-green: #a8b5a0;
-  --soft-beige: #f0ebe5;
-  --cream-white: #faf7f2;
-  --paper-white: #fffef9;
+  --soft-beige: #ede6d8;
+  --cream-white: #efe8da;
+  --paper-white: #f1eadc;
   --muted-teal: #7ba098;
   --dusty-rose: #d4b5a0;
   --warm-gray: #c7c0b8;
@@ -15,12 +15,17 @@
   --accent-gold: #d4af37;
   --accent-coral: #f4a261;
   --accent-lavender: #c8a2c8;
-  --gradient-soft: linear-gradient(135deg, #f0ebe5, #faf7f2);
+  --gradient-soft: linear-gradient(135deg, #ede6d8, #efe8da);
   --gradient-sage: linear-gradient(135deg, #a8b5a0, #7ba098);
   --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #a8b5a0);
   --shadow-soft: 0 8px 32px rgba(168, 181, 160, 0.2);
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-button: 0 6px 24px rgba(168, 181, 160, 0.3);
+  
+  /* Warm overlay colors for better eye comfort */
+  --warm-overlay: rgba(241, 234, 220, 0.98);
+  --warm-overlay-light: rgba(241, 234, 220, 0.95);
+  --warm-overlay-subtle: rgba(241, 234, 220, 0.8);
 }
 
 /* Dark Mode Variables */
@@ -2639,7 +2644,7 @@ body::before {
 
 /* Right Panel Styling */
 .right-panel {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--warm-overlay-light);
   backdrop-filter: blur(10px);
   border-radius: 12px;
   border: 2px solid #e6f3e6;
@@ -3145,7 +3150,7 @@ body::before {
 
 /* Beautiful Tooltip Styling */
 .tooltip {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--warm-overlay);
   border: 2px solid var(--sage-green);
   border-radius: 12px;
   padding: 16px 20px;
@@ -3186,7 +3191,7 @@ body::before {
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     z-index: 1000 !important;
-    background: rgba(255, 255, 255, 0.98) !important;
+    background: var(--warm-overlay) !important;
     border: 2px solid var(--sage-green) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     border-radius: 12px !important;
@@ -3552,7 +3557,7 @@ body::before {
 }
 
 .month-btn-popup.selected .data-indicator {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--warm-overlay-subtle);
 }
 
 .month-text::after {
