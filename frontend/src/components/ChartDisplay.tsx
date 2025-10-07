@@ -54,6 +54,12 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     data: { name: string; value: number; percentage: string } | null;
   }>({ active: false, data: null });
 
+  // Show all labels state for touch devices
+  const [showAllLabels, setShowAllLabels] = useState(false);
+
+  // Check if device supports touch
+  const isTouchDevice = 'ontouchstart' in window;
+
   // Convert amounts when currency or data changes
   useEffect(() => {
     const convertAmounts = async () => {
@@ -223,6 +229,18 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     }));
   };
 
+  // Calculate yearly total expenses
+  const calculateYearlyTotal = () => {
+    const yearlyTotal = expenses
+      .filter((expense) => {
+        const expenseDate = new Date(expense.date);
+        return expenseDate.getFullYear() === selectedYear;
+      })
+      .reduce((total, expense) => total + expense.amount, 0);
+    
+    return yearlyTotal;
+  };
+
   // Custom tooltip for line chart
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const LineTooltip = ({ active, payload, label }: any) => {
@@ -311,6 +329,17 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
             </span>
           </div>
           <div className="chart-title">Spending by Category</div>
+          
+          {/* Show Labels Button for Touch Devices */}
+          {isTouchDevice && (
+            <button
+              className="show-labels-btn"
+              onClick={() => setShowAllLabels(!showAllLabels)}
+            >
+              {showAllLabels ? "Hide Labels" : "Show Labels"}
+            </button>
+          )}
+
           <div className="big-chart-area" ref={chartContainerRef}>
             <ResponsiveContainer width="100%" height="100%">
               {/* Margins give breathing room for outside labels */}
@@ -388,6 +417,37 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
               </PieChart>
             </ResponsiveContainer>
           </div>
+
+          {/* All Labels Display for Touch Devices */}
+          {isTouchDevice && showAllLabels && (
+            <div className="all-labels-display">
+              <h3>Category Breakdown</h3>
+              <div className="labels-grid">
+                {preparePieData().map((entry) => {
+                  const percentage = convertedTotal > 0 
+                    ? ((entry.value / convertedTotal) * 100).toFixed(1) + "%" 
+                    : "0%";
+                  return (
+                    <div key={entry.name} className="label-item">
+                      <div
+                        className="color-dot"
+                        style={{
+                          backgroundColor: getCategoryColor(entry.name, isDarkModeEnabled(), categoryColors),
+                        }}
+                      ></div>
+                      <div className="label-info">
+                        <div className="label-name">{entry.name}</div>
+                        <div className="label-amount">
+                          {formatCurrency(entry.value, selectedCurrency)}
+                        </div>
+                        <div className="label-percentage">{percentage}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="no-data-big">
@@ -403,6 +463,15 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           <span className="month-text">{selectedYear}</span>
         </div>
         <div className="chart-title">Yearly Spending Trends</div>
+        
+        {/* Yearly Total Display */}
+        <div className="yearly-total-display">
+          <div className="yearly-total-label">Total {selectedYear} Expenses:</div>
+          <div className="yearly-total-amount">
+            {formatCurrency(calculateYearlyTotal(), selectedCurrency)}
+          </div>
+        </div>
+
         <div className="big-chart-area">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
