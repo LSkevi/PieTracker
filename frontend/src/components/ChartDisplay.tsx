@@ -363,7 +363,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                           fontSize: 12,
                           fontWeight: 600,
                           paintOrder: "stroke",
-                          stroke: isDarkModeEnabled() ? "#000" : "#fff",
+                          stroke: isDarkModeEnabled() ? "#000" : "var(--paper-white)",
                           strokeWidth: 2,
                           strokeLinejoin: "round",
                         }}
