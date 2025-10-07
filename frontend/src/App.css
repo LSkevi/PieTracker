@@ -3570,11 +3570,11 @@ body::before {
 
 .calendar-popup {
   background: var(--paper-white);
-  border-radius: 20px;
-  padding: 30px;
-  min-width: 500px;
+  border-radius: 15px;
+  padding: 15px;
+  min-width: 380px;
   max-width: 90vw;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: var(--shadow-soft);
   border: 2px solid rgba(168, 181, 160, 0.2);
@@ -3584,15 +3584,15 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 
 .calendar-instructions {
   text-align: center;
-  margin-bottom: 20px;
-  padding: 12px 20px;
+  margin-bottom: 10px;
+  padding: 6px 12px;
   background: rgba(168, 181, 160, 0.05);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(168, 181, 160, 0.1);
 }
 
@@ -3794,15 +3794,19 @@ body::before {
 }
 
 /* Custom Date Picker Calendar Styles */
-.calendar-year-section, .calendar-month-section, .calendar-day-section {
-  margin-bottom: 25px;
+.calendar-year-section,
+.calendar-month-section,
+.calendar-day-section {
+  margin-bottom: 15px;
 }
 
-.calendar-year-section h4, .calendar-month-section h4, .calendar-day-section h4 {
-  font-size: 1.1rem;
+.calendar-year-section h4,
+.calendar-month-section h4,
+.calendar-day-section h4 {
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--charcoal);
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   font-family: "Crimson Text", serif;
   text-align: center;
 }
@@ -3810,19 +3814,19 @@ body::before {
 .calendar-year-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .calendar-year-btn {
-  padding: 10px 16px;
+  padding: 6px 10px;
   background: var(--cream-white);
   border: 2px solid rgba(168, 181, 160, 0.3);
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--charcoal);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -3842,20 +3846,20 @@ body::before {
 .calendar-month-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .calendar-month-btn {
-  padding: 12px 8px;
+  padding: 8px 4px;
   background: var(--cream-white);
   border: 2px solid rgba(168, 181, 160, 0.3);
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--charcoal);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
-  min-height: 60px;
+  min-height: 42px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -3876,41 +3880,41 @@ body::before {
 
 .calendar-month-btn .month-name {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
 .calendar-month-btn .month-full {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   opacity: 0.8;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .calendar-day-headers {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 3px;
+  margin-bottom: 6px;
   text-align: center;
   font-weight: 600;
   color: var(--text-soft);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 
 .calendar-day-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
 
 .calendar-day-btn {
   aspect-ratio: 1;
   background: var(--cream-white);
   border: 2px solid rgba(168, 181, 160, 0.3);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--charcoal);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 500;
   display: flex;
   align-items: center;

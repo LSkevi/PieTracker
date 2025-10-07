@@ -266,7 +266,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const handleDateSelect = (day: number) => {
     const selectedDate = new Date(selectedYear, selectedMonth, day);
     const dateString = format(selectedDate, "yyyy-MM-dd");
-    setFormData(prev => ({ ...prev, date: dateString }));
+    setFormData((prev) => ({ ...prev, date: dateString }));
     setShowDatePicker(false);
   };
 
@@ -275,17 +275,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(null);
     }
-    
+
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-    
+
     return days;
   };
 
@@ -757,7 +757,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* Custom Date Picker Modal */}
       {showDatePicker && (
-        <div className="calendar-popup-overlay" onClick={() => setShowDatePicker(false)}>
+        <div
+          className="calendar-popup-overlay"
+          onClick={() => setShowDatePicker(false)}
+        >
           <div className="calendar-popup" onClick={(e) => e.stopPropagation()}>
             <div className="calendar-header">
               <h3>Choose Date</h3>
@@ -771,20 +774,58 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </div>
 
             <div className="calendar-instructions">
-              First select a year, then choose your month
+              Select day, month, and year
             </div>
 
-            <div className="calendar-year-section">
-              <h4>Select Year (2020-2030)</h4>
-              <div className="calendar-year-grid">
-                {[2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+            <div className="calendar-day-section">
+              <h4>
+                Select Day for{" "}
+                {selectedMonth !== null
+                  ? [
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
+                    ][selectedMonth]
+                  : "Month"}{" "}
+                {selectedYear}
+              </h4>
+              <div className="calendar-day-headers">
+                <div>S</div>
+                <div>M</div>
+                <div>T</div>
+                <div>W</div>
+                <div>T</div>
+                <div>F</div>
+                <div>S</div>
+              </div>
+              <div className="calendar-day-grid">
+                {getDaysInMonth().map((day, index) => (
                   <button
-                    key={year}
+                    key={index}
                     type="button"
-                    className={`calendar-year-btn ${selectedYear === year ? 'selected' : ''}`}
-                    onClick={() => setSelectedYear(year)}
+                    className={`calendar-day-btn ${!day ? "empty" : ""} ${
+                      day &&
+                      formData.date ===
+                        format(
+                          new Date(selectedYear, selectedMonth, day),
+                          "yyyy-MM-dd"
+                        )
+                        ? "selected"
+                        : ""
+                    }`}
+                    onClick={() => day && handleDateSelect(day)}
+                    disabled={!day}
                   >
-                    {year}
+                    {day || ""}
                   </button>
                 ))}
               </div>
@@ -794,23 +835,25 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <h4>Select Month for {selectedYear}</h4>
               <div className="calendar-month-grid">
                 {[
-                  { name: 'Jan', full: 'January', value: 0 },
-                  { name: 'Feb', full: 'February', value: 1 },
-                  { name: 'Mar', full: 'March', value: 2 },
-                  { name: 'Apr', full: 'April', value: 3 },
-                  { name: 'May', full: 'May', value: 4 },
-                  { name: 'Jun', full: 'June', value: 5 },
-                  { name: 'Jul', full: 'July', value: 6 },
-                  { name: 'Aug', full: 'August', value: 7 },
-                  { name: 'Sep', full: 'September', value: 8 },
-                  { name: 'Oct', full: 'October', value: 9 },
-                  { name: 'Nov', full: 'November', value: 10 },
-                  { name: 'Dec', full: 'December', value: 11 }
-                ].map(month => (
+                  { name: "Jan", full: "January", value: 0 },
+                  { name: "Feb", full: "February", value: 1 },
+                  { name: "Mar", full: "March", value: 2 },
+                  { name: "Apr", full: "April", value: 3 },
+                  { name: "May", full: "May", value: 4 },
+                  { name: "Jun", full: "June", value: 5 },
+                  { name: "Jul", full: "July", value: 6 },
+                  { name: "Aug", full: "August", value: 7 },
+                  { name: "Sep", full: "September", value: 8 },
+                  { name: "Oct", full: "October", value: 9 },
+                  { name: "Nov", full: "November", value: 10 },
+                  { name: "Dec", full: "December", value: 11 },
+                ].map((month) => (
                   <button
                     key={month.value}
                     type="button"
-                    className={`calendar-month-btn ${selectedMonth === month.value ? 'selected' : ''}`}
+                    className={`calendar-month-btn ${
+                      selectedMonth === month.value ? "selected" : ""
+                    }`}
                     onClick={() => setSelectedMonth(month.value)}
                   >
                     <div className="month-name">{month.name}</div>
@@ -820,23 +863,22 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               </div>
             </div>
 
-            <div className="calendar-day-section">
-              <h4>Select Day</h4>
-              <div className="calendar-day-headers">
-                <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-              </div>
-              <div className="calendar-day-grid">
-                {getDaysInMonth().map((day, index) => (
+            <div className="calendar-year-section">
+              <h4>Select Year (2020-2030)</h4>
+              <div className="calendar-year-grid">
+                {[
+                  2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029,
+                  2030,
+                ].map((year) => (
                   <button
-                    key={index}
+                    key={year}
                     type="button"
-                    className={`calendar-day-btn ${!day ? 'empty' : ''} ${
-                      day && formData.date === format(new Date(selectedYear, selectedMonth, day), "yyyy-MM-dd") ? 'selected' : ''
+                    className={`calendar-year-btn ${
+                      selectedYear === year ? "selected" : ""
                     }`}
-                    onClick={() => day && handleDateSelect(day)}
-                    disabled={!day}
+                    onClick={() => setSelectedYear(year)}
                   >
-                    {day || ''}
+                    {year}
                   </button>
                 ))}
               </div>
