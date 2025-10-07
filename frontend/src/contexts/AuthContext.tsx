@@ -1,4 +1,10 @@
-import React, { createContext, useReducer, useEffect, useCallback, useMemo } from "react";
+import React, {
+  createContext,
+  useReducer,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { AuthService } from "../services/auth";
 import type { AuthState, LoginData, SignupData, User } from "../types/auth";
 
@@ -62,7 +68,9 @@ interface AuthContextType extends AuthState {
 
 // Create context (non-component export – suppress react-refresh rule for this line)
 // eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 // Auth provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
