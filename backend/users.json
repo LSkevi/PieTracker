@@ -3,10 +3,10 @@
     "id": "admin-super-user",
     "username": "admin",
     "email": "admin@pietracker.com",
-    "password_hash": "$pbkdf2-sha256$29000$/1/rfS8FQIhRCgHAuJeScg$ThRTgLI11CphsaU06c1O1giLeV.LQFgVDbCXE/JrqFQ",
-    "created_at": "2025-10-07T03:01:03.253815Z",
+    "password_hash": "$pbkdf2-sha256$29000$QGit1fo/h1AqpTSmlHLuXQ$DDwGQAfMWl7Y2A0j3DoQFk3Ie7pfB2Kcget/AZyW.VI",
+    "created_at": "2025-10-07T06:11:41.003468Z",
     "role": "super_admin",
     "is_active": true,
-    "last_login": "2025-10-07T03:01:03.253831Z"
+    "last_login": "2025-10-07T06:11:41.003483Z"
   }
 }

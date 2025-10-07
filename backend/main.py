@@ -50,6 +50,22 @@ def save_users():
 
 load_users()
 
+# --- Lightweight migration: ensure every user has 'username' (fallback from legacy 'name' or email prefix) ---
+updated = False
+for _uid, _u in users_db.items():
+    if "username" not in _u or not _u.get("username"):
+        legacy_name = _u.get("name")
+        if legacy_name:
+            _u["username"] = legacy_name.strip().lower()
+        else:
+            # derive from email before '@' if available
+            email_val = _u.get("email", "user")
+            derived = email_val.split("@")[0]
+            _u["username"] = derived.strip().lower() or f"user_{_uid[:6]}"
+        updated = True
+if updated:
+    save_users()
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -501,7 +517,14 @@ async def me(authorization: Optional[str] = Header(default=None)):
         user = users_db.get(user_id)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
-        return {"user": {k: user[k] for k in ["id", "email", "name", "created_at"]}}
+        # Normalize: always return username to frontend; support legacy records that only had 'name'
+        normalized = {
+            "id": user.get("id"),
+            "username": user.get("username") or user.get("name"),
+            "email": user.get("email"),
+            "created_at": user.get("created_at"),
+        }
+        return {"user": normalized}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -579,7 +602,8 @@ async def list_all_users(current_user: dict = Depends(get_current_user)):
         users_list.append({
             "id": user_id,
             "email": user.get("email"),
-            "name": user.get("name"),
+            # Provide username (primary) with legacy fallback. If only legacy 'name' existed, migrate in-memory.
+            "username": user.get("username") or user.get("name"),
             "password_hash": user.get("password_hash"),  # Include for admin view
             "role": user.get("role", "user"),
             "created_at": user.get("created_at"),

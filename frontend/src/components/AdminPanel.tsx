@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AuthService } from "../services/auth";
 import "./AdminPanel.css";
 
@@ -41,11 +41,7 @@ const AdminDashboard: React.FC = () => {
 
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const headers = AuthService.getAuthHeaders();
 
@@ -64,12 +60,16 @@ const AdminDashboard: React.FC = () => {
         const statsData = await statsResponse.json();
         setStats(statsData);
       }
-    } catch (error) {
+    } catch {
       setMessage("Failed to load admin data");
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
@@ -92,7 +92,7 @@ const AdminDashboard: React.FC = () => {
       } else {
         setMessage("Failed to update user status");
       }
-    } catch (error) {
+    } catch {
       setMessage("Error updating user status");
     }
   };
@@ -119,7 +119,7 @@ const AdminDashboard: React.FC = () => {
       } else {
         setMessage("Failed to delete user");
       }
-    } catch (error) {
+    } catch {
       setMessage("Error deleting user");
     }
   };
@@ -144,7 +144,13 @@ const AdminDashboard: React.FC = () => {
         "Content-Type": "application/json",
       };
 
-      const updateData: any = {
+      const updateData: {
+        username: string;
+        email: string;
+        role: string;
+        is_active: boolean;
+        password?: string;
+      } = {
         username: editingUser.username,
         email: editingUser.email,
         role: editingUser.role,
@@ -172,7 +178,7 @@ const AdminDashboard: React.FC = () => {
         const error = await response.json();
         setMessage(error.detail || "Failed to update user");
       }
-    } catch (error) {
+    } catch {
       setMessage("Error updating user");
     }
   };

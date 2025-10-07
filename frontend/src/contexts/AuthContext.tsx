@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react";
+import React, { createContext, useReducer, useEffect, useCallback, useMemo } from "react";
 import { AuthService } from "../services/auth";
 import type { AuthState, LoginData, SignupData, User } from "../types/auth";
 
@@ -60,10 +60,9 @@ interface AuthContextType extends AuthState {
   clearError: () => void;
 }
 
-// Create context
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+// Create context (non-component export – suppress react-refresh rule for this line)
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Auth provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -97,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // Login function
-  const login = async (data: LoginData) => {
+  const login = useCallback(async (data: LoginData) => {
     try {
       dispatch({ type: "LOADING" });
       const response = await AuthService.login(data);
@@ -109,10 +108,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       throw error;
     }
-  };
+  }, []);
 
   // Signup function
-  const signup = async (data: SignupData) => {
+  const signup = useCallback(async (data: SignupData) => {
     try {
       dispatch({ type: "LOADING" });
       const response = await AuthService.signup(data);
@@ -124,32 +123,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       throw error;
     }
-  };
+  }, []);
 
   // Logout function
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await AuthService.logout();
-      dispatch({ type: "LOGOUT" });
-    } catch (error) {
-      console.error("Logout failed:", error);
-      // Still logout locally even if API call fails
+    } catch {
+      // ignore remote logout failures
+    } finally {
       dispatch({ type: "LOGOUT" });
     }
-  };
+  }, []);
 
   // Clear error function
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: "CLEAR_ERROR" });
-  };
+  }, []);
 
-  const value: AuthContextType = {
-    ...state,
-    login,
-    signup,
-    logout,
-    clearError,
-  };
+  const value: AuthContextType = useMemo(
+    () => ({
+      ...state,
+      login,
+      signup,
+      logout,
+      clearError,
+    }),
+    [state, login, signup, logout, clearError]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
