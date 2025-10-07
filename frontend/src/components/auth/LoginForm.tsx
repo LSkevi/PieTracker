@@ -19,12 +19,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
   error,
 }) => {
   const [formData, setFormData] = useState<LoginData>({
-    email: "",
+    username: "",
     password: "",
   });
 
   const [validationErrors, setValidationErrors] = useState<{
-    email?: string;
+    username?: string;
     password?: string;
   }>({});
 
@@ -41,10 +41,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const validateForm = (): boolean => {
     const errors: typeof validationErrors = {};
 
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email address";
+    if (!formData.username.trim()) {
+      errors.username = "Username is required";
+    } else if (formData.username.trim().length < 3) {
+      errors.username = "Username must be at least 3 characters";
     }
 
     if (!formData.password) {
@@ -84,20 +84,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
           {error && <div className="auth-error-message">{error}</div>}
 
           <div className="auth-form-group">
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="username">Username</label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              className={validationErrors.email ? "error" : ""}
-              placeholder="Enter your email"
+              className={validationErrors.username ? "error" : ""}
+              placeholder="Enter your username"
               disabled={isLoading}
-              autoComplete="email"
+              autoComplete="username"
             />
-            {validationErrors.email && (
-              <span className="auth-field-error">{validationErrors.email}</span>
+            {validationErrors.username && (
+              <span className="auth-field-error">
+                {validationErrors.username}
+              </span>
             )}
           </div>
 

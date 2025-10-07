@@ -15,16 +15,16 @@ const SignupForm: React.FC<SignupFormProps> = ({
   error,
 }) => {
   const [formData, setFormData] = useState<SignupData>({
+    username: "",
     email: "",
     password: "",
-    name: "",
     confirmPassword: "",
   });
 
   const [validationErrors, setValidationErrors] = useState<{
+    username?: string;
     email?: string;
     password?: string;
-    name?: string;
     confirmPassword?: string;
   }>({});
 
@@ -41,10 +41,12 @@ const SignupForm: React.FC<SignupFormProps> = ({
   const validateForm = (): boolean => {
     const errors: typeof validationErrors = {};
 
-    if (!formData.name.trim()) {
-      errors.name = "Name is required";
-    } else if (formData.name.trim().length < 2) {
-      errors.name = "Name must be at least 2 characters";
+    if (!formData.username.trim()) {
+      errors.username = "Username is required";
+    } else if (formData.username.trim().length < 3) {
+      errors.username = "Username must be at least 3 characters";
+    } else if (formData.username.trim().length > 50) {
+      errors.username = "Username must be 50 characters or fewer";
     }
 
     if (!formData.email.trim()) {
@@ -99,20 +101,22 @@ const SignupForm: React.FC<SignupFormProps> = ({
           {error && <div className="auth-error-message">{error}</div>}
 
           <div className="auth-form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="username">Username</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              className={validationErrors.name ? "error" : ""}
-              placeholder="Enter your full name"
+              className={validationErrors.username ? "error" : ""}
+              placeholder="Choose a username"
               disabled={isLoading}
-              autoComplete="name"
+              autoComplete="username"
             />
-            {validationErrors.name && (
-              <span className="auth-field-error">{validationErrors.name}</span>
+            {validationErrors.username && (
+              <span className="auth-field-error">
+                {validationErrors.username}
+              </span>
             )}
           </div>
 

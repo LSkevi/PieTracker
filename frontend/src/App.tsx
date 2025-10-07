@@ -3,6 +3,7 @@ import ExpenseForm from "./components/ExpenseForm";
 import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
 import ThemeToggle from "./components/ThemeToggle";
+import AdminDashboard from "./components/AdminPanel";
 import AuthContainer from "./components/auth/AuthContainer";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./hooks/useAuth";
@@ -69,6 +70,15 @@ const AuthenticatedApp: React.FC = () => {
   }, [loading, user]);
 
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
+  const [currentView, setCurrentView] = useState<"dashboard" | "admin">(
+    "dashboard"
+  );
+
+  // Check if user is admin
+  const isAdmin =
+    user?.email === "admin@pietracker.com" ||
+    user?.id === "admin-super-user" ||
+    user?.username === "admin";
 
   // Convert total amount when currency or data changes
   useEffect(() => {
@@ -113,6 +123,24 @@ const AuthenticatedApp: React.FC = () => {
       <div className="user-header">
         <div className="user-header-left">
           <span className="user-greeting">Welcome, {user?.name}!</span>
+          {isAdmin && (
+            <div className="admin-nav">
+              <button
+                onClick={() => setCurrentView("dashboard")}
+                className={`nav-btn ${
+                  currentView === "dashboard" ? "active" : ""
+                }`}
+              >
+                📊 Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentView("admin")}
+                className={`nav-btn ${currentView === "admin" ? "active" : ""}`}
+              >
+                🛡️ Admin Panel
+              </button>
+            </div>
+          )}
         </div>
         <div className="user-header-center">
           <h1 className="header-title">
@@ -153,67 +181,71 @@ const AuthenticatedApp: React.FC = () => {
         </div>
       )}
 
-      <div className="main-container-new">
-        {/* Add Expenses Section */}
-        <div className="expense-section">
-          <div className="expense-form-container">
-            <ExpenseForm
-              categories={categories}
-              categoryColors={categoryColors}
-              currencies={currencies}
-              selectedCurrency={selectedCurrency}
-              expenses={expenses}
-              onAddExpense={addExpense}
-              onAddCategory={addCategory}
-              onDeleteExpense={deleteExpense}
-              onDeleteCategory={deleteCategory}
-              onCurrencyChange={setSelectedCurrency}
-            />
-          </div>
-        </div>
-
-        {/* Charts and Info Panel */}
-        <div className="charts-info-section">
-          {/* Chart and Info Side by Side */}
-          <div className="chart-info-layout">
-            <div className="chart-area">
-              {loading ? (
-                <div className="loading">Loading data...</div>
-              ) : summary ? (
-                <ChartDisplay
-                  summary={summary}
-                  expenses={expenses}
-                  loading={loading}
-                  selectedMonth={selectedMonth}
-                  selectedYear={selectedYear}
-                  selectedCurrency={selectedCurrency}
-                  categoryColors={categoryColors}
-                />
-              ) : (
-                <div className="no-data-section">
-                  <h3>No data available</h3>
-                  <p>Add some expenses to get started!</p>
-                </div>
-              )}
-            </div>
-
-            <div className="info-area">
-              <InfoPanel
-                summary={summary}
-                expenses={expenses}
-                availableMonths={availableMonths}
-                selectedMonth={selectedMonth}
-                selectedYear={selectedYear}
-                selectedCurrency={selectedCurrency}
-                currencies={currencies}
-                onMonthYearChange={setMonthYear}
-                onCurrencyChange={setSelectedCurrency}
+      {currentView === "admin" ? (
+        <AdminDashboard />
+      ) : (
+        <div className="main-container-new">
+          {/* Add Expenses Section */}
+          <div className="expense-section">
+            <div className="expense-form-container">
+              <ExpenseForm
+                categories={categories}
                 categoryColors={categoryColors}
+                currencies={currencies}
+                selectedCurrency={selectedCurrency}
+                expenses={expenses}
+                onAddExpense={addExpense}
+                onAddCategory={addCategory}
+                onDeleteExpense={deleteExpense}
+                onDeleteCategory={deleteCategory}
+                onCurrencyChange={setSelectedCurrency}
               />
             </div>
           </div>
+
+          {/* Charts and Info Panel */}
+          <div className="charts-info-section">
+            {/* Chart and Info Side by Side */}
+            <div className="chart-info-layout">
+              <div className="chart-area">
+                {loading ? (
+                  <div className="loading">Loading data...</div>
+                ) : summary ? (
+                  <ChartDisplay
+                    summary={summary}
+                    expenses={expenses}
+                    loading={loading}
+                    selectedMonth={selectedMonth}
+                    selectedYear={selectedYear}
+                    selectedCurrency={selectedCurrency}
+                    categoryColors={categoryColors}
+                  />
+                ) : (
+                  <div className="no-data-section">
+                    <h3>No data available</h3>
+                    <p>Add some expenses to get started!</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="info-area">
+                <InfoPanel
+                  summary={summary}
+                  expenses={expenses}
+                  availableMonths={availableMonths}
+                  selectedMonth={selectedMonth}
+                  selectedYear={selectedYear}
+                  selectedCurrency={selectedCurrency}
+                  currencies={currencies}
+                  onMonthYearChange={setMonthYear}
+                  onCurrencyChange={setSelectedCurrency}
+                  categoryColors={categoryColors}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

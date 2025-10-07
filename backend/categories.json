@@ -9,5 +9,9 @@
   },
   "test-user-2": {
     "Brownies": "#812d08"
-  }
+  },
+  "public-anon-user": {
+    "Brownies": "#812d08"
+  },
+  "admin-super-user": {}
 }

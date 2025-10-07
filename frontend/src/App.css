@@ -5267,3 +5267,79 @@ body::before {
 [data-theme="dark"] .labels-grid .label-percentage {
   color: #aaa;
 }
+
+/* Admin Navigation Styles */
+.admin-nav {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 8px 16px;
+  background: rgba(168, 181, 160, 0.1);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 8px;
+  color: var(--charcoal);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Inter", sans-serif;
+}
+
+.nav-btn:hover {
+  background: rgba(168, 181, 160, 0.2);
+  border-color: rgba(168, 181, 160, 0.5);
+  transform: translateY(-1px);
+}
+
+.nav-btn.active {
+  background: var(--sage-green);
+  color: white;
+  border-color: var(--sage-green);
+  box-shadow: 0 2px 8px rgba(122, 140, 111, 0.3);
+}
+
+.user-header-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Dark Mode Admin Nav */
+[data-theme="dark"] .nav-btn {
+  background: rgba(122, 140, 111, 0.1);
+  border-color: rgba(122, 140, 111, 0.3);
+  color: var(--soft-beige);
+}
+
+[data-theme="dark"] .nav-btn:hover {
+  background: rgba(122, 140, 111, 0.2);
+  border-color: rgba(122, 140, 111, 0.5);
+}
+
+[data-theme="dark"] .nav-btn.active {
+  background: rgba(122, 140, 111, 0.8);
+  border-color: rgba(168, 181, 160, 0.6);
+}
+
+/* Responsive Admin Nav */
+@media (max-width: 768px) {
+  .user-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-nav {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .nav-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}
