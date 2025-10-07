@@ -1074,7 +1074,7 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(168, 181, 160, 0.2);
 }
@@ -1083,35 +1083,51 @@ body::before {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Search Section */
+.expenses-search-section {
+  margin-bottom: 16px;
+}
+
+.expenses-search-section .expense-search-input {
+  width: 100%;
+  max-width: none;
+  min-width: auto;
 }
 
 .expense-count {
-  background: var(--sage-green);
+  background: linear-gradient(135deg, var(--sage-green), #8fa17f);
   color: white;
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   font-family: "Inter", sans-serif;
+  box-shadow: 0 2px 6px rgba(168, 181, 160, 0.2);
+  letter-spacing: 0.3px;
 }
 
 .expand-toggle-btn {
-  padding: 6px 12px;
-  background: var(--cream-white);
-  border: 1px solid var(--sage-green);
-  border-radius: 6px;
+  padding: 8px 16px;
+  background: var(--paper-white);
+  border: 2px solid var(--sage-green);
+  border-radius: 20px;
   color: var(--sage-green);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   font-family: "Inter", sans-serif;
+  box-shadow: 0 2px 6px rgba(168, 181, 160, 0.1);
 }
 
 .expand-toggle-btn:hover {
-  background: var(--sage-green);
+  background: linear-gradient(135deg, var(--sage-green), #8fa17f);
   color: white;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 181, 160, 0.25);
 }
 
 .expand-toggle-btn:active {
@@ -1230,6 +1246,181 @@ body::before {
   font-family: "Inter", sans-serif;
 }
 
+/* Search Input */
+.expense-search-input {
+  padding: 12px 16px;
+  border: 2px solid rgba(168, 181, 160, 0.2);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--paper-white);
+  color: var(--charcoal);
+  min-width: 150px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(168, 181, 160, 0.05);
+}
+
+.expense-search-input:focus {
+  border-color: var(--sage-green);
+  box-shadow: 0 0 0 3px rgba(168, 181, 160, 0.15),
+    0 4px 12px rgba(168, 181, 160, 0.1);
+  transform: translateY(-1px);
+}
+
+.expense-search-input::placeholder {
+  color: var(--text-soft);
+  font-style: italic;
+}
+
+/* Simplified Expense Cards */
+.expense-card-simple {
+  background: var(--paper-white);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(168, 181, 160, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(168, 181, 160, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.expense-card-simple::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--sage-green);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.expense-card-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(168, 181, 160, 0.15);
+  border-color: var(--sage-green);
+}
+
+.expense-card-simple:hover::before {
+  opacity: 1;
+}
+
+.expense-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+/* Add subtle animations */
+.expense-card-simple .expense-category-badge,
+.expense-card-simple .expense-date-simple,
+.expense-card-simple .expense-amount-simple {
+  transition: all 0.3s ease;
+}
+
+.expense-card-simple:hover .expense-category-badge {
+  transform: scale(1.05);
+}
+
+.expense-card-simple:hover .expense-date-simple {
+  background: rgba(168, 181, 160, 0.2);
+}
+
+.expense-date-simple {
+  font-size: 0.85rem;
+  color: var(--sage-green);
+  font-weight: 600;
+  min-width: 75px;
+  flex-shrink: 0;
+  background: rgba(168, 181, 160, 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.expense-category-badge {
+  background: linear-gradient(135deg, var(--sage-green), #8fa17f);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(168, 181, 160, 0.3);
+  transition: all 0.2s ease;
+}
+
+.expense-category-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 8px rgba(168, 181, 160, 0.4);
+}
+
+.expense-amount-simple {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.expense-currency {
+  font-size: 0.7rem;
+  color: var(--text-soft);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.expense-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--sage-green);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 120px;
+  text-shadow: 0 1px 2px rgba(168, 181, 160, 0.2);
+}
+
+.delete-btn-simple {
+  background: rgba(220, 53, 69, 0.1);
+  border: none;
+  color: #dc3545;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+  opacity: 0.7;
+}
+
+.delete-btn-simple:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.1);
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.expense-description-simple {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  font-style: italic;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(168, 181, 160, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(168, 181, 160, 0.3);
+}
+
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;
@@ -1242,6 +1433,42 @@ body::before {
 
   .expense-form-tab {
     padding: 20px;
+  }
+
+  .expenses-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .expense-card-main {
+    gap: 6px;
+  }
+
+  .expense-date-simple {
+    min-width: 65px;
+    font-size: 0.8rem;
+  }
+
+  .expense-category-badge {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
+
+  .expense-value {
+    font-size: 0.85rem;
+  }
+
+  .expense-currency {
+    font-size: 0.65rem;
+  }
+
+  .expand-toggle-btn {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+
+  .expense-count {
+    font-size: 0.8rem;
   }
 }
 
@@ -2257,11 +2484,12 @@ body::before {
 
 .recent-expenses-title {
   color: var(--charcoal);
-  margin-bottom: 15px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
   font-family: "Crimson Text", serif;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .expense-item {
@@ -3627,6 +3855,63 @@ body::before {
 
 [data-theme="dark"] .show-more-expenses {
   background: rgba(122, 140, 111, 0.1);
+}
+
+/* Dark Mode - Search Input */
+[data-theme="dark"] .expense-search-input {
+  background: var(--cream-white);
+  border-color: rgba(122, 140, 111, 0.3);
+  color: var(--charcoal);
+}
+
+[data-theme="dark"] .expense-search-input:focus {
+  border-color: var(--sage-green);
+  box-shadow: 0 0 0 2px rgba(122, 140, 111, 0.2);
+}
+
+[data-theme="dark"] .expense-search-input::placeholder {
+  color: var(--text-soft);
+}
+
+/* Dark Mode - Simplified Expense Cards */
+[data-theme="dark"] .expense-card-simple {
+  background: var(--cream-white);
+  border-color: rgba(122, 140, 111, 0.3);
+  box-shadow: 0 2px 8px rgba(122, 140, 111, 0.1);
+}
+
+[data-theme="dark"] .expense-card-simple:hover {
+  border-color: var(--sage-green);
+  box-shadow: 0 4px 16px rgba(122, 140, 111, 0.2);
+}
+
+[data-theme="dark"] .expense-date-simple {
+  color: var(--sage-green);
+  background: rgba(122, 140, 111, 0.15);
+}
+
+[data-theme="dark"] .expense-currency {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .expense-value {
+  color: var(--sage-green);
+}
+
+[data-theme="dark"] .expense-description-simple {
+  color: var(--text-soft);
+  background: rgba(122, 140, 111, 0.08);
+  border-left-color: rgba(122, 140, 111, 0.4);
+}
+
+[data-theme="dark"] .delete-btn-simple {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+[data-theme="dark"] .delete-btn-simple:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
 }
 
 /* Dark Mode - New Layout */
