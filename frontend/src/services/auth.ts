@@ -28,7 +28,18 @@ export class AuthService {
   // Get stored user
   static getUser(): User | null {
     const userStr = localStorage.getItem(USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr) return null;
+    try {
+      const parsed = JSON.parse(userStr);
+      // Backward compatibility: older versions stored 'name' instead of 'username'
+      if (parsed && !parsed.username && parsed.name) {
+        parsed.username = parsed.name;
+        delete parsed.name;
+      }
+      return parsed;
+    } catch {
+      return null;
+    }
   }
 
   // Store token and user

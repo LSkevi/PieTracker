@@ -66,7 +66,7 @@ const AuthenticatedApp: React.FC = () => {
     console.log("App mounted, loading:", loading);
     console.log("API Base:", import.meta.env.VITE_API_URL || "fallback");
     console.log("Environment:", import.meta.env.MODE);
-    console.log("User:", user?.name);
+    console.log("User:", user?.username);
   }, [loading, user]);
 
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
@@ -122,7 +122,7 @@ const AuthenticatedApp: React.FC = () => {
       {/* User Header with Title, Theme + Logout */}
       <div className="user-header">
         <div className="user-header-left">
-          <span className="user-greeting">Welcome, {user?.name}!</span>
+          <span className="user-greeting">Welcome, {user?.username}!</span>
           {isAdmin && (
             <div className="admin-nav">
               <button
