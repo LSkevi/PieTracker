@@ -49,6 +49,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [customCategory, setCustomCategory] = useState("");
   const [customCategoryColor, setCustomCategoryColor] = useState("#a8b5a0");
   const [isExpensesExpanded, setIsExpensesExpanded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [conversionMessage, setConversionMessage] = useState("");
   const [rateStatus, setRateStatus] = useState<string>("");
 
@@ -585,63 +586,118 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         <div className="expenses-header">
           <h3 className="recent-expenses-title">Expenses</h3>
           <div className="expenses-controls">
-            <span className="expense-count">{expenses.length} items</span>
             {expenses.length > 0 && (
-              <button
-                type="button"
-                className="expand-toggle-btn"
-                onClick={() => setIsExpensesExpanded(!isExpensesExpanded)}
-              >
-                {isExpensesExpanded ? "Show Less" : "Show All"}
-              </button>
+              <>
+                <span className="expense-count">
+                  {(() => {
+                    const filteredExpenses = expenses.filter(
+                      (expense) =>
+                        expense.description
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase()) ||
+                        expense.category
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase())
+                    );
+                    return searchTerm
+                      ? `${filteredExpenses.length} of ${expenses.length}`
+                      : `${expenses.length} items`;
+                  })()}
+                </span>
+                <button
+                  type="button"
+                  className="expand-toggle-btn"
+                  onClick={() => setIsExpensesExpanded(!isExpensesExpanded)}
+                >
+                  {isExpensesExpanded ? "Show Less" : "Show All"}
+                </button>
+              </>
             )}
           </div>
         </div>
+        {expenses.length > 0 && (
+          <div className="expenses-search-section">
+            <input
+              type="text"
+              placeholder="Search expenses..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="expense-search-input"
+            />
+          </div>
+        )}
         {expenses.length === 0 ? (
           <div className="no-data">No expenses yet this month</div>
         ) : (
           <div className="expenses-grid">
-            {(isExpensesExpanded ? expenses : expenses.slice(0, 6)).map(
-              (expense) => (
-                <div key={expense.id} className="expense-card">
-                  <div className="expense-card-header">
-                    <h4>{expense.description || "No description"}</h4>
+            {(() => {
+              const filteredExpenses = expenses.filter(
+                (expense) =>
+                  expense.description
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                  expense.category
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+              );
+              const displayExpenses = isExpensesExpanded
+                ? filteredExpenses
+                : filteredExpenses.slice(0, 3);
+
+              return displayExpenses.map((expense) => (
+                <div key={expense.id} className="expense-card-simple">
+                  <div className="expense-card-main">
+                    <div className="expense-date-simple">
+                      {format(new Date(expense.date), "dd/MM/yyyy")}
+                    </div>
+                    <div className="expense-category-badge">
+                      {expense.category}
+                    </div>
+                    <div className="expense-amount-simple">
+                      <span className="expense-currency">
+                        {expense.currency || "CAD"}
+                      </span>
+                      <span className="expense-value">
+                        {formatCurrency(
+                          convertedExpenseAmounts[expense.id] || expense.amount,
+                          selectedCurrency
+                        )}
+                      </span>
+                    </div>
                     <button
                       onClick={() => onDeleteExpense(expense.id)}
-                      className="delete-btn-card"
+                      className="delete-btn-simple"
                     >
                       ×
                     </button>
                   </div>
-                  <div className="expense-card-details">
-                    <span className="expense-category">{expense.category}</span>
-                    <span className="expense-date">{expense.date}</span>
-                    <span className="expense-amount-card">
-                      {formatCurrency(
-                        convertedExpenseAmounts[expense.id] || expense.amount,
-                        selectedCurrency
-                      )}
-                    </span>
-                    {(expense.currency || "CAD") !== selectedCurrency && (
-                      <span className="expense-original-currency">
-                        Originally:{" "}
-                        {formatCurrency(
-                          expense.amount,
-                          expense.currency || "CAD"
-                        )}
-                      </span>
-                    )}
-                  </div>
+                  {expense.description && (
+                    <div className="expense-description-simple">
+                      {expense.description}
+                    </div>
+                  )}
                 </div>
-              )
-            )}
+              ));
+            })()}
           </div>
         )}
-        {!isExpensesExpanded && expenses.length > 6 && (
-          <div className="show-more-expenses">
-            <p>And {expenses.length - 6} more expenses...</p>
-          </div>
-        )}
+        {(() => {
+          const filteredExpenses = expenses.filter(
+            (expense) =>
+              expense.description
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+              expense.category.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return (
+            !isExpensesExpanded &&
+            filteredExpenses.length > 3 && (
+              <div className="show-more-expenses">
+                <p>And {filteredExpenses.length - 3} more expenses...</p>
+              </div>
+            )
+          );
+        })()}
       </div>
 
       {/* Delete Category Confirmation Modal */}
