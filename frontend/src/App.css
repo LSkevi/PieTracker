@@ -909,29 +909,79 @@ body::before {
   transform: translateY(-1px);
 }
 
-/* Enhanced date picker styling */
-.form-group input[type="date"] {
+/* Custom Date Picker (full-bar clickable) */
+.date-input-wrapper {
   position: relative;
-  cursor: pointer;
-  background: var(--paper-white);
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a8b5a0"><path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.89 3 3 3.9 3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 18px 18px;
-  padding-right: 40px;
-  min-width: 0;
   width: 100%;
 }
 
-.form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  cursor: pointer;
+.date-input-hidden {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.date-input-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--paper-white);
+  border: 2px solid rgba(168, 181, 160, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--charcoal);
+  min-height: 48px;
+  font-family: "Inter", sans-serif;
+}
+.date-input-display:hover {
+  border-color: var(--sage-green);
+  box-shadow: 0 4px 12px rgba(168, 181, 160, 0.15);
+  transform: translateY(-1px);
+}
+.date-value {
+  flex: 1;
+  text-align: left;
+  letter-spacing: 0.3px;
+}
+.date-input-display .calendar-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--sage-green);
+  opacity: 0.85;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+.date-input-display:hover .calendar-icon {
+  color: var(--muted-teal);
+  opacity: 1;
+}
+
+/* Keyboard focus style */
+.date-input-display:focus-visible {
+  outline: 3px solid var(--sage-green);
+  outline-offset: 2px;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .date-input-display {
+  background: var(--paper-white);
+  border: 2px solid var(--warm-gray);
+  color: var(--charcoal);
+}
+[data-theme="dark"] .date-input-display:hover {
+  border-color: var(--sage-green);
+  box-shadow: 0 4px 12px rgba(122, 140, 111, 0.25);
+}
+[data-theme="dark"] .date-input-display .calendar-icon {
+  color: var(--sage-green);
+}
+[data-theme="dark"] .date-input-display:hover .calendar-icon {
+  color: var(--accent-gold);
 }
 
 .btn-primary {
