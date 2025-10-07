@@ -36,7 +36,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   });
 
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Touch tooltip state
   const [touchTooltip, setTouchTooltip] = useState<{
     active: boolean;
@@ -116,18 +116,21 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   // Handle clicks outside to close touch tooltip
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (touchTooltip.active && chartContainerRef.current && 
-          !chartContainerRef.current.contains(event.target as Node)) {
+      if (
+        touchTooltip.active &&
+        chartContainerRef.current &&
+        !chartContainerRef.current.contains(event.target as Node)
+      ) {
         setTouchTooltip({ active: false, data: null });
       }
     };
 
     if (touchTooltip.active) {
-      document.addEventListener('click', handleClickOutside);
-      document.addEventListener('touchstart', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
       return () => {
-        document.removeEventListener('click', handleClickOutside);
-        document.removeEventListener('touchstart', handleClickOutside);
+        document.removeEventListener("click", handleClickOutside);
+        document.removeEventListener("touchstart", handleClickOutside);
       };
     }
   }, [touchTooltip.active]);
@@ -135,9 +138,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   // Handle pie slice click/touch
   const handlePieClick = (data: PieDataItem) => {
     // Only handle on touch devices
-    if (!('ontouchstart' in window)) return;
+    if (!("ontouchstart" in window)) return;
 
-    const totalForPercentage = convertedTotal || (summary?.total || 0);
+    const totalForPercentage = convertedTotal || summary?.total || 0;
     const percentage = ((data.value / totalForPercentage) * 100).toFixed(1);
 
     // If same slice is already active, hide tooltip
@@ -152,8 +155,8 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
       data: {
         name: data.name,
         value: data.value,
-        percentage: percentage
-      }
+        percentage: percentage,
+      },
     });
   };
 
@@ -169,7 +172,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltipWithSummary = (props: any) => {
     const { active, payload } = props;
-    
+
     // Show touch tooltip if active (takes priority)
     if (touchTooltip.active && touchTooltip.data) {
       return (
@@ -178,13 +181,21 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           <p className="tooltip-value">
             {formatCurrency(touchTooltip.data.value, selectedCurrency)}
           </p>
-          <p className="tooltip-value">{touchTooltip.data.percentage}% of total</p>
+          <p className="tooltip-value">
+            {touchTooltip.data.percentage}% of total
+          </p>
         </div>
       );
     }
-    
+
     // Show hover tooltip only if not on touch device or no touch tooltip active
-    if (active && payload && payload.length && summary && !('ontouchstart' in window)) {
+    if (
+      active &&
+      payload &&
+      payload.length &&
+      summary &&
+      !("ontouchstart" in window)
+    ) {
       const data = payload[0];
 
       // Calculate percentage from converted total
