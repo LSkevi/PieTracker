@@ -21,7 +21,7 @@
   --shadow-soft: 0 8px 32px rgba(168, 181, 160, 0.2);
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-button: 0 6px 24px rgba(168, 181, 160, 0.3);
-  
+
   /* Warm overlay colors for better eye comfort */
   --warm-overlay: rgba(241, 234, 220, 0.98);
   --warm-overlay-light: rgba(241, 234, 220, 0.95);
