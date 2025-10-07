@@ -69,8 +69,12 @@ def get_user_by_email(email: str) -> Optional[Dict[str, str]]:
     email_l = email.lower().strip()
     return next((u for u in users_db.values() if u.get("email") == email_l), None)
 
-def authenticate_user(email: str, password: str) -> Optional[Dict[str, str]]:
-    user = get_user_by_email(email)
+def get_user_by_username(username: str) -> Optional[Dict[str, str]]:
+    username_l = username.lower().strip()
+    return next((u for u in users_db.values() if u.get("username", "").lower() == username_l), None)
+
+def authenticate_user(username: str, password: str) -> Optional[Dict[str, str]]:
+    user = get_user_by_username(username)
     if not user:
         return None
     if not verify_password(password, user.get("password_hash", "")):
@@ -93,6 +97,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     user = users_db.get(user_id)
     if user is None:
         raise credentials_exception
+    
+    # Check if user is active
+    if not user.get("is_active", True):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is deactivated"
+        )
+    
     return user
 
 # CORS middleware to allow React frontend
@@ -357,18 +369,18 @@ async def get_currencies():
 # =====================
 
 class SignupRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(min_length=6, max_length=256)
-    name: Optional[str] = Field(default=None, min_length=2, max_length=120)
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    username: str = Field(min_length=1, max_length=50)
     password: str = Field(min_length=1, max_length=256)
 
 class UserOut(BaseModel):
     id: str
+    username: str
     email: EmailStr
-    name: str
     created_at: str
 
 class AuthResponse(BaseModel):
@@ -386,42 +398,87 @@ class ResetPasswordRequest(BaseModel):
 @app.post("/auth/signup", response_model=AuthResponse)
 async def signup(req: SignupRequest):
     email = req.email.lower().strip()
+    username = req.username.lower().strip()
+    
+    # Check if email already exists
     if get_user_by_email(email):
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Check if username already exists
+    if get_user_by_username(username):
+        raise HTTPException(status_code=400, detail="Username already taken")
+    
     password = req.password
     if len(password) > 256:
         raise HTTPException(status_code=400, detail="Password must be 256 characters or fewer")
-    name = (req.name or email.split("@")[0]).strip()
+    
     import uuid
     user_id = str(uuid.uuid4())
     new_user = {
         "id": user_id,
+        "username": username,
         "email": email,
-        "name": name,
         "password_hash": hash_password(password),
         "created_at": datetime.utcnow().isoformat() + "Z",
+        "role": "admin" if email == "admin@pietracker.com" else "user",
+        "is_active": True,
+        "last_login": None
     }
     users_db[user_id] = new_user
     save_users()
     token = create_access_token({"sub": user_id})
     return AuthResponse(
-        user=UserOut(**{k: new_user[k] for k in ["id", "email", "name", "created_at"]}),
+        user=UserOut(**{k: new_user[k] for k in ["id", "username", "email", "created_at"]}),
         token=token,
         message="Signup successful"
     )
 
 @app.post("/auth/login", response_model=AuthResponse)
 async def login(credentials: LoginRequest):
-    email = credentials.email.lower().strip()
+    username = credentials.username.lower().strip()
     password = credentials.password
     if len(password) > 256:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    user = authenticate_user(email, password)
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    # Special admin login
+    if username == "admin" and password == "admin123":
+        # Create/update admin user if doesn't exist
+        admin_user_id = "admin-super-user"
+        admin_user = {
+            "id": admin_user_id,
+            "username": "admin",
+            "email": "admin@pietracker.com",
+            "password_hash": hash_password("admin123"),
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "role": "super_admin",
+            "is_active": True,
+            "last_login": datetime.utcnow().isoformat() + "Z"
+        }
+        users_db[admin_user_id] = admin_user
+        save_users()
+        
+        token = create_access_token({"sub": admin_user_id})
+        return AuthResponse(
+            user=UserOut(**{k: admin_user[k] for k in ["id", "username", "email", "created_at"]}),
+            token=token,
+            message="Admin login successful"
+        )
+    
+    user = authenticate_user(username, password)
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    # Check if user is active
+    if not user.get("is_active", True):
+        raise HTTPException(status_code=403, detail="Account is deactivated")
+    
+    # Update last login
+    user["last_login"] = datetime.utcnow().isoformat() + "Z"
+    save_users()
+    
     token = create_access_token({"sub": user["id"]})
     return AuthResponse(
-        user=UserOut(**{k: user[k] for k in ["id", "email", "name", "created_at"]}),
+        user=UserOut(**{k: user[k] for k in ["id", "username", "email", "created_at"]}),
         token=token,
         message="Login successful"
     )
@@ -487,6 +544,165 @@ async def reset_password(req: ResetPasswordRequest):
     save_users()
     del PASSWORD_RESET_TOKENS[req.token]
     return {"message": "Password reset successful. You may now log in."}
+
+# =====================
+# Admin User Management Endpoints
+# =====================
+
+def is_admin_user(user: dict) -> bool:
+    """Check if user has admin privileges. You can customize this logic."""
+    return (user.get("role") == "admin" or 
+            user.get("role") == "super_admin" or 
+            user.get("email") == "admin@pietracker.com" or
+            user.get("id") == "admin-super-user")
+
+@app.get("/admin/users", dependencies=[Depends(get_current_user)])
+async def list_all_users(current_user: dict = Depends(get_current_user)):
+    """List all users - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Return user info with ALL data for admin
+    users_list = []
+    for user_id, user in users_db.items():
+        # Count user's expense data
+        user_expense_file = f"{user_id}_expenses.json"
+        expense_count = 0
+        if os.path.exists(user_expense_file):
+            try:
+                with open(user_expense_file, 'r') as f:
+                    expenses = json.load(f)
+                    expense_count = len(expenses) if isinstance(expenses, list) else 0
+            except:
+                expense_count = 0
+        
+        users_list.append({
+            "id": user_id,
+            "email": user.get("email"),
+            "name": user.get("name"),
+            "password_hash": user.get("password_hash"),  # Include for admin view
+            "role": user.get("role", "user"),
+            "created_at": user.get("created_at"),
+            "last_login": user.get("last_login"),
+            "is_active": user.get("is_active", True),
+            "expense_count": expense_count
+        })
+    
+    return {"users": users_list, "total": len(users_list)}
+
+class UpdateUserRequest(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+@app.put("/admin/users/{user_id}", dependencies=[Depends(get_current_user)])
+async def update_user(user_id: str, update_data: UpdateUserRequest, current_user: dict = Depends(get_current_user)):
+    """Update user data - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if user_id not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user = users_db[user_id]
+    
+    # Update fields if provided
+    if update_data.username is not None:
+        # Check if username already exists
+        new_username = update_data.username.lower().strip()
+        if any(u.get("username", "").lower() == new_username for uid, u in users_db.items() if uid != user_id):
+            raise HTTPException(status_code=400, detail="Username already exists")
+        user["username"] = new_username
+    
+    if update_data.email is not None:
+        # Check if email already exists
+        new_email = update_data.email.lower().strip()
+        if any(u.get("email") == new_email for uid, u in users_db.items() if uid != user_id):
+            raise HTTPException(status_code=400, detail="Email already exists")
+        user["email"] = new_email
+    
+    if update_data.password is not None:
+        user["password_hash"] = hash_password(update_data.password)
+    
+    if update_data.role is not None:
+        user["role"] = update_data.role
+    
+    if update_data.is_active is not None:
+        user["is_active"] = update_data.is_active
+    
+    save_users()
+    return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": user}
+
+@app.post("/admin/users/{user_id}/deactivate", dependencies=[Depends(get_current_user)])
+async def deactivate_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Deactivate a user account - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if user_id not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    users_db[user_id]["is_active"] = False
+    save_users()
+    return {"message": f"User {users_db[user_id]['email']} deactivated"}
+
+@app.post("/admin/users/{user_id}/activate", dependencies=[Depends(get_current_user)])
+async def activate_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Activate a user account - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if user_id not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    users_db[user_id]["is_active"] = True
+    save_users()
+    return {"message": f"User {users_db[user_id]['email']} activated"}
+
+@app.delete("/admin/users/{user_id}", dependencies=[Depends(get_current_user)])
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a user account - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if user_id not in users_db:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Also delete user's expense data
+    user_expense_file = f"{user_id}_expenses.json"
+    if os.path.exists(user_expense_file):
+        os.remove(user_expense_file)
+    
+    user_categories_file = f"{user_id}_categories.json"
+    if os.path.exists(user_categories_file):
+        os.remove(user_categories_file)
+    
+    email = users_db[user_id]["email"]
+    del users_db[user_id]
+    save_users()
+    return {"message": f"User {email} and all associated data deleted"}
+
+@app.get("/admin/stats", dependencies=[Depends(get_current_user)])
+async def get_admin_stats(current_user: dict = Depends(get_current_user)):
+    """Get admin statistics - Admin only"""
+    if not is_admin_user(current_user):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    total_users = len(users_db)
+    active_users = len([u for u in users_db.values() if u.get("is_active", True)])
+    
+    # Count expense files to estimate active users
+    expense_files = [f for f in os.listdir(".") if f.endswith("_expenses.json")]
+    users_with_data = len(expense_files)
+    
+    return {
+        "total_users": total_users,
+        "active_users": active_users,
+        "inactive_users": total_users - active_users,
+        "users_with_expense_data": users_with_data
+    }
 
 if __name__ == "__main__":
     import uvicorn

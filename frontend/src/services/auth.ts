@@ -81,9 +81,9 @@ export class AuthService {
   static async signup(data: SignupData): Promise<AuthResponse> {
     try {
       const response = await axios.post(`${API_BASE}/auth/signup`, {
+        username: data.username,
         email: data.email,
         password: data.password,
-        name: data.name,
       });
       const authData: AuthResponse = response.data;
 
