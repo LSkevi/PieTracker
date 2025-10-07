@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { MonthlySummary, PieDataItem, Expense } from "../types";
@@ -172,33 +183,43 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   // Prepare yearly spending data for line chart
   const prepareYearlyData = () => {
     const monthlyTotals: { [key: string]: number } = {};
-    
+
     // Initialize all months with 0
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
-    
-    months.forEach(month => {
+
+    months.forEach((month) => {
       monthlyTotals[month] = 0;
     });
 
     // Calculate monthly totals for the selected year
     expenses
-      .filter(expense => {
+      .filter((expense) => {
         const expenseDate = new Date(expense.date);
         return expenseDate.getFullYear() === selectedYear;
       })
-      .forEach(expense => {
+      .forEach((expense) => {
         const expenseDate = new Date(expense.date);
         const monthKey = months[expenseDate.getMonth()];
         monthlyTotals[monthKey] += expense.amount;
       });
 
     // Convert to chart data format
-    return months.map(month => ({
+    return months.map((month) => ({
       month,
-      spending: monthlyTotals[month]
+      spending: monthlyTotals[month],
     }));
   };
 
@@ -209,7 +230,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
       const data = payload[0];
       return (
         <div className="tooltip">
-          <p className="tooltip-label">{label} {selectedYear}</p>
+          <p className="tooltip-label">
+            {label} {selectedYear}
+          </p>
           <p className="tooltip-value">
             {formatCurrency(data.value, selectedCurrency)}
           </p>
@@ -373,7 +396,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
           Start tracking your spending to see your chart!
         </div>
       )}
-      
+
       {/* Yearly Spending Trends Panel - Always show when there's a summary */}
       <div className="big-chart-container yearly-trends-container">
         <div className="month-display">
@@ -382,49 +405,53 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
         <div className="chart-title">Yearly Spending Trends</div>
         <div className="big-chart-area">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
+            <LineChart
               data={prepareYearlyData()}
               margin={{ top: 32, right: 40, bottom: 32, left: 40 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--warm-gray)" opacity={0.3} />
-              <XAxis 
-                dataKey="month" 
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--warm-gray)"
+                opacity={0.3}
+              />
+              <XAxis
+                dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: 'var(--charcoal)', 
-                  fontSize: 12, 
-                  fontWeight: 500 
+                tick={{
+                  fill: "var(--charcoal)",
+                  fontSize: 12,
+                  fontWeight: 500,
                 }}
               />
-              <YAxis 
+              <YAxis
                 domain={[0, 3000]}
                 axisLine={false}
                 tickLine={false}
-                tick={{ 
-                  fill: 'var(--charcoal)', 
-                  fontSize: 12, 
-                  fontWeight: 500 
+                tick={{
+                  fill: "var(--charcoal)",
+                  fontSize: 12,
+                  fontWeight: 500,
                 }}
                 tickFormatter={(value) => `$${value}`}
               />
               <Tooltip content={LineTooltip} />
-              <Line 
-                type="monotone" 
-                dataKey="spending" 
-                stroke="var(--sage-green)" 
+              <Line
+                type="monotone"
+                dataKey="spending"
+                stroke="var(--sage-green)"
                 strokeWidth={3}
-                dot={{ 
-                  fill: 'var(--sage-green)', 
-                  strokeWidth: 2, 
-                  stroke: 'var(--paper-white)', 
-                  r: 6 
+                dot={{
+                  fill: "var(--sage-green)",
+                  strokeWidth: 2,
+                  stroke: "var(--paper-white)",
+                  r: 6,
                 }}
-                activeDot={{ 
-                  r: 8, 
-                  stroke: 'var(--sage-green)', 
-                  strokeWidth: 3, 
-                  fill: 'var(--paper-white)' 
+                activeDot={{
+                  r: 8,
+                  stroke: "var(--sage-green)",
+                  strokeWidth: 3,
+                  fill: "var(--paper-white)",
                 }}
               />
             </LineChart>
