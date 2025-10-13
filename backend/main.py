@@ -13,6 +13,19 @@ import shutil
 import tempfile
 from collections import defaultdict
 import uuid
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Try to import database service
+try:
+    from simple_db import db_service
+    logger.info("Database service initialized")
+except ImportError as e:
+    logger.warning(f"Database service not available: {e}")
+    db_service = None
 
 # In-memory password reset token store (token -> {user_id, exp})
 PASSWORD_RESET_TOKENS: Dict[str, Dict[str, str]] = {}
@@ -92,6 +105,10 @@ def _safe_write_json(path: str, data):
 
 def save_users():
     _safe_write_json(USERS_FILE, users_db)
+    # Also save to database if available
+    if db_service and db_service.use_db:
+        for user_id, user_data in users_db.items():
+            db_service.save_user(user_id, user_data)
 
 load_users()
 
@@ -226,6 +243,10 @@ def load_categories():
 # Save data to file
 def save_expenses():
     _safe_write_json(DATA_FILE, expenses_db)
+    # Also save to database if available
+    if db_service and db_service.use_db:
+        for expense in expenses_db:
+            db_service.save_expense(expense)
 
 def save_categories():
     _safe_write_json(CATEGORIES_FILE, categories_db)
