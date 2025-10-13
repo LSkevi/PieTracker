@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PasswordInput from "../ui/PasswordInput";
 import type { SignupData } from "../../types/auth";
 
 interface SignupFormProps {
@@ -140,8 +141,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
           <div className="auth-form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               name="password"
               value={formData.password}
@@ -161,8 +161,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
           <div className="auth-form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
+            <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
