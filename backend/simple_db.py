@@ -276,7 +276,9 @@ class SimpleDBService:
             if "email" in update_data:
                 user.email = update_data["email"]
             if "password_hash" in update_data:
+                # Update both password fields for compatibility
                 user.password_hash = update_data["password_hash"]
+                user.hashed_password = update_data["password_hash"]
             if "role" in update_data:
                 user.role = update_data["role"]
             if "is_active" in update_data:
