@@ -199,6 +199,16 @@ app.add_middleware(
 async def health_check():
     return {"status": "healthy", "message": "PieTracker API is running"}
 
+# Database status endpoint for testing
+@app.get("/db-status")
+async def database_status():
+    db_connected = db_service and db_service.use_db
+    return {
+        "database_connected": db_connected,
+        "storage_type": "PostgreSQL" if db_connected else "File Storage",
+        "message": "Database connection successful" if db_connected else "Using file storage fallback"
+    }
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to PieTracker API", "docs": "/docs"}
