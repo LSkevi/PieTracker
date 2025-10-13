@@ -659,32 +659,49 @@ async def list_all_users(current_user: dict = Depends(get_current_user)):
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    # Return user info with ALL data for admin
     users_list = []
-    for user_id, user in users_db.items():
-        # Count user's expense data
-        user_expense_file = f"{user_id}_expenses.json"
-        expense_count = 0
-        if os.path.exists(user_expense_file):
-            try:
-                with open(user_expense_file, 'r') as f:
-                    expenses = json.load(f)
-                    expense_count = len(expenses) if isinstance(expenses, list) else 0
-            except:
-                expense_count = 0
-        
-        users_list.append({
-            "id": user_id,
-            "email": user.get("email"),
-            # Provide username (primary) with legacy fallback. If only legacy 'name' existed, migrate in-memory.
-            "username": user.get("username") or user.get("name"),
-            "password_hash": user.get("password_hash"),  # Include for admin view
-            "role": user.get("role", "user"),
-            "created_at": user.get("created_at"),
-            "last_login": user.get("last_login"),
-            "is_active": user.get("is_active", True),
-            "expense_count": expense_count
-        })
+    
+    if db_service and db_service.use_db:
+        # Get users from PostgreSQL database
+        db_users = db_service.get_all_users()
+        for user_id, user in db_users.items():
+            expense_count = db_service.get_user_expense_count(user_id)
+            users_list.append({
+                "id": user_id,
+                "email": user.get("email"),
+                "username": user.get("username") or user.get("email", "").split("@")[0],
+                "password_hash": user.get("password_hash"),  # Include for admin view
+                "role": user.get("role", "user"),
+                "created_at": user.get("created_at"),
+                "last_login": user.get("last_login"),
+                "is_active": user.get("is_active", "true") == "true",
+                "expense_count": expense_count
+            })
+    else:
+        # Fallback to file storage
+        for user_id, user in users_db.items():
+            # Count user's expense data from files
+            user_expense_file = f"{user_id}_expenses.json"
+            expense_count = 0
+            if os.path.exists(user_expense_file):
+                try:
+                    with open(user_expense_file, 'r') as f:
+                        expenses = json.load(f)
+                        expense_count = len(expenses) if isinstance(expenses, list) else 0
+                except:
+                    expense_count = 0
+            
+            users_list.append({
+                "id": user_id,
+                "email": user.get("email"),
+                "username": user.get("username") or user.get("name"),
+                "password_hash": user.get("password_hash"),  # Include for admin view
+                "role": user.get("role", "user"),
+                "created_at": user.get("created_at"),
+                "last_login": user.get("last_login"),
+                "is_active": user.get("is_active", True),
+                "expense_count": expense_count
+            })
     
     return {"users": users_list, "total": len(users_list)}
 
@@ -701,37 +718,80 @@ async def update_user(user_id: str, update_data: UpdateUserRequest, current_user
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    if user_id not in users_db:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    user = users_db[user_id]
-    
-    # Update fields if provided
-    if update_data.username is not None:
-        # Check if username already exists
-        new_username = update_data.username.lower().strip()
-        if any(u.get("username", "").lower() == new_username for uid, u in users_db.items() if uid != user_id):
-            raise HTTPException(status_code=400, detail="Username already exists")
-        user["username"] = new_username
-    
-    if update_data.email is not None:
-        # Check if email already exists
-        new_email = update_data.email.lower().strip()
-        if any(u.get("email") == new_email for uid, u in users_db.items() if uid != user_id):
-            raise HTTPException(status_code=400, detail="Email already exists")
-        user["email"] = new_email
-    
-    if update_data.password is not None:
-        user["password_hash"] = hash_password(update_data.password)
-    
-    if update_data.role is not None:
-        user["role"] = update_data.role
-    
-    if update_data.is_active is not None:
-        user["is_active"] = update_data.is_active
-    
-    save_users()
-    return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": user}
+    if db_service and db_service.use_db:
+        # Use database service
+        user = db_service.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Prepare update data
+        update_dict = {}
+        
+        if update_data.username is not None:
+            # Check if username already exists
+            new_username = update_data.username.lower().strip()
+            if db_service.check_username_exists(new_username, exclude_user_id=user_id):
+                raise HTTPException(status_code=400, detail="Username already exists")
+            update_dict["username"] = new_username
+        
+        if update_data.email is not None:
+            # Check if email already exists
+            new_email = update_data.email.lower().strip()
+            if db_service.check_email_exists(new_email, exclude_user_id=user_id):
+                raise HTTPException(status_code=400, detail="Email already exists")
+            update_dict["email"] = new_email
+        
+        if update_data.password is not None:
+            update_dict["password_hash"] = hash_password(update_data.password)
+        
+        if update_data.role is not None:
+            update_dict["role"] = update_data.role
+        
+        if update_data.is_active is not None:
+            update_dict["is_active"] = str(update_data.is_active).lower()
+        
+        # Update in database
+        if db_service.update_user(user_id, update_dict):
+            # Also update in file storage for backup
+            if user_id in users_db:
+                users_db[user_id].update(update_dict)
+                save_users()
+            return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": {**user, **update_dict}}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to update user")
+    else:
+        # Fallback to file storage
+        if user_id not in users_db:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user = users_db[user_id]
+        
+        # Update fields if provided
+        if update_data.username is not None:
+            # Check if username already exists
+            new_username = update_data.username.lower().strip()
+            if any(u.get("username", "").lower() == new_username for uid, u in users_db.items() if uid != user_id):
+                raise HTTPException(status_code=400, detail="Username already exists")
+            user["username"] = new_username
+        
+        if update_data.email is not None:
+            # Check if email already exists
+            new_email = update_data.email.lower().strip()
+            if any(u.get("email") == new_email for uid, u in users_db.items() if uid != user_id):
+                raise HTTPException(status_code=400, detail="Email already exists")
+            user["email"] = new_email
+        
+        if update_data.password is not None:
+            user["password_hash"] = hash_password(update_data.password)
+        
+        if update_data.role is not None:
+            user["role"] = update_data.role
+        
+        if update_data.is_active is not None:
+            user["is_active"] = update_data.is_active
+        
+        save_users()
+        return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": user}
 
 @app.post("/admin/users/{user_id}/deactivate", dependencies=[Depends(get_current_user)])
 async def deactivate_user(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -739,12 +799,28 @@ async def deactivate_user(user_id: str, current_user: dict = Depends(get_current
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    if user_id not in users_db:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    users_db[user_id]["is_active"] = False
-    save_users()
-    return {"message": f"User {users_db[user_id]['email']} deactivated"}
+    if db_service and db_service.use_db:
+        # Use database service
+        user = db_service.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if db_service.update_user(user_id, {"is_active": "false"}):
+            # Also update in file storage for backup
+            if user_id in users_db:
+                users_db[user_id]["is_active"] = False
+                save_users()
+            return {"message": f"User {user['email']} deactivated"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to deactivate user")
+    else:
+        # Fallback to file storage
+        if user_id not in users_db:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        users_db[user_id]["is_active"] = False
+        save_users()
+        return {"message": f"User {users_db[user_id]['email']} deactivated"}
 
 @app.post("/admin/users/{user_id}/activate", dependencies=[Depends(get_current_user)])
 async def activate_user(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -752,10 +828,28 @@ async def activate_user(user_id: str, current_user: dict = Depends(get_current_u
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    if user_id not in users_db:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    users_db[user_id]["is_active"] = True
+    if db_service and db_service.use_db:
+        # Use database service
+        user = db_service.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if db_service.update_user(user_id, {"is_active": "true"}):
+            # Also update in file storage for backup
+            if user_id in users_db:
+                users_db[user_id]["is_active"] = True
+                save_users()
+            return {"message": f"User {user['email']} activated"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to activate user")
+    else:
+        # Fallback to file storage
+        if user_id not in users_db:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        users_db[user_id]["is_active"] = True
+        save_users()
+        return {"message": f"User {users_db[user_id]['email']} activated"}
     save_users()
     return {"message": f"User {users_db[user_id]['email']} activated"}
 
