@@ -148,25 +148,9 @@ def get_user_by_email(email: str) -> Optional[Dict[str, str]]:
     email_l = email.lower().strip()
     if db_service and db_service.use_db:
         # Try database first
-        try:
-            from simple_db import User
-            session = db_service.get_session()
-            if session:
-                user = session.query(User).filter(User.email == email_l).first()
-                session.close()
-                if user:
-                    return {
-                        "id": user.id,
-                        "email": user.email,
-                        "username": getattr(user, 'username', None) or user.email.split("@")[0],
-                        "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
-                        "role": getattr(user, 'role', 'user'),
-                        "is_active": user.is_active,
-                        "created_at": getattr(user, 'created_at', None),
-                        "last_login": getattr(user, 'last_login', None)
-                    }
-        except Exception as e:
-            logger.error(f"Error getting user by email from database: {e}")
+        db_user_data = db_service.get_user_by_email(email_l)
+        if db_user_data:
+            return db_user_data
     
     # Fallback to file storage
     return next((u for u in users_db.values() if u.get("email") == email_l), None)
@@ -175,25 +159,9 @@ def get_user_by_username(username: str) -> Optional[Dict[str, str]]:
     username_l = username.lower().strip()
     if db_service and db_service.use_db:
         # Try database first
-        try:
-            from simple_db import User
-            session = db_service.get_session()
-            if session:
-                user = session.query(User).filter(User.username == username_l).first()
-                session.close()
-                if user:
-                    return {
-                        "id": user.id,
-                        "email": user.email,
-                        "username": getattr(user, 'username', None) or user.email.split("@")[0],
-                        "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
-                        "role": getattr(user, 'role', 'user'),
-                        "is_active": user.is_active,
-                        "created_at": getattr(user, 'created_at', None),
-                        "last_login": getattr(user, 'last_login', None)
-                    }
-        except Exception as e:
-            logger.error(f"Error getting user by username from database: {e}")
+        db_user_data = db_service.get_user_by_username(username_l)
+        if db_user_data:
+            return db_user_data
     
     # Fallback to file storage
     return next((u for u in users_db.values() if u.get("username", "").lower() == username_l), None)
@@ -615,13 +583,23 @@ async def login(credentials: LoginRequest):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
     # Check if user is active
-    if not user.get("is_active", True):
+    user_active = user.get("is_active", True)
+    if isinstance(user_active, str):
+        user_active = user_active.lower() == "true"
+    if not user_active:
         raise HTTPException(status_code=403, detail="Account is deactivated")
     
-    # Update last login
-    user["last_login"] = datetime.utcnow().isoformat() + "Z"
-    save_users()
+    # Update last login in both database and file storage
+    current_time = datetime.utcnow().isoformat() + "Z"
+    if db_service and db_service.use_db:
+        # Update in database
+        db_service.update_user(user["id"], {"last_login": current_time})
     
+    # Update in file storage for backup
+    if user["id"] in users_db:
+        users_db[user["id"]]["last_login"] = current_time
+        save_users()
+
     token = create_access_token({"sub": user["id"]})
     return AuthResponse(
         user=UserOut(**{k: user[k] for k in ["id", "username", "email", "created_at"]}),
