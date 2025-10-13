@@ -146,17 +146,72 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def get_user_by_email(email: str) -> Optional[Dict[str, str]]:
     email_l = email.lower().strip()
+    if db_service and db_service.use_db:
+        # Try database first
+        try:
+            from simple_db import User
+            session = db_service.get_session()
+            if session:
+                user = session.query(User).filter(User.email == email_l).first()
+                session.close()
+                if user:
+                    return {
+                        "id": user.id,
+                        "email": user.email,
+                        "username": getattr(user, 'username', None) or user.email.split("@")[0],
+                        "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
+                        "role": getattr(user, 'role', 'user'),
+                        "is_active": user.is_active,
+                        "created_at": getattr(user, 'created_at', None),
+                        "last_login": getattr(user, 'last_login', None)
+                    }
+        except Exception as e:
+            logger.error(f"Error getting user by email from database: {e}")
+    
+    # Fallback to file storage
     return next((u for u in users_db.values() if u.get("email") == email_l), None)
 
 def get_user_by_username(username: str) -> Optional[Dict[str, str]]:
     username_l = username.lower().strip()
+    if db_service and db_service.use_db:
+        # Try database first
+        try:
+            from simple_db import User
+            session = db_service.get_session()
+            if session:
+                user = session.query(User).filter(User.username == username_l).first()
+                session.close()
+                if user:
+                    return {
+                        "id": user.id,
+                        "email": user.email,
+                        "username": getattr(user, 'username', None) or user.email.split("@")[0],
+                        "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
+                        "role": getattr(user, 'role', 'user'),
+                        "is_active": user.is_active,
+                        "created_at": getattr(user, 'created_at', None),
+                        "last_login": getattr(user, 'last_login', None)
+                    }
+        except Exception as e:
+            logger.error(f"Error getting user by username from database: {e}")
+    
+    # Fallback to file storage
     return next((u for u in users_db.values() if u.get("username", "").lower() == username_l), None)
 
 def authenticate_user(username: str, password: str) -> Optional[Dict[str, str]]:
-    user = get_user_by_username(username)
+    # Try to find user by email first, then by username
+    user = get_user_by_email(username)
+    if not user:
+        user = get_user_by_username(username)
+    
     if not user:
         return None
-    if not verify_password(password, user.get("password_hash", "")):
+    
+    password_hash = user.get("password_hash", "")
+    if not password_hash:
+        return None
+        
+    if not verify_password(password, password_hash):
         return None
     return user
 
