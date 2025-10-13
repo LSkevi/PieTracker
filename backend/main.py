@@ -860,22 +860,51 @@ async def delete_user(user_id: str, current_user: dict = Depends(get_current_use
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    if user_id not in users_db:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Also delete user's expense data
-    user_expense_file = f"{user_id}_expenses.json"
-    if os.path.exists(user_expense_file):
-        os.remove(user_expense_file)
-    
-    user_categories_file = f"{user_id}_categories.json"
-    if os.path.exists(user_categories_file):
-        os.remove(user_categories_file)
-    
-    email = users_db[user_id]["email"]
-    del users_db[user_id]
-    save_users()
-    return {"message": f"User {email} and all associated data deleted"}
+    if db_service and db_service.use_db:
+        # Use database service
+        user = db_service.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_email = user.get("email", "Unknown")
+        
+        # Delete from database
+        if db_service.delete_user(user_id):
+            # Also remove from file storage for backup consistency
+            if user_id in users_db:
+                del users_db[user_id]
+                save_users()
+            
+            # Clean up file-based data if it exists
+            user_expense_file = f"{user_id}_expenses.json"
+            if os.path.exists(user_expense_file):
+                os.remove(user_expense_file)
+            
+            user_categories_file = f"{user_id}_categories.json"
+            if os.path.exists(user_categories_file):
+                os.remove(user_categories_file)
+            
+            return {"message": f"User {user_email} and all associated data deleted"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to delete user")
+    else:
+        # Fallback to file storage
+        if user_id not in users_db:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Delete user's expense data
+        user_expense_file = f"{user_id}_expenses.json"
+        if os.path.exists(user_expense_file):
+            os.remove(user_expense_file)
+        
+        user_categories_file = f"{user_id}_categories.json"
+        if os.path.exists(user_categories_file):
+            os.remove(user_categories_file)
+        
+        email = users_db[user_id]["email"]
+        del users_db[user_id]
+        save_users()
+        return {"message": f"User {email} and all associated data deleted"}
 
 @app.get("/admin/stats", dependencies=[Depends(get_current_user)])
 async def get_admin_stats(current_user: dict = Depends(get_current_user)):

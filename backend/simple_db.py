@@ -330,6 +330,37 @@ class SimpleDBService:
             return False
         finally:
             session.close()
+    
+    def delete_user(self, user_id):
+        """Delete a user and all their associated data from database"""
+        if not self.use_db:
+            return False
+            
+        session = self.get_session()
+        if not session:
+            return False
+            
+        try:
+            # First, delete all user's expenses
+            session.query(Expense).filter(Expense.user_id == user_id).delete()
+            
+            # Then delete the user
+            user = session.query(User).filter(User.id == user_id).first()
+            if not user:
+                return False
+                
+            user_email = user.email
+            session.delete(user)
+            session.commit()
+            
+            logger.info(f"Deleted user {user_id} ({user_email}) and all associated data from database")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting user {user_id}: {e}")
+            session.rollback()
+            return False
+        finally:
+            session.close()
 
 # Global instance
 db_service = SimpleDBService()
