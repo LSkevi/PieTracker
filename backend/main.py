@@ -509,6 +509,15 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str = Field(min_length=6, max_length=256)
 
+def prepare_user_for_output(user: dict) -> dict:
+    """Convert user data to format suitable for UserOut model"""
+    return {
+        "id": user["id"],
+        "username": user["username"],
+        "email": user["email"],
+        "created_at": user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else str(user["created_at"])
+    }
+
 @app.post("/auth/signup", response_model=AuthResponse)
 async def signup(req: SignupRequest):
     email = req.email.lower().strip()
@@ -542,7 +551,7 @@ async def signup(req: SignupRequest):
     save_users()
     token = create_access_token({"sub": user_id})
     return AuthResponse(
-        user=UserOut(**{k: new_user[k] for k in ["id", "username", "email", "created_at"]}),
+        user=UserOut(**prepare_user_for_output(new_user)),
         token=token,
         message="Signup successful"
     )
@@ -573,7 +582,7 @@ async def login(credentials: LoginRequest):
         
         token = create_access_token({"sub": admin_user_id})
         return AuthResponse(
-            user=UserOut(**{k: admin_user[k] for k in ["id", "username", "email", "created_at"]}),
+            user=UserOut(**prepare_user_for_output(admin_user)),
             token=token,
             message="Admin login successful"
         )
@@ -601,8 +610,9 @@ async def login(credentials: LoginRequest):
         save_users()
 
     token = create_access_token({"sub": user["id"]})
+    
     return AuthResponse(
-        user=UserOut(**{k: user[k] for k in ["id", "username", "email", "created_at"]}),
+        user=UserOut(**prepare_user_for_output(user)),
         token=token,
         message="Login successful"
     )
