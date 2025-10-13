@@ -5609,3 +5609,61 @@ body::before {
     padding: 6px 12px;
   }
 }
+
+/* Password Input Component Styles */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  width: 100%;
+  padding-right: 50px; /* Make room for the eye button */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+  background: rgba(168, 181, 160, 0.1);
+  color: var(--sage-green);
+}
+
+.password-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.password-toggle-btn:disabled:hover {
+  background: none;
+  color: var(--text-soft);
+}
+
+.password-toggle-icon {
+  transition: all 0.2s ease;
+}
+
+/* Dark theme support for password input */
+[data-theme="dark"] .password-toggle-btn {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .password-toggle-btn:hover {
+  background: rgba(168, 181, 160, 0.15);
+  color: var(--accent-gold);
+}

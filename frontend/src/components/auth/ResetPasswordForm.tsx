@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PasswordInput from "../ui/PasswordInput";
 import { AuthService } from "../../services/auth";
 
 interface ResetPasswordFormProps {
@@ -64,9 +65,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </div>
             <div className="auth-form-group">
               <label htmlFor="new-password">New Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 id="new-password"
+                name="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter new password"
@@ -76,9 +77,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </div>
             <div className="auth-form-group">
               <label htmlFor="confirm-password">Confirm Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 id="confirm-password"
+                name="confirm-password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="Confirm new password"

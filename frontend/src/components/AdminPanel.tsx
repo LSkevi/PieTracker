@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { AuthService } from "../services/auth";
+import PasswordInput from "./ui/PasswordInput";
 import "./AdminPanel.css";
 
 interface User {
@@ -423,13 +424,15 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="form-group">
                 <label>New Password (leave empty to keep current):</label>
-                <input
-                  type="password"
+                <PasswordInput
+                  id="admin-password"
+                  name="password"
                   value={editingUser.password}
                   onChange={(e) =>
                     setEditingUser({ ...editingUser, password: e.target.value })
                   }
                   placeholder="Enter new password or leave empty"
+                  autoComplete="new-password"
                 />
               </div>
               <div className="form-group">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PasswordInput from "../ui/PasswordInput";
 import type { LoginData } from "../../types/auth";
 
 interface LoginFormProps {
@@ -105,8 +106,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
           <div className="auth-form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               name="password"
               value={formData.password}
