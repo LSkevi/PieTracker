@@ -283,6 +283,16 @@ class SimpleDBService:
                 user.role = update_data["role"]
             if "is_active" in update_data:
                 user.is_active = update_data["is_active"]
+            if "last_login" in update_data:
+                # Handle datetime string conversion
+                if isinstance(update_data["last_login"], str):
+                    try:
+                        from datetime import datetime
+                        user.last_login = datetime.fromisoformat(update_data["last_login"].replace('Z', '+00:00'))
+                    except:
+                        user.last_login = datetime.utcnow()
+                else:
+                    user.last_login = update_data["last_login"]
                 
             session.commit()
             return True
@@ -330,6 +340,64 @@ class SimpleDBService:
         except Exception as e:
             logger.error(f"Error checking email exists: {e}")
             return False
+        finally:
+            session.close()
+    
+    def get_user_by_email(self, email):
+        """Get a user by email address"""
+        if not self.use_db:
+            return None
+            
+        session = self.get_session()
+        if not session:
+            return None
+            
+        try:
+            user = session.query(User).filter(User.email == email.lower()).first()
+            if user:
+                return {
+                    "id": user.id,
+                    "email": user.email,
+                    "username": getattr(user, 'username', None) or user.email.split("@")[0],
+                    "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
+                    "role": getattr(user, 'role', 'user'),
+                    "is_active": user.is_active,
+                    "created_at": getattr(user, 'created_at', None),
+                    "last_login": getattr(user, 'last_login', None)
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by email {email}: {e}")
+            return None
+        finally:
+            session.close()
+    
+    def get_user_by_username(self, username):
+        """Get a user by username"""
+        if not self.use_db:
+            return None
+            
+        session = self.get_session()
+        if not session:
+            return None
+            
+        try:
+            user = session.query(User).filter(User.username == username.lower()).first()
+            if user:
+                return {
+                    "id": user.id,
+                    "email": user.email,
+                    "username": getattr(user, 'username', None) or user.email.split("@")[0],
+                    "password_hash": getattr(user, 'password_hash', None) or getattr(user, 'hashed_password', None),
+                    "role": getattr(user, 'role', 'user'),
+                    "is_active": user.is_active,
+                    "created_at": getattr(user, 'created_at', None),
+                    "last_login": getattr(user, 'last_login', None)
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Error getting user by username {username}: {e}")
+            return None
         finally:
             session.close()
     
