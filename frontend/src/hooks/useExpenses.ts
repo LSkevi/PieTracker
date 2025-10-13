@@ -60,9 +60,12 @@ export const useExpenses = () => {
 
   const fetchCategoryColors = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_CONFIG.BASE_URL}/categories/colors`, {
-        headers: getHeaders(),
-      });
+      const response = await axios.get(
+        `${API_CONFIG.BASE_URL}/categories/colors`,
+        {
+          headers: getHeaders(),
+        }
+      );
       setCategoryColors(response.data);
     } catch (error) {
       console.error("Error fetching category colors:", error);
