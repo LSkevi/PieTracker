@@ -487,6 +487,80 @@ class SimpleDBService:
             return False
         finally:
             session.close()
+    
+    def get_user_categories(self, user_id: str):
+        """Get categories for a specific user"""
+        if not self.use_db:
+            return {}
+            
+        session = self.get_session()
+        if not session:
+            return {}
+            
+        try:
+            user_categories = session.query(UserCategories).filter(UserCategories.user_id == user_id).first()
+            if user_categories and user_categories.categories:
+                return user_categories.categories
+            else:
+                # Return default categories for new users
+                default_categories = {
+                    "Food": "#FF6B6B",
+                    "Transportation": "#4ECDC4", 
+                    "Shopping": "#45B7D1",
+                    "Entertainment": "#96CEB4"
+                }
+                # Save default categories for the user
+                self.save_user_categories(user_id, default_categories)
+                return default_categories
+        except Exception as e:
+            logger.error(f"Error getting categories for user {user_id}: {e}")
+            return {}
+        finally:
+            session.close()
+    
+    def save_user_categories(self, user_id: str, categories: dict):
+        """Save categories for a specific user"""
+        if not self.use_db:
+            return False
+            
+        session = self.get_session()
+        if not session:
+            return False
+            
+        try:
+            # Check if user categories exist
+            user_categories = session.query(UserCategories).filter(UserCategories.user_id == user_id).first()
+            if user_categories:
+                user_categories.categories = categories
+            else:
+                new_categories = UserCategories(
+                    user_id=user_id,
+                    categories=categories
+                )
+                session.add(new_categories)
+            
+            session.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error saving categories for user {user_id}: {e}")
+            session.rollback()
+            return False
+        finally:
+            session.close()
+    
+    def add_user_category(self, user_id: str, name: str, color: str):
+        """Add a category for a user"""
+        categories = self.get_user_categories(user_id)
+        categories[name] = color
+        return self.save_user_categories(user_id, categories)
+    
+    def delete_user_category(self, user_id: str, name: str):
+        """Delete a category for a user"""
+        categories = self.get_user_categories(user_id)
+        if name in categories:
+            del categories[name]
+            return self.save_user_categories(user_id, categories)
+        return False
 
 # Global instance
 db_service = SimpleDBService()

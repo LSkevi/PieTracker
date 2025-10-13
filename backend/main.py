@@ -15,16 +15,28 @@ from collections import defaultdict
 import uuid
 import logging
 
-# Set up logging
+# Set up logging first
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # Load .env file if it exists
+    logger.info("Environment variables loaded from .env file")
+except ImportError:
+    logger.info("python-dotenv not installed, using system environment variables")
 
 # Try to import database service
 try:
     from simple_db import db_service
-    logger.info("Database service initialized")
+    if db_service and db_service.use_db:
+        logger.info("✅ Database service initialized - PostgreSQL mode")
+    else:
+        logger.warning("⚠️  DATABASE_URL not configured - database features unavailable")
+        logger.info("To enable database mode, set DATABASE_URL environment variable")
 except ImportError as e:
-    logger.warning(f"Database service not available: {e}")
+    logger.error(f"❌ Database service import failed: {e}")
     db_service = None
 
 # In-memory password reset token store (token -> {user_id, exp})
@@ -45,20 +57,11 @@ If you later prefer bcrypt, change schemes=["bcrypt"]."""
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-# Very small in-file user store; in production use a database
-USERS_FILE = "users.json"
+# Users are now stored only in database - no in-memory storage
+# Keeping empty users_db for admin functions compatibility (will be removed later)
 users_db: Dict[str, Dict[str, str]] = {}
 
-def load_users():
-    global users_db
-    if os.path.exists(USERS_FILE):
-        try:
-            with open(USERS_FILE, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, dict):
-                    users_db = data
-        except Exception:
-            users_db = {}
+# All user data operations now use database only
 
 BACKUP_DIR = "backups"
 os.makedirs(BACKUP_DIR, exist_ok=True)
@@ -103,32 +106,11 @@ def _safe_write_json(path: str, data):
     except Exception as e:
         print(f"[WARN] Failed safe write for {path}: {e}")
 
-def save_users():
-    _safe_write_json(USERS_FILE, users_db)
-    # Also save to database if available
-    if db_service and db_service.use_db:
-        for user_id, user_data in users_db.items():
-            db_service.save_user(user_id, user_data)
+# All user operations now use database only - no separate save function needed
 
-load_users()
+# All data loading removed - database is the single source of truth
 
-
-
-# --- Lightweight migration: ensure every user has 'username' (fallback from legacy 'name' or email prefix) ---
-updated = False
-for _uid, _u in users_db.items():
-    if "username" not in _u or not _u.get("username"):
-        legacy_name = _u.get("name")
-        if legacy_name:
-            _u["username"] = legacy_name.strip().lower()
-        else:
-            # derive from email before '@' if available
-            email_val = _u.get("email", "user")
-            derived = email_val.split("@")[0]
-            _u["username"] = derived.strip().lower() or f"user_{_uid[:6]}"
-        updated = True
-if updated:
-    save_users()
+# Remove legacy migration since everything is now database-only
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -146,26 +128,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_user_by_email(email: str) -> Optional[Dict[str, str]]:
+    """Get user by email from database"""
     email_l = email.lower().strip()
     if db_service and db_service.use_db:
-        # Try database first
-        db_user_data = db_service.get_user_by_email(email_l)
-        if db_user_data:
-            return db_user_data
-    
-    # Fallback to file storage
-    return next((u for u in users_db.values() if u.get("email") == email_l), None)
+        return db_service.get_user_by_email(email_l)
+    return None
 
 def get_user_by_username(username: str) -> Optional[Dict[str, str]]:
+    """Get user by username from database"""
     username_l = username.lower().strip()
     if db_service and db_service.use_db:
-        # Try database first
-        db_user_data = db_service.get_user_by_username(username_l)
-        if db_user_data:
-            return db_user_data
-    
-    # Fallback to file storage
-    return next((u for u in users_db.values() if u.get("username", "").lower() == username_l), None)
+        return db_service.get_user_by_username(username_l)
+    return None
 
 def authenticate_user(username: str, password: str) -> Optional[Dict[str, str]]:
     # Try to find user by email first, then by username
@@ -197,7 +171,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = users_db.get(user_id)
+    
+    # Get user from database instead of users_db
+    user = None
+    if db_service and db_service.use_db:
+        user = db_service.get_user_by_id(user_id)
+    
     if user is None:
         raise credentials_exception
     
@@ -236,86 +215,49 @@ async def database_status():
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to PieTracker API", "docs": "/docs"}
+    db_status = "connected" if (db_service and db_service.use_db) else "not_configured"
+    return {
+        "message": "Welcome to PieTracker API", 
+        "docs": "/docs",
+        "database_status": db_status,
+        "database_required": True,
+        "setup_help": "Set DATABASE_URL environment variable to enable database features" if db_status == "not_configured" else None
+    }
 
-# In-memory storage (in production, use a database)
-expenses_db = []  # list of expense dicts; new entries will include user_id
-categories_db: Dict[str, Dict[str, str]] = {}  # { user_id: {category_name: color} }
-DATA_FILE = "expenses.json"
-CATEGORIES_FILE = "categories.json"
-
-# Load existing data
-def load_expenses():
-    global expenses_db
-    if os.path.exists(DATA_FILE):
+@app.get("/health")
+async def health_check():
+    """Health check endpoint with detailed database status"""
+    db_available = db_service is not None
+    db_configured = db_service.use_db if db_available else False
+    
+    # Test database connection if available
+    db_connection_ok = False
+    if db_available and db_configured:
         try:
-            with open(DATA_FILE, 'r') as f:
-                expenses_db = json.load(f)
-        except:
-            expenses_db = []
-
-def load_categories():
-    """Load categories. Legacy format was a flat dict of category->color.
-    We now store per-user: { user_id: {category: color} }. Legacy will be nested under '__legacy__'."""
-    global categories_db
-    if os.path.exists(CATEGORIES_FILE):
-        try:
-            with open(CATEGORIES_FILE, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, dict):
-                    # If values look like colors (hex strings), treat as legacy flat dict
-                    if all(isinstance(v, str) and v.startswith('#') for v in data.values()):
-                        categories_db = {"__legacy__": data}
-                    else:
-                        categories_db = data  # assume new format
-                else:
-                    categories_db = {}
-        except Exception:
-            categories_db = {}
-    else:
-        categories_db = {}
-
-# Save data to file
-def save_expenses():
-    _safe_write_json(DATA_FILE, expenses_db)
-    # Also save to database if available
-    if db_service and db_service.use_db:
-        for expense in expenses_db:
-            db_service.save_expense(expense)
-
-def save_categories():
-    _safe_write_json(CATEGORIES_FILE, categories_db)
-
-# Load expenses on startup
-load_expenses()
-load_categories()
-
-# Migrate existing file-based expenses to database
-def migrate_expenses_to_database():
-    """Migrate existing file-based expenses to PostgreSQL database"""
-    if not db_service or not db_service.use_db:
-        return
+            session = db_service.get_session()
+            if session:
+                session.close()
+                db_connection_ok = True
+        except Exception as e:
+            logger.error(f"Database health check failed: {e}")
     
-    logger.info("Starting expense migration to database...")
-    migrated_count = 0
-    
-    for expense in expenses_db:
-        # Only migrate expenses that have a user_id
-        if expense.get("user_id"):
-            try:
-                db_service.save_expense(expense)
-                migrated_count += 1
-            except Exception as e:
-                logger.error(f"Failed to migrate expense {expense.get('id')}: {e}")
-    
-    logger.info(f"Migrated {migrated_count} expenses to database")
+    return {
+        "status": "ok" if (db_available and db_configured and db_connection_ok) else "degraded",
+        "database": {
+            "service_available": db_available,
+            "configured": db_configured,
+            "connection_ok": db_connection_ok,
+            "url_set": bool(os.environ.get("DATABASE_URL"))
+        },
+        "message": "All systems operational" if (db_available and db_configured and db_connection_ok) else "Database configuration required"
+    }
 
-# Run migration on startup
-migrate_expenses_to_database()
+# In-memory storage removed - all data now stored in database only
+# All data operations will use the database service exclusively
 
-# Ensure categories_db is a dict of dicts
-if not isinstance(categories_db, dict):
-    categories_db = {}
+# All data loading removed - database is the single source of truth
+
+# All migration removed - database is the single source of truth
 
 DEFAULT_CATEGORIES = ["Food", "Transportation", "Shopping", "Entertainment"]
 
@@ -339,31 +281,22 @@ def get_user_id(
         return x_user_id.strip()
     return "public-anon-user"
 
-def ensure_user_category_init(user_id: str):
-    """If legacy categories exist and user has none yet, clone them into user's own space.
-    This avoids shared mutations and enables true per-user customization."""
-    if user_id in categories_db:
-        return
-    if "__legacy__" in categories_db:
-        legacy = categories_db.get("__legacy__", {})
-        if isinstance(legacy, dict):
-            categories_db[user_id] = dict(legacy)  # copy
-            save_categories()
-
+# Database-only category functions
 def get_user_custom_categories(user_id: str) -> Dict[str, str]:
-    ensure_user_category_init(user_id)
-    return categories_db.get(user_id, {})
+    """Get user's custom categories from database"""
+    if db_service and db_service.use_db:
+        return db_service.get_user_categories(user_id)
+    return {}
 
 def set_user_category(user_id: str, name: str, color: str):
-    if user_id not in categories_db:
-        categories_db[user_id] = {}
-    categories_db[user_id][name] = color
-    save_categories()
+    """Add/update a user category in database"""
+    if db_service and db_service.use_db:
+        db_service.add_user_category(user_id, name, color)
 
 def delete_user_category(user_id: str, name: str):
-    if user_id in categories_db and name in categories_db[user_id]:
-        del categories_db[user_id][name]
-        save_categories()
+    """Delete a user category from database"""
+    if db_service and db_service.use_db:
+        db_service.delete_user_category(user_id, name)
 
 @app.get("/")
 async def root():
@@ -371,38 +304,29 @@ async def root():
 
 @app.get("/expenses")
 async def get_expenses(user_id: str = Depends(get_user_id)):
-    # Try to get expenses from database first
+    """Get all expenses for user from database"""
     if db_service and db_service.use_db:
-        db_expenses = db_service.get_user_expenses(user_id)
-        if db_expenses:
-            return db_expenses
-    
-    # Fallback to file storage for backward compatibility
-    return [e for e in expenses_db if e.get("user_id") == user_id]
+        return db_service.get_user_expenses(user_id)
+    return []
 
 @app.get("/expenses/month/{year}/{month}")
 async def get_expenses_by_month(year: int, month: int, user_id: str = Depends(get_user_id)):
+    """Get expenses for a specific month from database"""
     month_str = f"{year:04d}-{month:02d}"
     
-    # Try to get expenses from database first
     if db_service and db_service.use_db:
         db_expenses = db_service.get_user_expenses(user_id)
         return [
             expense for expense in db_expenses
             if expense["date"].startswith(month_str)
         ]
-    
-    # Fallback to file storage
-    return [
-        expense for expense in expenses_db
-        if expense.get("user_id") == user_id and expense["date"].startswith(month_str)
-    ]
+    return []
 
 @app.get("/expenses/summary/{year}/{month}")
 async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_user_id)):
+    """Get monthly expense summary from database"""
     month_str = f"{year:04d}-{month:02d}"
     
-    # Try to get expenses from database first
     if db_service and db_service.use_db:
         db_expenses = db_service.get_user_expenses(user_id)
         monthly_expenses = [
@@ -410,11 +334,7 @@ async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_
             if expense["date"].startswith(month_str)
         ]
     else:
-        # Fallback to file storage
-        monthly_expenses = [
-            expense for expense in expenses_db
-            if expense.get("user_id") == user_id and expense["date"].startswith(month_str)
-        ]
+        monthly_expenses = []
     
     category_totals = defaultdict(float)
     total_amount = 0.0
@@ -430,6 +350,7 @@ async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_
 
 @app.post("/expenses")
 async def create_expense(expense: dict, user_id: str = Depends(get_user_id)):
+    """Create new expense in database"""
     import uuid
     new_expense = {
         "id": str(uuid.uuid4()),
@@ -442,53 +363,33 @@ async def create_expense(expense: dict, user_id: str = Depends(get_user_id)):
         "created_at": datetime.now().isoformat()
     }
     
-    # Save to database first
+    # Save to database only
     if db_service and db_service.use_db:
         db_service.save_expense(new_expense)
-    
-    # Also save to file for backward compatibility
-    expenses_db.append(new_expense)
-    save_expenses()
-    return new_expense
+        return new_expense
+    else:
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.delete("/expenses/{expense_id}")
 async def delete_expense(expense_id: str, user_id: str = Depends(get_user_id)):
-    # Delete from database first
-    deleted_from_db = False
+    """Delete expense from database"""
     if db_service and db_service.use_db:
-        deleted_from_db = db_service.delete_expense(expense_id, user_id)
-    
-    # Also delete from file storage for backward compatibility
-    global expenses_db
-    before = len(expenses_db)
-    expenses_db = [exp for exp in expenses_db if not (exp.get("user_id") == user_id and exp["id"] == expense_id)]
-    deleted_from_file = len(expenses_db) != before
-    
-    if deleted_from_file:
-        save_expenses()
-    
-    if deleted_from_db or deleted_from_file:
-        return {"message": "Expense deleted successfully"}
+        deleted = db_service.delete_expense(expense_id, user_id)
+        if deleted:
+            return {"message": "Expense deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Expense not found")
     else:
-        raise HTTPException(status_code=404, detail="Expense not found")
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.get("/expenses/available-months")
 async def get_available_months(user_id: str = Depends(get_user_id)):
-    """Get all year-month combos for this user's expenses."""
+    """Get all year-month combos for this user's expenses from database."""
     months = set()
     
-    # Try to get expenses from database first
     if db_service and db_service.use_db:
         db_expenses = db_service.get_user_expenses(user_id)
         for expense in db_expenses:
-            parts = expense["date"].split("-")
-            if len(parts) >= 2:
-                months.add(f"{parts[0]}-{parts[1]}")
-    else:
-        # Fallback to file storage
-        for expense in expenses_db:
-            if expense.get("user_id") != user_id:
-                continue
             parts = expense["date"].split("-")
             if len(parts) >= 2:
                 months.add(f"{parts[0]}-{parts[1]}")
@@ -501,16 +402,18 @@ async def get_available_months(user_id: str = Depends(get_user_id)):
 
 @app.get("/categories")
 async def get_categories(user_id: str = Depends(get_user_id)):
-    # Get used categories from database or file storage
+    """Get all categories for user from database"""
+    # Get used categories from database
     used_categories = set()
     if db_service and db_service.use_db:
         db_expenses = db_service.get_user_expenses(user_id)
         used_categories = {exp["category"] for exp in db_expenses if exp.get("category")}
-    else:
-        used_categories = {exp["category"] for exp in expenses_db if exp.get("user_id") == user_id and exp.get("category")}
     
-    custom = set(get_user_custom_categories(user_id).keys())
-    # No longer merge legacy directly; they are cloned on first access via ensure_user_category_init
+    # Get custom categories from database
+    custom_categories = get_user_custom_categories(user_id)
+    custom = set(custom_categories.keys())
+    
+    # Combine all categories
     all_categories = sorted(set(DEFAULT_CATEGORIES) | used_categories | custom)
     return all_categories
 
@@ -528,26 +431,35 @@ async def add_category(category_data: dict, user_id: str = Depends(get_user_id))
 
 @app.get("/categories/colors")
 async def get_category_colors(user_id: str = Depends(get_user_id)):
-    # After initialization legacy colors copied, just return user's custom map
+    """Get category colors for user from database"""
     return get_user_custom_categories(user_id)
 
 @app.delete("/categories/{category_name}")
 async def delete_category(category_name: str, user_id: str = Depends(get_user_id)):
+    """Delete a category for user from database"""
     if category_name in DEFAULT_CATEGORIES:
         raise HTTPException(status_code=400, detail=f"Cannot delete default category: {category_name}")
+    
     # Only operate within user's custom categories
     existing_custom = get_user_custom_categories(user_id)
     if category_name not in existing_custom:
         # Silently succeed to avoid information leakage
         return {"message": f"Category '{category_name}' not found for user"}
+    
     delete_user_category(user_id, category_name)
-    global expenses_db
-    before = len(expenses_db)
-    expenses_db = [exp for exp in expenses_db if not (exp.get("user_id") == user_id and exp.get("category") == category_name)]
-    removed = before - len(expenses_db)
-    if removed:
-        save_expenses()
-    return {"message": f"Category '{category_name}' deleted for user. {removed} associated expenses removed."}
+    
+    # Delete associated expenses from database
+    if db_service and db_service.use_db:
+        user_expenses = db_service.get_user_expenses(user_id)
+        removed = 0
+        for expense in user_expenses:
+            if expense.get("category") == category_name:
+                db_service.delete_expense(expense["id"])
+                removed += 1
+        
+        return {"message": f"Category '{category_name}' deleted for user. {removed} associated expenses removed."}
+    
+    return {"message": f"Category '{category_name}' deleted for user."}
 
 @app.get("/currencies")
 async def get_currencies():
@@ -607,6 +519,14 @@ def prepare_user_for_output(user: dict) -> dict:
 
 @app.post("/auth/signup", response_model=AuthResponse)
 async def signup(req: SignupRequest):
+    """Register new user in database"""
+    # Check if database is available
+    if not db_service or not db_service.use_db:
+        raise HTTPException(
+            status_code=503, 
+            detail="Database not configured. Please set DATABASE_URL environment variable."
+        )
+    
     email = req.email.lower().strip()
     username = req.username.lower().strip()
     
@@ -634,8 +554,14 @@ async def signup(req: SignupRequest):
         "is_active": True,
         "last_login": None
     }
-    users_db[user_id] = new_user
-    save_users()
+    
+    # Save to database
+    try:
+        db_service.save_user(user_id, new_user)
+    except Exception as e:
+        logger.error(f"Failed to save user: {e}")
+        raise HTTPException(status_code=500, detail="Database operation failed")
+    
     token = create_access_token({"sub": user_id})
     return AuthResponse(
         user=UserOut(**prepare_user_for_output(new_user)),
@@ -645,6 +571,14 @@ async def signup(req: SignupRequest):
 
 @app.post("/auth/login", response_model=AuthResponse)
 async def login(credentials: LoginRequest):
+    """Login user using database only"""
+    # Check if database is available
+    if not db_service or not db_service.use_db:
+        raise HTTPException(
+            status_code=503, 
+            detail="Database not configured. Please set DATABASE_URL environment variable."
+        )
+    
     username = credentials.username.lower().strip()
     password = credentials.password
     if len(password) > 256:
@@ -664,8 +598,13 @@ async def login(credentials: LoginRequest):
             "is_active": True,
             "last_login": datetime.utcnow().isoformat() + "Z"
         }
-        users_db[admin_user_id] = admin_user
-        save_users()
+        
+        # Save to database
+        try:
+            db_service.save_user(admin_user_id, admin_user)
+        except Exception as e:
+            logger.error(f"Failed to save admin user: {e}")
+            raise HTTPException(status_code=500, detail="Database operation failed")
         
         token = create_access_token({"sub": admin_user_id})
         return AuthResponse(
@@ -685,16 +624,10 @@ async def login(credentials: LoginRequest):
     if not user_active:
         raise HTTPException(status_code=403, detail="Account is deactivated")
     
-    # Update last login in both database and file storage
+    # Update last login in database only
     current_time = datetime.utcnow().isoformat() + "Z"
     if db_service and db_service.use_db:
-        # Update in database
         db_service.update_user(user["id"], {"last_login": current_time})
-    
-    # Update in file storage for backup
-    if user["id"] in users_db:
-        users_db[user["id"]]["last_login"] = current_time
-        save_users()
 
     token = create_access_token({"sub": user["id"]})
     
@@ -719,7 +652,10 @@ async def me(authorization: Optional[str] = Header(default=None)):
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token")
-        user = users_db.get(user_id)
+        # Get user from database instead of users_db
+        user = None
+        if db_service and db_service.use_db:
+            user = db_service.get_user_by_id(user_id)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         # Normalize: always return username to frontend; support legacy records that only had 'name'
@@ -762,14 +698,20 @@ async def reset_password(req: ResetPasswordRequest):
         del PASSWORD_RESET_TOKENS[req.token]
         raise HTTPException(status_code=400, detail="Invalid or expired token")
     user_id = record["user_id"]
-    user = users_db.get(user_id)
+    # Get user from database instead of users_db
+    user = None
+    if db_service and db_service.use_db:
+        user = db_service.get_user_by_id(user_id)
     if not user:
         del PASSWORD_RESET_TOKENS[req.token]
         raise HTTPException(status_code=400, detail="Invalid or expired token")
     if len(req.new_password) > 256:
         raise HTTPException(status_code=400, detail="Password must be 256 characters or fewer")
-    user["password_hash"] = hash_password(req.new_password)
-    save_users()
+    
+    # Update password in database
+    new_password_hash = hash_password(req.new_password)
+    if db_service and db_service.use_db:
+        db_service.update_user(user_id, {"password_hash": new_password_hash})
     del PASSWORD_RESET_TOKENS[req.token]
     return {"message": "Password reset successful. You may now log in."}
 
@@ -809,30 +751,7 @@ async def list_all_users(current_user: dict = Depends(get_current_user)):
                 "expense_count": expense_count
             })
     else:
-        # Fallback to file storage
-        for user_id, user in users_db.items():
-            # Count user's expense data from files
-            user_expense_file = f"{user_id}_expenses.json"
-            expense_count = 0
-            if os.path.exists(user_expense_file):
-                try:
-                    with open(user_expense_file, 'r') as f:
-                        expenses = json.load(f)
-                        expense_count = len(expenses) if isinstance(expenses, list) else 0
-                except:
-                    expense_count = 0
-            
-            users_list.append({
-                "id": user_id,
-                "email": user.get("email"),
-                "username": user.get("username") or user.get("name"),
-                "password_hash": user.get("password_hash"),  # Include for admin view
-                "role": user.get("role", "user"),
-                "created_at": user.get("created_at"),
-                "last_login": user.get("last_login"),
-                "is_active": user.get("is_active", True),
-                "expense_count": expense_count
-            })
+        return {"error": "Database not configured", "users": [], "total": 0}
     
     return {"users": users_list, "total": len(users_list)}
 
@@ -883,46 +802,11 @@ async def update_user(user_id: str, update_data: UpdateUserRequest, current_user
         
         # Update in database
         if db_service.update_user(user_id, update_dict):
-            # Also update in file storage for backup
-            if user_id in users_db:
-                users_db[user_id].update(update_dict)
-                save_users()
             return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": {**user, **update_dict}}
         else:
             raise HTTPException(status_code=500, detail="Failed to update user")
     else:
-        # Fallback to file storage
-        if user_id not in users_db:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        user = users_db[user_id]
-        
-        # Update fields if provided
-        if update_data.username is not None:
-            # Check if username already exists
-            new_username = update_data.username.lower().strip()
-            if any(u.get("username", "").lower() == new_username for uid, u in users_db.items() if uid != user_id):
-                raise HTTPException(status_code=400, detail="Username already exists")
-            user["username"] = new_username
-        
-        if update_data.email is not None:
-            # Check if email already exists
-            new_email = update_data.email.lower().strip()
-            if any(u.get("email") == new_email for uid, u in users_db.items() if uid != user_id):
-                raise HTTPException(status_code=400, detail="Email already exists")
-            user["email"] = new_email
-        
-        if update_data.password is not None:
-            user["password_hash"] = hash_password(update_data.password)
-        
-        if update_data.role is not None:
-            user["role"] = update_data.role
-        
-        if update_data.is_active is not None:
-            user["is_active"] = update_data.is_active
-        
-        save_users()
-        return {"message": f"User {user.get('username', user['email'])} updated successfully", "user": user}
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.post("/admin/users/{user_id}/deactivate", dependencies=[Depends(get_current_user)])
 async def deactivate_user(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -937,21 +821,11 @@ async def deactivate_user(user_id: str, current_user: dict = Depends(get_current
             raise HTTPException(status_code=404, detail="User not found")
         
         if db_service.update_user(user_id, {"is_active": "false"}):
-            # Also update in file storage for backup
-            if user_id in users_db:
-                users_db[user_id]["is_active"] = False
-                save_users()
             return {"message": f"User {user['email']} deactivated"}
         else:
             raise HTTPException(status_code=500, detail="Failed to deactivate user")
     else:
-        # Fallback to file storage
-        if user_id not in users_db:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        users_db[user_id]["is_active"] = False
-        save_users()
-        return {"message": f"User {users_db[user_id]['email']} deactivated"}
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.post("/admin/users/{user_id}/activate", dependencies=[Depends(get_current_user)])
 async def activate_user(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -966,23 +840,11 @@ async def activate_user(user_id: str, current_user: dict = Depends(get_current_u
             raise HTTPException(status_code=404, detail="User not found")
         
         if db_service.update_user(user_id, {"is_active": "true"}):
-            # Also update in file storage for backup
-            if user_id in users_db:
-                users_db[user_id]["is_active"] = True
-                save_users()
             return {"message": f"User {user['email']} activated"}
         else:
             raise HTTPException(status_code=500, detail="Failed to activate user")
     else:
-        # Fallback to file storage
-        if user_id not in users_db:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        users_db[user_id]["is_active"] = True
-        save_users()
-        return {"message": f"User {users_db[user_id]['email']} activated"}
-    save_users()
-    return {"message": f"User {users_db[user_id]['email']} activated"}
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.delete("/admin/users/{user_id}", dependencies=[Depends(get_current_user)])
 async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
@@ -1000,41 +862,11 @@ async def delete_user(user_id: str, current_user: dict = Depends(get_current_use
         
         # Delete from database
         if db_service.delete_user(user_id):
-            # Also remove from file storage for backup consistency
-            if user_id in users_db:
-                del users_db[user_id]
-                save_users()
-            
-            # Clean up file-based data if it exists
-            user_expense_file = f"{user_id}_expenses.json"
-            if os.path.exists(user_expense_file):
-                os.remove(user_expense_file)
-            
-            user_categories_file = f"{user_id}_categories.json"
-            if os.path.exists(user_categories_file):
-                os.remove(user_categories_file)
-            
             return {"message": f"User {user_email} and all associated data deleted"}
         else:
             raise HTTPException(status_code=500, detail="Failed to delete user")
     else:
-        # Fallback to file storage
-        if user_id not in users_db:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        # Delete user's expense data
-        user_expense_file = f"{user_id}_expenses.json"
-        if os.path.exists(user_expense_file):
-            os.remove(user_expense_file)
-        
-        user_categories_file = f"{user_id}_categories.json"
-        if os.path.exists(user_categories_file):
-            os.remove(user_categories_file)
-        
-        email = users_db[user_id]["email"]
-        del users_db[user_id]
-        save_users()
-        return {"message": f"User {email} and all associated data deleted"}
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 @app.get("/admin/stats", dependencies=[Depends(get_current_user)])
 async def get_admin_stats(current_user: dict = Depends(get_current_user)):
@@ -1042,19 +874,19 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    total_users = len(users_db)
-    active_users = len([u for u in users_db.values() if u.get("is_active", True)])
-    
-    # Count expense files to estimate active users
-    expense_files = [f for f in os.listdir(".") if f.endswith("_expenses.json")]
-    users_with_data = len(expense_files)
-    
-    return {
-        "total_users": total_users,
-        "active_users": active_users,
-        "inactive_users": total_users - active_users,
-        "users_with_expense_data": users_with_data
-    }
+    if db_service and db_service.use_db:
+        all_users = db_service.get_all_users()
+        total_users = len(all_users)
+        active_users = len([u for u in all_users if u.get("is_active") == "true" or u.get("is_active") == True])
+        
+        return {
+            "total_users": total_users,
+            "active_users": active_users,
+            "inactive_users": total_users - active_users,
+            "users_with_expense_data": total_users  # All database users can have expenses
+        }
+    else:
+        raise HTTPException(status_code=500, detail="Database service not available")
 
 # =====================
 # Backup & Export Endpoints
@@ -1064,22 +896,20 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
 async def trigger_backup(current_user: dict = Depends(get_current_user)):
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
-    save_users()
-    save_expenses()
-    save_categories()
-    return {"message": "Backup created"}
+    # Database operations handled by individual update calls
+    # Note: Backup now handled by database system, not file-based
+    return {"message": "Database backup should be handled at infrastructure level"}
 
 @app.get("/admin/backup/list", dependencies=[Depends(get_current_user)])
-async def list_backups(file: str, current_user: dict = Depends(get_current_user)):
+async def list_backups(current_user: dict = Depends(get_current_user)):
     if not is_admin_user(current_user):
         raise HTTPException(status_code=403, detail="Admin access required")
-    allowed = {os.path.basename(USERS_FILE), os.path.basename(DATA_FILE), os.path.basename(CATEGORIES_FILE)}
-    if file not in allowed:
-        raise HTTPException(status_code=400, detail="Unsupported file")
-    prefix = file + "."
-    backups = [f for f in os.listdir(BACKUP_DIR) if f.startswith(prefix)]
-    backups.sort(reverse=True)
-    return {"file": file, "backups": backups}
+    
+    return {
+        "message": "Database backup should be configured at infrastructure level",
+        "recommendation": "Use pg_dump for PostgreSQL backups or Render's backup features",
+        "note": "File-based backups no longer available - all data now in database"
+    }
 
 @app.get("/admin/backup/download", dependencies=[Depends(get_current_user)])
 async def download_backup(name: str, current_user: dict = Depends(get_current_user)):
@@ -1096,7 +926,10 @@ async def download_backup(name: str, current_user: dict = Depends(get_current_us
 @app.get("/export/expenses", dependencies=[Depends(get_current_user)])
 async def export_expenses(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("id")
-    data = [e for e in expenses_db if e.get("user_id") == user_id]
+    if db_service and db_service.use_db:
+        data = db_service.get_user_expenses(user_id)
+    else:
+        data = []
     return JSONResponse(content=data)
 
 if __name__ == "__main__":

@@ -39,15 +39,10 @@ export const UI_CONFIG = {
 
 // Default Categories
 export const DEFAULT_CATEGORIES = {
-  "Food & Dining": "#FF6B6B",
+  Food: "#FF6B6B",
   Transportation: "#4ECDC4",
   Shopping: "#45B7D1",
   Entertainment: "#96CEB4",
-  "Bills & Utilities": "#FFEAA7",
-  Healthcare: "#DDA0DD",
-  Travel: "#98D8C8",
-  Education: "#F7DC6F",
-  Other: "#AED6F1",
 } as const;
 
 // Supported Currencies
