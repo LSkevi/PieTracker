@@ -112,6 +112,7 @@ def save_users():
 
 load_users()
 
+
 # --- Lightweight migration: ensure every user has 'username' (fallback from legacy 'name' or email prefix) ---
 updated = False
 for _uid, _u in users_db.items():
