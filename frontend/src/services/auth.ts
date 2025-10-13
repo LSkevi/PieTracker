@@ -9,25 +9,17 @@ import type {
   ResetPasswordRequest,
   ResetPasswordResponse,
 } from "../types/auth";
-
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? "https://pietracker.onrender.com"
-    : "http://localhost:8000");
-
-const TOKEN_KEY = "pietracker_token";
-const USER_KEY = "pietracker_user";
+import { API_CONFIG, AUTH_CONFIG } from "../config/constants";
 
 export class AuthService {
   // Get stored token
   static getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
   }
 
   // Get stored user
   static getUser(): User | null {
-    const userStr = localStorage.getItem(USER_KEY);
+    const userStr = localStorage.getItem(AUTH_CONFIG.USER_STORAGE_KEY);
     if (!userStr) return null;
     try {
       const parsed = JSON.parse(userStr);
@@ -44,14 +36,14 @@ export class AuthService {
 
   // Store token and user
   static setAuth(token: string, user: User): void {
-    localStorage.setItem(TOKEN_KEY, token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    localStorage.setItem(AUTH_CONFIG.TOKEN_STORAGE_KEY, token);
+    localStorage.setItem(AUTH_CONFIG.USER_STORAGE_KEY, JSON.stringify(user));
   }
 
   // Clear auth data
   static clearAuth(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(AUTH_CONFIG.TOKEN_STORAGE_KEY);
+    localStorage.removeItem(AUTH_CONFIG.USER_STORAGE_KEY);
     // Also clear the old user ID system
     localStorage.removeItem("pietracker_user_id");
   }
@@ -75,7 +67,10 @@ export class AuthService {
   // Login user
   static async login(data: LoginData): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${API_BASE}/auth/login`, data);
+      const response = await axios.post(
+        `${API_CONFIG.BASE_URL}/auth/login`,
+        data
+      );
       const authData: AuthResponse = response.data;
 
       this.setAuth(authData.token, authData.user);
@@ -91,7 +86,7 @@ export class AuthService {
   // Register user
   static async signup(data: SignupData): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${API_BASE}/auth/signup`, {
+      const response = await axios.post(`${API_CONFIG.BASE_URL}/auth/signup`, {
         username: data.username,
         email: data.email,
         password: data.password,
@@ -112,7 +107,7 @@ export class AuthService {
   static async logout(): Promise<void> {
     try {
       const headers = this.getAuthHeaders();
-      await axios.post(`${API_BASE}/auth/logout`, {}, { headers });
+      await axios.post(`${API_CONFIG.BASE_URL}/auth/logout`, {}, { headers });
     } catch (error) {
       console.warn("Logout API call failed:", error);
     } finally {
@@ -126,7 +121,9 @@ export class AuthService {
       const headers = this.getAuthHeaders();
       if (!headers.Authorization) return null;
 
-      const response = await axios.get(`${API_BASE}/auth/me`, { headers });
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/auth/me`, {
+        headers,
+      });
       return response.data.user;
     } catch (error) {
       console.warn("Token verification failed:", error);
@@ -141,7 +138,7 @@ export class AuthService {
   ): Promise<ForgotPasswordResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE}/auth/forgot-password`,
+        `${API_CONFIG.BASE_URL}/auth/forgot-password`,
         data
       );
       return response.data;
@@ -159,7 +156,7 @@ export class AuthService {
   ): Promise<ResetPasswordResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE}/auth/reset-password`,
+        `${API_CONFIG.BASE_URL}/auth/reset-password`,
         data
       );
       return response.data;

@@ -4,13 +4,7 @@ import { format } from "date-fns";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getDefaultCurrency } from "../utils/currency";
 import { AuthService } from "../services/auth";
-
-// Use environment variable or fallback to your backend for production
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD
-    ? "https://pietracker.onrender.com"
-    : "http://localhost:8000");
+import { API_CONFIG, AUTH_CONFIG } from "../config/constants";
 
 // Headers helper to unify auth + legacy fallback
 function getHeaders() {
@@ -18,7 +12,7 @@ function getHeaders() {
   // Only add legacy public user id if there's no JWT token
   if (!headers["Authorization"] && !headers["X-User-Id"]) {
     // Provide a stable public bucket so existing data still loads
-    headers["X-User-Id"] = "public-anon-user";
+    headers["X-User-Id"] = AUTH_CONFIG.PUBLIC_USER_ID;
   }
   return headers;
 }
@@ -43,7 +37,7 @@ export const useExpenses = () => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/categories`, {
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/categories`, {
         headers: getHeaders(),
       });
       setCategories(response.data);
@@ -66,7 +60,7 @@ export const useExpenses = () => {
 
   const fetchCategoryColors = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/categories/colors`, {
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/categories/colors`, {
         headers: getHeaders(),
       });
       setCategoryColors(response.data);
@@ -79,7 +73,7 @@ export const useExpenses = () => {
 
   const fetchCurrencies = useCallback(async () => {
     try {
-      const response = await axios.get(`${API_BASE}/currencies`);
+      const response = await axios.get(`${API_CONFIG.BASE_URL}/currencies`);
       setCurrencies(response.data);
     } catch (error) {
       console.error("Error fetching currencies:", error);
@@ -97,7 +91,7 @@ export const useExpenses = () => {
   const fetchAvailableMonths = useCallback(async () => {
     try {
       const response = await axios.get(
-        `${API_BASE}/expenses/available-months`,
+        `${API_CONFIG.BASE_URL}/expenses/available-months`,
         { headers: getHeaders() }
       );
       setAvailableMonths(response.data);
@@ -122,7 +116,7 @@ export const useExpenses = () => {
   const fetchMonthlySummary = useCallback(async () => {
     try {
       setLoading(true);
-      const url = `${API_BASE}/expenses/summary/${selectedYear}/${selectedMonth}`;
+      const url = `${API_CONFIG.BASE_URL}/expenses/summary/${selectedYear}/${selectedMonth}`;
       console.log("Fetching from:", url);
 
       const response = await axios.get(url, {
@@ -160,7 +154,7 @@ export const useExpenses = () => {
 
   const fetchMonthlyExpenses = useCallback(async () => {
     try {
-      const url = `${API_BASE}/expenses/month/${selectedYear}/${selectedMonth}`;
+      const url = `${API_CONFIG.BASE_URL}/expenses/month/${selectedYear}/${selectedMonth}`;
       console.log("Fetching expenses from:", url);
 
       const response = await axios.get(url, {
@@ -196,7 +190,7 @@ export const useExpenses = () => {
   ) => {
     try {
       await axios.post(
-        `${API_BASE}/expenses`,
+        `${API_CONFIG.BASE_URL}/expenses`,
         {
           amount,
           category,
@@ -220,7 +214,7 @@ export const useExpenses = () => {
   ) => {
     try {
       await axios.post(
-        `${API_BASE}/categories`,
+        `${API_CONFIG.BASE_URL}/categories`,
         { name: categoryName, color: categoryColor },
         { headers: getHeaders() }
       );
@@ -237,7 +231,7 @@ export const useExpenses = () => {
 
   const deleteExpense = async (expenseId: string) => {
     try {
-      await axios.delete(`${API_BASE}/expenses/${expenseId}`, {
+      await axios.delete(`${API_CONFIG.BASE_URL}/expenses/${expenseId}`, {
         headers: getHeaders(),
       });
       fetchMonthlySummary();
@@ -249,7 +243,7 @@ export const useExpenses = () => {
 
   const deleteCategory = async (categoryName: string) => {
     try {
-      await axios.delete(`${API_BASE}/categories/${categoryName}`, {
+      await axios.delete(`${API_CONFIG.BASE_URL}/categories/${categoryName}`, {
         headers: getHeaders(),
       });
       fetchCategories(); // Refresh categories list
