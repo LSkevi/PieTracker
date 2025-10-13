@@ -431,6 +431,62 @@ class SimpleDBService:
             return False
         finally:
             session.close()
+    
+    def get_user_expenses(self, user_id: str):
+        """Get all expenses for a specific user"""
+        if not self.use_db:
+            return []
+            
+        session = self.get_session()
+        if not session:
+            return []
+            
+        try:
+            expenses = session.query(Expense).filter(Expense.user_id == user_id).all()
+            result = []
+            for expense in expenses:
+                result.append({
+                    "id": expense.id,
+                    "user_id": expense.user_id,
+                    "amount": expense.amount,
+                    "currency": expense.currency,
+                    "category": expense.category,
+                    "description": expense.description,
+                    "date": expense.date,
+                    "created_at": expense.created_at.isoformat() if expense.created_at else None
+                })
+            return result
+        except Exception as e:
+            logger.error(f"Error getting expenses for user {user_id}: {e}")
+            return []
+        finally:
+            session.close()
+    
+    def delete_expense(self, expense_id: str, user_id: str):
+        """Delete a specific expense"""
+        if not self.use_db:
+            return False
+            
+        session = self.get_session()
+        if not session:
+            return False
+            
+        try:
+            expense = session.query(Expense).filter(
+                Expense.id == expense_id, 
+                Expense.user_id == user_id
+            ).first()
+            if expense:
+                session.delete(expense)
+                session.commit()
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error deleting expense {expense_id}: {e}")
+            session.rollback()
+            return False
+        finally:
+            session.close()
 
 # Global instance
 db_service = SimpleDBService()
