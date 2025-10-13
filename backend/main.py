@@ -290,6 +290,29 @@ def save_categories():
 load_expenses()
 load_categories()
 
+# Migrate existing file-based expenses to database
+def migrate_expenses_to_database():
+    """Migrate existing file-based expenses to PostgreSQL database"""
+    if not db_service or not db_service.use_db:
+        return
+    
+    logger.info("Starting expense migration to database...")
+    migrated_count = 0
+    
+    for expense in expenses_db:
+        # Only migrate expenses that have a user_id
+        if expense.get("user_id"):
+            try:
+                db_service.save_expense(expense)
+                migrated_count += 1
+            except Exception as e:
+                logger.error(f"Failed to migrate expense {expense.get('id')}: {e}")
+    
+    logger.info(f"Migrated {migrated_count} expenses to database")
+
+# Run migration on startup
+migrate_expenses_to_database()
+
 # Ensure categories_db is a dict of dicts
 if not isinstance(categories_db, dict):
     categories_db = {}
@@ -348,12 +371,28 @@ async def root():
 
 @app.get("/expenses")
 async def get_expenses(user_id: str = Depends(get_user_id)):
-    # Return only this user's expenses (legacy ones without user_id excluded)
+    # Try to get expenses from database first
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        if db_expenses:
+            return db_expenses
+    
+    # Fallback to file storage for backward compatibility
     return [e for e in expenses_db if e.get("user_id") == user_id]
 
 @app.get("/expenses/month/{year}/{month}")
 async def get_expenses_by_month(year: int, month: int, user_id: str = Depends(get_user_id)):
     month_str = f"{year:04d}-{month:02d}"
+    
+    # Try to get expenses from database first
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        return [
+            expense for expense in db_expenses
+            if expense["date"].startswith(month_str)
+        ]
+    
+    # Fallback to file storage
     return [
         expense for expense in expenses_db
         if expense.get("user_id") == user_id and expense["date"].startswith(month_str)
@@ -362,10 +401,21 @@ async def get_expenses_by_month(year: int, month: int, user_id: str = Depends(ge
 @app.get("/expenses/summary/{year}/{month}")
 async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_user_id)):
     month_str = f"{year:04d}-{month:02d}"
-    monthly_expenses = [
-        expense for expense in expenses_db
-        if expense.get("user_id") == user_id and expense["date"].startswith(month_str)
-    ]
+    
+    # Try to get expenses from database first
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        monthly_expenses = [
+            expense for expense in db_expenses
+            if expense["date"].startswith(month_str)
+        ]
+    else:
+        # Fallback to file storage
+        monthly_expenses = [
+            expense for expense in expenses_db
+            if expense.get("user_id") == user_id and expense["date"].startswith(month_str)
+        ]
+    
     category_totals = defaultdict(float)
     total_amount = 0.0
     for expense in monthly_expenses:
@@ -391,29 +441,58 @@ async def create_expense(expense: dict, user_id: str = Depends(get_user_id)):
         "currency": expense.get("currency", "CAD"),
         "created_at": datetime.now().isoformat()
     }
+    
+    # Save to database first
+    if db_service and db_service.use_db:
+        db_service.save_expense(new_expense)
+    
+    # Also save to file for backward compatibility
     expenses_db.append(new_expense)
     save_expenses()
     return new_expense
 
 @app.delete("/expenses/{expense_id}")
 async def delete_expense(expense_id: str, user_id: str = Depends(get_user_id)):
+    # Delete from database first
+    deleted_from_db = False
+    if db_service and db_service.use_db:
+        deleted_from_db = db_service.delete_expense(expense_id, user_id)
+    
+    # Also delete from file storage for backward compatibility
     global expenses_db
     before = len(expenses_db)
     expenses_db = [exp for exp in expenses_db if not (exp.get("user_id") == user_id and exp["id"] == expense_id)]
-    if len(expenses_db) != before:
+    deleted_from_file = len(expenses_db) != before
+    
+    if deleted_from_file:
         save_expenses()
-    return {"message": "Expense deleted successfully"}
+    
+    if deleted_from_db or deleted_from_file:
+        return {"message": "Expense deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Expense not found")
 
 @app.get("/expenses/available-months")
 async def get_available_months(user_id: str = Depends(get_user_id)):
     """Get all year-month combos for this user's expenses."""
     months = set()
-    for expense in expenses_db:
-        if expense.get("user_id") != user_id:
-            continue
-        parts = expense["date"].split("-")
-        if len(parts) >= 2:
-            months.add(f"{parts[0]}-{parts[1]}")
+    
+    # Try to get expenses from database first
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        for expense in db_expenses:
+            parts = expense["date"].split("-")
+            if len(parts) >= 2:
+                months.add(f"{parts[0]}-{parts[1]}")
+    else:
+        # Fallback to file storage
+        for expense in expenses_db:
+            if expense.get("user_id") != user_id:
+                continue
+            parts = expense["date"].split("-")
+            if len(parts) >= 2:
+                months.add(f"{parts[0]}-{parts[1]}")
+    
     result = []
     for ym in sorted(months):
         y, m = ym.split("-")
@@ -422,7 +501,14 @@ async def get_available_months(user_id: str = Depends(get_user_id)):
 
 @app.get("/categories")
 async def get_categories(user_id: str = Depends(get_user_id)):
-    used_categories = {exp["category"] for exp in expenses_db if exp.get("user_id") == user_id and exp.get("category")}
+    # Get used categories from database or file storage
+    used_categories = set()
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        used_categories = {exp["category"] for exp in db_expenses if exp.get("category")}
+    else:
+        used_categories = {exp["category"] for exp in expenses_db if exp.get("user_id") == user_id and exp.get("category")}
+    
     custom = set(get_user_custom_categories(user_id).keys())
     # No longer merge legacy directly; they are cloned on first access via ensure_user_category_init
     all_categories = sorted(set(DEFAULT_CATEGORIES) | used_categories | custom)
