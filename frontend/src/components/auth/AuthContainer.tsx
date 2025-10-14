@@ -35,12 +35,20 @@ const AuthContainer: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-background">
-        {/* Decorative nature elements */}
-        <div className="auth-nature-bg">
-          <div className="nature-element">🌸</div>
-          <div className="nature-element">🍃</div>
-          <div className="nature-element">🌿</div>
-          <div className="nature-element">🌸</div>
+        {/* Decorative falling leaves */}
+        <div className="auth-falling-leaves">
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
+          <div className="auth-leaf"></div>
         </div>
 
         <div className="auth-content">

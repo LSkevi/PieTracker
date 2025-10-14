@@ -2728,49 +2728,63 @@ body::before {
   background: var(--muted-teal);
 }
 
-/* Subtle floating elements - minimal like the design */
-.floating-nature {
+/* Main menu falling leaves - more apparent than auth page */
+.main-falling-leaves {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  overflow: hidden;
   z-index: -1;
 }
 
-.nature-element {
+.main-leaf {
   position: absolute;
-  opacity: 0.08;
-  font-size: 20px;
-  animation: gentle-float 15s ease-in-out infinite;
+  width: 24px;
+  height: 24px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 12 Q7 6, 12 12 Q17 6, 21 12 Q17 18, 12 12 Q7 18, 3 12 Z" fill="%2368A065" opacity="0.7"/></svg>') no-repeat center;
+  background-size: contain;
+  opacity: 0.7;
+  animation: main-fall linear infinite;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+  transform: translateY(-80px); /* Start above viewport to prevent cramping */
 }
 
-@keyframes gentle-float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
+.main-leaf:nth-child(1) { left: 5%; animation-duration: 12s; animation-delay: 0s; }
+.main-leaf:nth-child(2) { left: 12%; animation-duration: 15s; animation-delay: 2s; }
+.main-leaf:nth-child(3) { left: 20%; animation-duration: 11s; animation-delay: 1s; }
+.main-leaf:nth-child(4) { left: 28%; animation-duration: 16s; animation-delay: 3.5s; }
+.main-leaf:nth-child(5) { left: 35%; animation-duration: 13s; animation-delay: 0.8s; }
+.main-leaf:nth-child(6) { left: 42%; animation-duration: 14s; animation-delay: 2.3s; }
+.main-leaf:nth-child(7) { left: 50%; animation-duration: 10s; animation-delay: 1.7s; }
+.main-leaf:nth-child(8) { left: 58%; animation-duration: 17s; animation-delay: 4s; }
+.main-leaf:nth-child(9) { left: 65%; animation-duration: 12.5s; animation-delay: 0.5s; }
+.main-leaf:nth-child(10) { left: 72%; animation-duration: 15.5s; animation-delay: 2.8s; }
+.main-leaf:nth-child(11) { left: 80%; animation-duration: 11.5s; animation-delay: 1.4s; }
+.main-leaf:nth-child(12) { left: 87%; animation-duration: 16.5s; animation-delay: 3.2s; }
+.main-leaf:nth-child(13) { left: 15%; animation-duration: 18s; animation-delay: 5s; }
+.main-leaf:nth-child(14) { left: 25%; animation-duration: 13.5s; animation-delay: 0.3s; }
+.main-leaf:nth-child(15) { left: 95%; animation-duration: 14.5s; animation-delay: 2.1s; }
+
+@keyframes main-fall {
+  0% {
+    transform: translateY(-80px) rotate(0deg) scale(1);
+    opacity: 0;
   }
-  50% {
-    transform: translateY(-10px) rotate(2deg);
-  }
+  15% { opacity: 0.7; }
+  25% { transform: translateY(20vh) rotate(30deg) scale(1.02); opacity: 0.6; }
+  50% { transform: translateY(50vh) rotate(90deg) scale(0.98); opacity: 0.5; }
+  75% { transform: translateY(80vh) rotate(150deg) scale(0.95); opacity: 0.4; }
+  95% { transform: translateY(98vh) rotate(200deg) scale(0.9); opacity: 0.2; }
+  100% { transform: translateY(calc(100vh + 30px)) rotate(220deg) scale(0.85); opacity: 0; }
 }
 
-/* Minimal positioning for floating elements */
-.nature-element:nth-child(1) {
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-}
-.nature-element:nth-child(2) {
-  top: 60%;
-  left: 85%;
-  animation-delay: 5s;
-}
-.nature-element:nth-child(3) {
-  top: 80%;
-  left: 20%;
-  animation-delay: 10s;
+/* Dark mode styles for main falling leaves */
+[data-theme="dark"] .main-leaf {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 4, 8 8 Q11 4, 14 8 Q11 12, 8 8 Q5 12, 2 8 Z" fill="%236b7c6b" opacity="0.6"/></svg>')
+    no-repeat center;
 }
 
 /* Right Panel Styling */
@@ -5113,7 +5127,7 @@ body::before {
   gap: 60px;
 }
 
-.auth-nature-bg {
+.auth-falling-leaves {
   position: absolute;
   top: 0;
   left: 0;
@@ -5124,51 +5138,49 @@ body::before {
   z-index: 0;
 }
 
-.auth-nature-bg .nature-element {
+.auth-leaf {
   position: absolute;
-  font-size: 2rem;
-  opacity: 0.1;
-  animation: authFloat 8s infinite ease-in-out;
+  width: 14px;
+  height: 14px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 4, 8 8 Q11 4, 14 8 Q11 12, 8 8 Q5 12, 2 8 Z" fill="%2368A065" opacity="0.8"/></svg>')
+    no-repeat center;
+  background-size: contain;
+  animation: auth-fall linear infinite;
+  transform: translateY(-100px); /* Start above viewport to prevent cramping */
 }
 
-.auth-nature-bg .nature-element:nth-child(1) {
-  top: 10%;
-  left: 10%;
-  animation-delay: 0s;
-}
+.auth-leaf:nth-child(1) { left: 8%; animation-duration: 14s; animation-delay: 0s; }
+.auth-leaf:nth-child(2) { left: 18%; animation-duration: 16s; animation-delay: 2s; }
+.auth-leaf:nth-child(3) { left: 28%; animation-duration: 12s; animation-delay: 1s; }
+.auth-leaf:nth-child(4) { left: 38%; animation-duration: 18s; animation-delay: 4s; }
+.auth-leaf:nth-child(5) { left: 48%; animation-duration: 15s; animation-delay: 0.5s; }
+.auth-leaf:nth-child(6) { left: 58%; animation-duration: 13s; animation-delay: 3s; }
+.auth-leaf:nth-child(7) { left: 68%; animation-duration: 17s; animation-delay: 1.5s; }
+.auth-leaf:nth-child(8) { left: 78%; animation-duration: 14.5s; animation-delay: 2.5s; }
+.auth-leaf:nth-child(9) { left: 15%; animation-duration: 19s; animation-delay: 6s; }
+.auth-leaf:nth-child(10) { left: 85%; animation-duration: 11s; animation-delay: 0.8s; }
+.auth-leaf:nth-child(11) { left: 25%; animation-duration: 16.5s; animation-delay: 3.8s; }
+.auth-leaf:nth-child(12) { left: 92%; animation-duration: 13.5s; animation-delay: 1.8s; }
 
-.auth-nature-bg .nature-element:nth-child(2) {
-  top: 20%;
-  right: 15%;
-  animation-delay: 2s;
-}
-
-.auth-nature-bg .nature-element:nth-child(3) {
-  bottom: 30%;
-  left: 20%;
-  animation-delay: 4s;
-}
-
-.auth-nature-bg .nature-element:nth-child(4) {
-  bottom: 10%;
-  right: 10%;
-  animation-delay: 6s;
-}
-
-@keyframes authFloat {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
+@keyframes auth-fall {
+  0% {
+    transform: translateY(-100px) rotate(0deg) scale(1);
+    opacity: 0;
   }
-  25% {
-    transform: translateY(-10px) rotate(2deg);
-  }
-  50% {
-    transform: translateY(-5px) rotate(-1deg);
-  }
-  75% {
-    transform: translateY(-8px) rotate(1deg);
-  }
+  10% { opacity: 0.8; }
+  20% { transform: translateY(15vh) rotate(25deg) scale(1.01); opacity: 0.7; }
+  40% { transform: translateY(40vh) rotate(70deg) scale(0.99); opacity: 0.6; }
+  60% { transform: translateY(65vh) rotate(120deg) scale(0.97); opacity: 0.5; }
+  80% { transform: translateY(85vh) rotate(170deg) scale(0.94); opacity: 0.3; }
+  95% { transform: translateY(98vh) rotate(200deg) scale(0.91); opacity: 0.1; }
+  100% { transform: translateY(calc(100vh + 50px)) rotate(220deg) scale(0.88); opacity: 0; }
+}
+
+/* Dark mode styles for auth falling leaves */
+[data-theme="dark"] .auth-leaf {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2 8 Q5 4, 8 8 Q11 4, 14 8 Q11 12, 8 8 Q5 12, 2 8 Z" fill="%236b7c6b" opacity="0.7"/></svg>')
+    no-repeat center;
+  background-size: contain;
 }
 
 .auth-content {
