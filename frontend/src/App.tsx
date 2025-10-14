@@ -116,10 +116,23 @@ const AuthenticatedApp: React.FC = () => {
 
   return (
     <div className="app">
-      {/* Minimal floating elements background */}
-      <div className="floating-nature">
-        <div className="nature-element"></div>
-        <div className="nature-element">🌿</div>
+      {/* Falling leaves background for main menu */}
+      <div className="main-falling-leaves">
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
+        <div className="main-leaf"></div>
       </div>
 
       {/* User Header with Title, Theme + Logout */}
