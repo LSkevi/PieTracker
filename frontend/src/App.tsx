@@ -44,6 +44,7 @@ const AuthenticatedApp: React.FC = () => {
   const { logout, user } = useAuth();
   const {
     expenses,
+    yearlyExpenses,
     summary,
     categories,
     categoryColors,
@@ -54,6 +55,8 @@ const AuthenticatedApp: React.FC = () => {
     selectedMonth,
     selectedYear,
     loading,
+    loadingYearly,
+    initialLoading,
     addExpense,
     addCategory,
     deleteExpense,
@@ -208,13 +211,20 @@ const AuthenticatedApp: React.FC = () => {
             {/* Chart and Info Side by Side */}
             <div className="chart-info-layout">
               <div className="chart-area">
-                {loading ? (
-                  <div className="loading">Loading data...</div>
+                {loading || initialLoading ? (
+                  <div className="enhanced-loading">
+                    <div className="loading-spinner">
+                      <div className="spinner-circle"></div>
+                    </div>
+                    <div className="loading-text">Loading data...</div>
+                  </div>
                 ) : summary ? (
                   <ChartDisplay
                     summary={summary}
                     expenses={expenses}
+                    yearlyExpenses={yearlyExpenses}
                     loading={loading}
+                    loadingYearly={loadingYearly}
                     selectedMonth={selectedMonth}
                     selectedYear={selectedYear}
                     selectedCurrency={selectedCurrency}
@@ -240,6 +250,7 @@ const AuthenticatedApp: React.FC = () => {
                   onMonthYearChange={setMonthYear}
                   onCurrencyChange={setSelectedCurrency}
                   categoryColors={categoryColors}
+                  loading={loading || initialLoading}
                 />
               </div>
             </div>

@@ -20,7 +20,9 @@ import { formatCurrency, convertCurrency } from "../utils/currency";
 interface ChartDisplayProps {
   summary: MonthlySummary | null;
   expenses: Expense[];
+  yearlyExpenses: Expense[];
   loading: boolean;
+  loadingYearly: boolean;
   selectedMonth: number;
   selectedYear: number;
   selectedCurrency: string;
@@ -30,7 +32,9 @@ interface ChartDisplayProps {
 const ChartDisplay: React.FC<ChartDisplayProps> = ({
   summary,
   expenses,
+  yearlyExpenses,
   loading,
+  loadingYearly,
   selectedMonth,
   selectedYear,
   selectedCurrency,
@@ -210,17 +214,12 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
       monthlyTotals[month] = 0;
     });
 
-    // Calculate monthly totals for the selected year
-    expenses
-      .filter((expense) => {
-        const expenseDate = new Date(expense.date);
-        return expenseDate.getFullYear() === selectedYear;
-      })
-      .forEach((expense) => {
-        const expenseDate = new Date(expense.date);
-        const monthKey = months[expenseDate.getMonth()];
-        monthlyTotals[monthKey] += expense.amount;
-      });
+    // Calculate monthly totals for the selected year using yearlyExpenses
+    yearlyExpenses.forEach((expense) => {
+      const expenseDate = new Date(expense.date);
+      const monthKey = months[expenseDate.getMonth()];
+      monthlyTotals[monthKey] += expense.amount;
+    });
 
     // Convert to chart data format
     return months.map((month) => ({
@@ -231,13 +230,10 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
 
   // Calculate yearly total expenses
   const calculateYearlyTotal = () => {
-    const yearlyTotal = expenses
-      .filter((expense) => {
-        const expenseDate = new Date(expense.date);
-        return expenseDate.getFullYear() === selectedYear;
-      })
-      .reduce((total, expense) => total + expense.amount, 0);
-
+    const yearlyTotal = yearlyExpenses.reduce(
+      (total, expense) => total + expense.amount,
+      0
+    );
     return yearlyTotal;
   };
 
@@ -480,58 +476,67 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
         </div>
 
         <div className="big-chart-area">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={prepareYearlyData()}
-              margin={{ top: 32, right: 40, bottom: 32, left: 40 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--warm-gray)"
-                opacity={0.3}
-              />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fill: "var(--charcoal)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                }}
-              />
-              <YAxis
-                domain={[0, 3000]}
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fill: "var(--charcoal)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                }}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <Tooltip content={LineTooltip} />
-              <Line
-                type="monotone"
-                dataKey="spending"
-                stroke="var(--sage-green)"
-                strokeWidth={3}
-                dot={{
-                  fill: "var(--sage-green)",
-                  strokeWidth: 2,
-                  stroke: "var(--paper-white)",
-                  r: 6,
-                }}
-                activeDot={{
-                  r: 8,
-                  stroke: "var(--sage-green)",
-                  strokeWidth: 3,
-                  fill: "var(--paper-white)",
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {loadingYearly ? (
+            <div className="yearly-loading">
+              <div className="loading-spinner">
+                <div className="spinner-circle"></div>
+              </div>
+              <div className="loading-text">Loading yearly data...</div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={prepareYearlyData()}
+                margin={{ top: 32, right: 40, bottom: 32, left: 40 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--warm-gray)"
+                  opacity={0.3}
+                />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{
+                    fill: "var(--charcoal)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                />
+                <YAxis
+                  domain={[0, 3000]}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{
+                    fill: "var(--charcoal)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip content={LineTooltip} />
+                <Line
+                  type="monotone"
+                  dataKey="spending"
+                  stroke="var(--sage-green)"
+                  strokeWidth={3}
+                  dot={{
+                    fill: "var(--sage-green)",
+                    strokeWidth: 2,
+                    stroke: "var(--paper-white)",
+                    r: 6,
+                  }}
+                  activeDot={{
+                    r: 8,
+                    stroke: "var(--sage-green)",
+                    strokeWidth: 3,
+                    fill: "var(--paper-white)",
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </>

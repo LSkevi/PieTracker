@@ -2641,6 +2641,74 @@ body::before {
   font-weight: 400;
 }
 
+/* Enhanced Loading Screen with Animation */
+.enhanced-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.05),
+    rgba(245, 255, 245, 0.8)
+  );
+  border-radius: 20px;
+  min-height: 300px;
+}
+
+.yearly-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  height: 100%;
+  min-height: 200px;
+}
+
+.loading-spinner {
+  margin-bottom: 20px;
+}
+
+.spinner-circle {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--cream-white);
+  border-top: 4px solid var(--sage-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 4px 15px rgba(168, 181, 160, 0.3);
+}
+
+.loading-text {
+  color: var(--sage-green);
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  opacity: 0.8;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Custom scrollbar with elegant theme */
 .expenses-list::-webkit-scrollbar {
   width: 6px;
@@ -3144,6 +3212,24 @@ body::before {
   border-radius: 20px;
   padding: 25px;
   overflow: visible;
+}
+
+.info-panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(245, 255, 245, 0.8);
+  border-radius: 12px;
+  border: 1px solid #d4e6d4;
+  min-height: 150px;
+}
+
+.no-data-info {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-soft);
 }
 
 /* Summary Info */
@@ -5468,6 +5554,24 @@ body::before {
 
 [data-theme="dark"] .loading-content .loading {
   color: #b8b8b8;
+}
+
+/* Dark Mode Enhanced Loading */
+[data-theme="dark"] .enhanced-loading {
+  background: linear-gradient(
+    135deg,
+    rgba(122, 140, 111, 0.1),
+    rgba(28, 26, 21, 0.8)
+  );
+}
+
+[data-theme="dark"] .spinner-circle {
+  border-color: var(--paper-white);
+  border-top-color: var(--sage-green);
+}
+
+[data-theme="dark"] .loading-text {
+  color: var(--sage-green);
 }
 
 [data-theme="dark"] .user-header {

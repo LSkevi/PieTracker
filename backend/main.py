@@ -322,6 +322,19 @@ async def get_expenses_by_month(year: int, month: int, user_id: str = Depends(ge
         ]
     return []
 
+@app.get("/expenses/year/{year}")
+async def get_expenses_by_year(year: int, user_id: str = Depends(get_user_id)):
+    """Get all expenses for a specific year from database"""
+    year_str = f"{year:04d}"
+    
+    if db_service and db_service.use_db:
+        db_expenses = db_service.get_user_expenses(user_id)
+        return [
+            expense for expense in db_expenses
+            if expense["date"].startswith(year_str)
+        ]
+    return []
+
 @app.get("/expenses/summary/{year}/{month}")
 async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_user_id)):
     """Get monthly expense summary from database"""
