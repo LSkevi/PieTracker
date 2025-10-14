@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Depends, status
+from fastapi import FastAPI, HTTPException, Header, Depends, status, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -14,6 +14,10 @@ import tempfile
 from collections import defaultdict
 import uuid
 import logging
+import base64
+import io
+from PIL import Image
+import google.generativeai as genai
 
 # Set up logging first
 logging.basicConfig(level=logging.INFO)
@@ -50,6 +54,16 @@ app = FastAPI(title="PieTracker - Elegant Finance App")
 SECRET_KEY = os.environ.get("PIETRACKER_SECRET_KEY", "dev-secret-change-me")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+
+# =====================
+# Gemini AI Configuration
+# =====================
+GEMINI_API_KEY = "***REMOVED-GEMINI-KEY***"
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    logger.info("✅ Gemini AI configured for OCR functionality")
+else:
+    logger.warning("⚠️  GEMINI_API_KEY not configured - OCR features unavailable")
 
 """Password hashing context.
 Using pbkdf2_sha256 to avoid bcrypt Windows backend issues & 72-byte truncation.
@@ -546,6 +560,15 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str = Field(min_length=6, max_length=256)
 
+class OCRResponse(BaseModel):
+    success: bool
+    amount: Optional[float] = None
+    date: Optional[str] = None
+    merchant: Optional[str] = None
+    category: Optional[str] = None
+    confidence: Optional[str] = None
+    error: Optional[str] = None
+
 def prepare_user_for_output(user: dict) -> dict:
     """Convert user data to format suitable for UserOut model"""
     return {
@@ -969,6 +992,182 @@ async def export_expenses(current_user: dict = Depends(get_current_user)):
     else:
         data = []
     return JSONResponse(content=data)
+
+# =====================
+# OCR Receipt Processing
+# =====================
+
+@app.get("/ocr/test")
+async def test_ocr_system():
+    """Test endpoint to verify OCR system is ready"""
+    try:
+        # Test Gemini configuration
+        if not GEMINI_API_KEY:
+            return {"status": "error", "message": "Gemini API key not configured"}
+        
+        # Test if we can create the model
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        return {
+            "status": "ready", 
+            "message": "OCR system is configured and ready",
+            "gemini_configured": True,
+            "model": "gemini-2.5-flash"
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"OCR system error: {str(e)}"}
+
+@app.post("/ocr/receipt", response_model=OCRResponse, dependencies=[Depends(get_current_user)])
+async def process_receipt(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    """
+    Process a receipt image using Gemini Flash API to extract expense data.
+    Supports French and English receipts.
+    """
+    try:
+        # Validate file type
+        if not file.content_type or not file.content_type.startswith('image/'):
+            return OCRResponse(
+                success=False,
+                error="Please upload a valid image file (PNG, JPG, JPEG, WEBP)"
+            )
+        
+        # Read and validate image
+        image_data = await file.read()
+        if len(image_data) > 10 * 1024 * 1024:  # 10MB limit
+            return OCRResponse(
+                success=False,
+                error="Image file too large. Please use an image smaller than 10MB."
+            )
+        
+        try:
+            # Open and validate image with PIL
+            image = Image.open(io.BytesIO(image_data))
+            
+            # Handle all possible image formats including JFIF
+            if image.format not in ['JPEG', 'PNG', 'WEBP', 'TIFF', 'BMP']:
+                # Try to convert unsupported formats
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+            else:
+                # Convert to RGB if needed for better processing
+                if image.mode in ('RGBA', 'LA', 'P', 'CMYK'):
+                    image = image.convert('RGB')
+            
+            # Verify image is not corrupted by getting its size
+            width, height = image.size
+            if width < 10 or height < 10:
+                raise ValueError("Image too small")
+                
+        except Exception as e:
+            logger.error(f"Image processing error: {str(e)}")
+            return OCRResponse(
+                success=False,
+                error=f"Invalid or corrupted image file. Please try a different image. (Format: {file.content_type})"
+            )
+        
+        # Configure Gemini model for Flash
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Create comprehensive prompt for French and English receipts
+        prompt = """
+        Analyze this receipt image and extract the following information in JSON format:
+        
+        1. **amount**: The total amount paid (as a number, no currency symbols)
+        2. **date**: The date of purchase (in YYYY-MM-DD format if possible, or the original format if unclear)
+        3. **merchant**: The store/restaurant/business name
+        4. **category**: Suggest ONE category from: Food, Transportation, Shopping, Entertainment, Healthcare, Utilities, Other
+        
+        Instructions:
+        - Look for total amount, final price, "TOTAL", "MONTANT", "À PAYER", etc.
+        - For dates, check for "DATE", format like DD/MM/YYYY, DD-MM-YYYY, etc.
+        - For merchant, look at the top of receipt for business name
+        - Choose the most appropriate category based on the merchant/items
+        - Handle both French and English receipts
+        - If any field cannot be determined, set it to null
+        - Be confident but accurate
+        
+        Return ONLY a JSON object with this exact structure:
+        {
+            "amount": number_or_null,
+            "date": "string_or_null",
+            "merchant": "string_or_null", 
+            "category": "string_or_null",
+            "confidence": "high|medium|low"
+        }
+        """
+        
+        # Process with Gemini
+        response = model.generate_content([prompt, image])
+        
+        if not response.text:
+            return OCRResponse(
+                success=False,
+                error="Unable to process receipt. Please try with a clearer image."
+            )
+        
+        # Parse the response
+        try:
+            # Clean up the response text
+            response_text = response.text.strip()
+            # Remove code block markers if present
+            if response_text.startswith('```json'):
+                response_text = response_text[7:]
+            if response_text.startswith('```'):
+                response_text = response_text[3:]
+            if response_text.endswith('```'):
+                response_text = response_text[:-3]
+            
+            result = json.loads(response_text.strip())
+            
+            # Validate and clean the extracted data
+            amount = result.get('amount')
+            if amount is not None:
+                try:
+                    amount = float(str(amount).replace(',', '.').replace(' ', ''))
+                    if amount <= 0:
+                        amount = None
+                except (ValueError, TypeError):
+                    amount = None
+            
+            # Clean date format
+            date_str = result.get('date')
+            if date_str and isinstance(date_str, str):
+                # Try to standardize date format
+                date_str = date_str.strip()
+                # Handle common French/European date formats
+                if '/' in date_str and len(date_str.split('/')) == 3:
+                    try:
+                        parts = date_str.split('/')
+                        if len(parts[0]) == 2:  # DD/MM/YYYY format
+                            date_str = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+                    except:
+                        pass  # Keep original format if conversion fails
+            
+            return OCRResponse(
+                success=True,
+                amount=amount,
+                date=date_str,
+                merchant=result.get('merchant'),
+                category=result.get('category'),
+                confidence=result.get('confidence', 'medium')
+            )
+            
+        except json.JSONDecodeError:
+            # If JSON parsing fails, return a basic response
+            return OCRResponse(
+                success=False,
+                error="Unable to parse receipt data. Please try with a clearer image or different angle."
+            )
+        
+    except Exception as e:
+        logger.error(f"OCR processing error: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return OCRResponse(
+            success=False,
+            error=f"An error occurred while processing the receipt: {str(e)}"
+        )
 
 if __name__ == "__main__":
     import uvicorn

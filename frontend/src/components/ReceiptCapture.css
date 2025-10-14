@@ -1,0 +1,215 @@
+/* =====================
+   Receipt Capture Styles
+   ===================== */
+
+.receipt-capture {
+  margin: 15px 0;
+  width: 100%;
+}
+
+.receipt-drop-zone {
+  border: 3px dashed rgba(168, 181, 160, 0.4);
+  border-radius: 15px;
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.05),
+    rgba(245, 255, 245, 0.3)
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.receipt-drop-zone:hover:not(.processing) {
+  border-color: rgba(168, 181, 160, 0.6);
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.08),
+    rgba(245, 255, 245, 0.4)
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(168, 181, 160, 0.15);
+}
+
+.receipt-drop-zone.drag-over {
+  border-color: var(--sage-green);
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.15),
+    rgba(245, 255, 245, 0.6)
+  );
+  transform: scale(1.02);
+}
+
+.receipt-drop-zone.processing {
+  border-color: rgba(168, 181, 160, 0.3);
+  cursor: not-allowed;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.1),
+    rgba(245, 255, 245, 0.2)
+  );
+}
+
+.receipt-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.receipt-camera-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  filter: grayscale(0.2) opacity(0.8);
+}
+
+.receipt-drop-content h3 {
+  margin: 0;
+  color: var(--charcoal);
+  font-family: "Playfair Display", serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.receipt-drop-content p {
+  margin: 5px 0;
+  color: var(--charcoal);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.receipt-drop-content span {
+  color: rgba(104, 160, 101, 0.8);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.receipt-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(168, 181, 160, 0.2);
+  border-left: 4px solid var(--sage-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.receipt-preview {
+  background: var(--warm-overlay-light);
+  border-radius: 15px;
+  padding: 20px;
+  border: 2px solid rgba(168, 181, 160, 0.2);
+  box-shadow: 0 8px 25px rgba(168, 181, 160, 0.1);
+}
+
+.receipt-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.receipt-preview-header h4 {
+  margin: 0;
+  color: var(--charcoal);
+  font-family: "Playfair Display", serif;
+  font-size: 1.2rem;
+}
+
+.receipt-clear-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: rgba(104, 160, 101, 0.6);
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.receipt-clear-btn:hover {
+  background: rgba(168, 181, 160, 0.1);
+  color: var(--sage-green);
+}
+
+.receipt-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 2px solid rgba(168, 181, 160, 0.2);
+  margin-bottom: 15px;
+}
+
+.receipt-reprocess-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--sage-green),
+    rgba(168, 181, 160, 0.9)
+  );
+  color: var(--paper-white);
+  border: none;
+  border-radius: 10px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.receipt-reprocess-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 181, 160, 0.9),
+    var(--sage-green)
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(168, 181, 160, 0.3);
+}
+
+/* Dark mode styles for receipt capture */
+[data-theme="dark"] .receipt-drop-zone {
+  background: linear-gradient(
+    135deg,
+    rgba(107, 124, 107, 0.1),
+    rgba(55, 65, 55, 0.3)
+  );
+  border-color: rgba(107, 124, 107, 0.4);
+}
+
+[data-theme="dark"] .receipt-drop-zone:hover:not(.processing) {
+  background: linear-gradient(
+    135deg,
+    rgba(107, 124, 107, 0.15),
+    rgba(55, 65, 55, 0.4)
+  );
+  border-color: rgba(107, 124, 107, 0.6);
+}
+
+[data-theme="dark"] .receipt-drop-zone.drag-over {
+  background: linear-gradient(
+    135deg,
+    rgba(107, 124, 107, 0.2),
+    rgba(55, 65, 55, 0.6)
+  );
+}
+
+[data-theme="dark"] .receipt-preview {
+  background: rgba(55, 65, 55, 0.8);
+  border-color: rgba(107, 124, 107, 0.3);
+}
+
+[data-theme="dark"] .receipt-clear-btn:hover {
+  background: rgba(107, 124, 107, 0.2);
+}
