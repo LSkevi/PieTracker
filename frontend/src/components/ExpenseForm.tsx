@@ -677,7 +677,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                       )
                     : "Select date"}
                 </span>
-                <span className="calendar-icon">📅</span>
+                <span className="calendar-icon"></span>
               </div>
             </div>
           </div>
