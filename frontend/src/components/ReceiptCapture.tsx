@@ -52,10 +52,10 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({
     };
     reader.readAsDataURL(file);
 
-      // Process with OCR
-      setIsProcessing(true);
-      setProcessingStatus("Uploading image...");
-      if (typeof onProcessingChange === "function") onProcessingChange(true);
+    // Process with OCR
+    setIsProcessing(true);
+    setProcessingStatus("Uploading image...");
+    if (typeof onProcessingChange === "function") onProcessingChange(true);
 
     try {
       const formData = new FormData();

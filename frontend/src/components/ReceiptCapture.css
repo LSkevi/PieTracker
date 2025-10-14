@@ -95,7 +95,11 @@
 .receipt-processing-banner {
   width: 100%;
   padding: 10px 14px;
-  background: linear-gradient(90deg, rgba(104,160,101,0.12), rgba(168,181,160,0.08));
+  background: linear-gradient(
+    90deg,
+    rgba(104, 160, 101, 0.12),
+    rgba(168, 181, 160, 0.08)
+  );
   border-radius: 8px;
   display: flex;
   gap: 10px;

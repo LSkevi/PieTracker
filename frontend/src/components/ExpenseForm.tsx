@@ -606,7 +606,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       {isOCRProcessing && (
         <div className="receipt-processing-banner">
           <div className="receipt-spinner" style={{ width: 28, height: 28 }} />
-          <div className="receipt-processing-message">Scanning receipt — please wait...</div>
+          <div className="receipt-processing-message">
+            Scanning receipt — please wait...
+          </div>
         </div>
       )}
 
@@ -630,8 +632,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <select
               name="currency"
               value={formData.currency}
-                onChange={handleChange}
-                disabled={isOCRProcessing}
+              onChange={handleChange}
+              disabled={isOCRProcessing}
               className="currency-select"
             >
               {currencies.map((currency) => (
@@ -653,8 +655,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 type="date"
                 name="date"
                 value={formData.date}
-                  onChange={handleChange}
-                  disabled={isOCRProcessing}
+                onChange={handleChange}
+                disabled={isOCRProcessing}
                 className="date-input-hidden"
               />
               <div
@@ -678,8 +680,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             type="text"
             name="description"
             value={formData.description}
-              onChange={handleChange}
-              disabled={isOCRProcessing}
+            onChange={handleChange}
+            disabled={isOCRProcessing}
             placeholder={
               formData.category
                 ? `What ${formData.category.toLowerCase()} did you buy?`
@@ -707,7 +709,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </datalist>
         </div>
 
-        <button type="submit" className="btn-primary-large" disabled={isOCRProcessing}>
+        <button
+          type="submit"
+          className="btn-primary-large"
+          disabled={isOCRProcessing}
+        >
           {isOCRProcessing ? "Scanning…" : "Add Expense"}
         </button>
 
