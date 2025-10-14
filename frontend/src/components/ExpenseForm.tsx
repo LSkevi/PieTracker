@@ -7,6 +7,8 @@ import {
   getCacheStatus,
 } from "../utils/currency";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
+import ReceiptCapture from "./ReceiptCapture";
+import "./ReceiptCapture.css";
 
 interface ExpenseFormProps {
   categories: string[];
@@ -143,6 +145,50 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       setRateStatus("Fetching exchange rates...");
     }
   }, []);
+
+  // Handle OCR result from receipt capture
+  const handleOCRResult = (result: {
+    success: boolean;
+    amount?: number;
+    date?: string;
+    merchant?: string;
+    category?: string;
+    confidence?: string;
+    error?: string;
+  }) => {
+    if (result.success) {
+      // Update form with extracted data
+      setFormData((prev) => ({
+        ...prev,
+        amount: result.amount ? result.amount.toString() : prev.amount,
+        date: result.date || prev.date,
+        description: result.merchant || prev.description,
+        category:
+          result.category && categories.includes(result.category)
+            ? result.category
+            : prev.category,
+      }));
+
+      // Show success message
+      if (result.confidence === "high") {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        setConversionMessage(
+          "Receipt processed! Please verify the extracted data."
+        );
+        setTimeout(() => setConversionMessage(""), 5000);
+      }
+    } else {
+      // Show error message
+      setErrorMessage(result.error || "Failed to process receipt");
+      setShowError(true);
+      setTimeout(() => {
+        setShowError(false);
+        setErrorMessage("");
+      }, 5000);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -544,6 +590,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
         )}
       </div>
+
+      {/* Receipt Scanner */}
+      <ReceiptCapture onDataExtracted={handleOCRResult} />
 
       <form onSubmit={handleSubmit} className="expense-form">
         <div className="form-row">

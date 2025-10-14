@@ -8,3 +8,6 @@ email-validator
 psycopg2-binary
 sqlalchemy
 python-dotenv
+google-generativeai
+pillow
+python-magic-bin
