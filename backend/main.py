@@ -411,10 +411,25 @@ async def get_categories(user_id: str = Depends(get_user_id)):
     
     # Get custom categories from database
     custom_categories = get_user_custom_categories(user_id)
-    custom = set(custom_categories.keys())
     
-    # Combine all categories
-    all_categories = sorted(set(DEFAULT_CATEGORIES) | used_categories | custom)
+    # Get hidden categories list
+    hidden_key = "__hidden_categories__"
+    hidden_categories = set()
+    if hidden_key in custom_categories:
+        hidden_list = custom_categories[hidden_key].split(",")
+        hidden_categories = {cat.strip() for cat in hidden_list if cat.strip()}
+    
+    # Remove hidden categories and system keys from custom categories
+    custom = set()
+    for key, value in custom_categories.items():
+        if not key.startswith("__"):  # Skip system keys
+            custom.add(key)
+    
+    # Start with default categories, but remove hidden ones
+    visible_defaults = set(DEFAULT_CATEGORIES) - hidden_categories
+    
+    # Combine all visible categories
+    all_categories = sorted(visible_defaults | used_categories | custom)
     return all_categories
 
 @app.post("/categories")
@@ -437,16 +452,26 @@ async def get_category_colors(user_id: str = Depends(get_user_id)):
 @app.delete("/categories/{category_name}")
 async def delete_category(category_name: str, user_id: str = Depends(get_user_id)):
     """Delete a category for user from database"""
-    if category_name in DEFAULT_CATEGORIES:
-        raise HTTPException(status_code=400, detail=f"Cannot delete default category: {category_name}")
+    # Get all current categories (default + custom + used)
+    all_categories = await get_categories(user_id)
     
-    # Only operate within user's custom categories
-    existing_custom = get_user_custom_categories(user_id)
-    if category_name not in existing_custom:
-        # Silently succeed to avoid information leakage
+    if category_name not in all_categories:
         return {"message": f"Category '{category_name}' not found for user"}
     
-    delete_user_category(user_id, category_name)
+    existing_custom = get_user_custom_categories(user_id)
+    
+    # If it's a default category, mark it as hidden by adding to hidden list
+    if category_name in DEFAULT_CATEGORIES:
+        # Create or update the hidden categories list
+        hidden_key = "__hidden_categories__"
+        current_hidden = existing_custom.get(hidden_key, "").split(",") if existing_custom.get(hidden_key) else []
+        if category_name not in current_hidden:
+            current_hidden.append(category_name)
+        set_user_category(user_id, hidden_key, ",".join(current_hidden))
+    else:
+        # For custom categories, actually delete them
+        if category_name in existing_custom:
+            delete_user_category(user_id, category_name)
     
     # Delete associated expenses from database
     if db_service and db_service.use_db:
@@ -454,7 +479,7 @@ async def delete_category(category_name: str, user_id: str = Depends(get_user_id
         removed = 0
         for expense in user_expenses:
             if expense.get("category") == category_name:
-                db_service.delete_expense(expense["id"])
+                db_service.delete_expense(expense["id"], user_id)
                 removed += 1
         
         return {"message": f"Category '{category_name}' deleted for user. {removed} associated expenses removed."}
@@ -877,7 +902,7 @@ async def get_admin_stats(current_user: dict = Depends(get_current_user)):
     if db_service and db_service.use_db:
         all_users = db_service.get_all_users()
         total_users = len(all_users)
-        active_users = len([u for u in all_users if u.get("is_active") == "true" or u.get("is_active") == True])
+        active_users = len([u for u in all_users.values() if u.get("is_active") == "true" or u.get("is_active") == True])
         
         return {
             "total_users": total_users,

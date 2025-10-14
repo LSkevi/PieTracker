@@ -56,6 +56,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   // Confirmation modal state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string>("");
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
 
   // Custom date picker state
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -307,6 +308,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   // Confirm category deletion
   const confirmDeleteCategory = async () => {
+    if (isDeletingCategory) return; // Prevent multiple clicks
+
+    setIsDeletingCategory(true);
+
     // If the deleted category was selected, clear the selection
     if (formData.category === categoryToDelete) {
       setFormData((prev) => ({ ...prev, category: "" }));
@@ -321,11 +326,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
       alert(`Error deleting category: ${errorMessage}`);
+    } finally {
+      setIsDeletingCategory(false);
     }
   };
 
   // Cancel category deletion
   const cancelDeleteCategory = () => {
+    if (isDeletingCategory) return; // Prevent closing while deleting
     setShowDeleteConfirm(false);
     setCategoryToDelete("");
   };
@@ -427,11 +435,18 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 {formData.category !== category && (
                   <button
                     type="button"
-                    className="delete-category-btn"
+                    className={`delete-category-btn ${
+                      isDeletingCategory && categoryToDelete === category
+                        ? "loading"
+                        : ""
+                    }`}
                     onClick={() => handleDeleteCategory(category)}
                     title={`Delete ${category} category`}
+                    disabled={isDeletingCategory}
                   >
-                    ×
+                    {isDeletingCategory && categoryToDelete === category
+                      ? "..."
+                      : "×"}
                   </button>
                 )}
               </div>
@@ -907,15 +922,19 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 type="button"
                 className="modal-btn modal-btn-cancel"
                 onClick={cancelDeleteCategory}
+                disabled={isDeletingCategory}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="modal-btn modal-btn-delete"
+                className={`modal-btn modal-btn-delete ${
+                  isDeletingCategory ? "loading" : ""
+                }`}
                 onClick={confirmDeleteCategory}
+                disabled={isDeletingCategory}
               >
-                Delete
+                {isDeletingCategory ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

@@ -15,6 +15,7 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
   const [newCategoryColor, setNewCategoryColor] = useState("#a8b5a0");
   const [isAdding, setIsAdding] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,12 +48,18 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
       return;
     }
 
+    if (deletingCategory) return; // Prevent multiple clicks
+
+    setDeletingCategory(categoryName);
+
     try {
       await deleteCategory(categoryName);
       setDeleteConfirm(null);
     } catch (error) {
       console.error("Error deleting category:", error);
       alert("Failed to delete category");
+    } finally {
+      setDeletingCategory(null);
     }
   };
 
@@ -149,9 +156,14 @@ export const CategoryManager: React.FC<CategoryManagerProps> = ({
                       onClick={() => handleDeleteCategory(category)}
                       className={`delete-button ${
                         deleteConfirm === category ? "confirm" : ""
-                      }`}
+                      } ${deletingCategory === category ? "loading" : ""}`}
+                      disabled={deletingCategory === category}
                     >
-                      {deleteConfirm === category ? "Confirm Delete" : "Delete"}
+                      {deletingCategory === category
+                        ? "Deleting..."
+                        : deleteConfirm === category
+                        ? "Confirm Delete"
+                        : "Delete"}
                     </button>
                   </div>
                 ))}
