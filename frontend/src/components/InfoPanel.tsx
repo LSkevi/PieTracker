@@ -16,6 +16,7 @@ interface InfoPanelProps {
   onMonthYearChange: (month: number, year: number) => void;
   onCurrencyChange: (currency: string) => void;
   categoryColors?: { [key: string]: string };
+  loading?: boolean;
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
@@ -29,6 +30,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   onMonthYearChange,
   onCurrencyChange,
   categoryColors,
+  loading = false,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => isDarkModeEnabled());
   const [convertedAmounts, setConvertedAmounts] = useState<{
@@ -282,7 +284,14 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
         )}
       </div>
 
-      {summary && (
+      {loading ? (
+        <div className="info-panel-loading">
+          <div className="loading-spinner">
+            <div className="spinner-circle"></div>
+          </div>
+          <div className="loading-text">Loading summary...</div>
+        </div>
+      ) : summary ? (
         <>
           {/* Summary Info */}
           <div className="summary-info">
@@ -380,6 +389,11 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
             </div>
           )}
         </>
+      ) : (
+        <div className="no-data-info">
+          <div className="chart-title">No Data</div>
+          <p>Add some expenses to see your summary!</p>
+        </div>
       )}
     </div>
   );

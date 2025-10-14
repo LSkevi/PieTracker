@@ -19,6 +19,7 @@ function getHeaders() {
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [yearlyExpenses, setYearlyExpenses] = useState<Expense[]>([]);
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryColors, setCategoryColors] = useState<{
@@ -34,6 +35,8 @@ export const useExpenses = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
+  const [loadingYearly, setLoadingYearly] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -184,6 +187,38 @@ export const useExpenses = () => {
     }
   }, [selectedYear, selectedMonth]);
 
+  const fetchYearlyExpenses = useCallback(async () => {
+    try {
+      setLoadingYearly(true);
+      const url = `${API_CONFIG.BASE_URL}/expenses/year/${selectedYear}`;
+      console.log("Fetching yearly expenses from:", url);
+
+      const response = await axios.get(url, {
+        timeout: 10000,
+        headers: { "Content-Type": "application/json", ...getHeaders() },
+      });
+
+      console.log("Yearly expenses response:", response.data);
+      setYearlyExpenses(response.data);
+    } catch (error) {
+      console.error("Error fetching yearly expenses:", error);
+
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error details:", {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          code: error.code,
+        });
+      }
+
+      setYearlyExpenses([]);
+    } finally {
+      setLoadingYearly(false);
+    }
+  }, [selectedYear]);
+
   const addExpense = async (
     amount: number,
     category: string,
@@ -206,6 +241,7 @@ export const useExpenses = () => {
       fetchCategories(); // Refresh categories in case new category was used
       fetchMonthlySummary();
       fetchMonthlyExpenses();
+      fetchYearlyExpenses();
     } catch (error) {
       console.error("Error adding expense:", error);
     }
@@ -239,6 +275,7 @@ export const useExpenses = () => {
       });
       fetchMonthlySummary();
       fetchMonthlyExpenses();
+      fetchYearlyExpenses();
     } catch (error) {
       console.error("Error deleting expense:", error);
     }
@@ -253,6 +290,7 @@ export const useExpenses = () => {
       fetchCategoryColors(); // Refresh category colors
       fetchMonthlySummary(); // Refresh summary
       fetchMonthlyExpenses(); // Refresh expenses
+      fetchYearlyExpenses(); // Refresh yearly expenses
     } catch (error) {
       console.error("Error deleting category:", error);
       throw error; // Re-throw so the component can handle it
@@ -265,10 +303,20 @@ export const useExpenses = () => {
   };
 
   useEffect(() => {
-    fetchCategories();
-    fetchCategoryColors();
-    fetchCurrencies();
-    fetchAvailableMonths();
+    const initializeData = async () => {
+      setInitialLoading(true);
+      try {
+        await Promise.all([
+          fetchCategories(),
+          fetchCategoryColors(),
+          fetchCurrencies(),
+          fetchAvailableMonths(),
+        ]);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    initializeData();
   }, [
     fetchCategories,
     fetchCategoryColors,
@@ -279,12 +327,19 @@ export const useExpenses = () => {
   useEffect(() => {
     fetchMonthlySummary();
     fetchMonthlyExpenses();
+    fetchYearlyExpenses();
     // Refresh available months when expenses change
     fetchAvailableMonths();
-  }, [fetchMonthlySummary, fetchMonthlyExpenses, fetchAvailableMonths]);
+  }, [
+    fetchMonthlySummary,
+    fetchMonthlyExpenses,
+    fetchYearlyExpenses,
+    fetchAvailableMonths,
+  ]);
 
   return {
     expenses,
+    yearlyExpenses,
     summary,
     categories,
     categoryColors,
@@ -295,6 +350,8 @@ export const useExpenses = () => {
     selectedMonth,
     selectedYear,
     loading,
+    loadingYearly,
+    initialLoading,
     addExpense,
     addCategory,
     deleteExpense,
