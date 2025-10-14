@@ -13,9 +13,15 @@ interface OCRResult {
 
 interface ReceiptCaptureProps {
   onDataExtracted: (data: OCRResult) => void;
+  // Optional callback to notify parent about processing state so the
+  // parent (ExpenseForm) can disable inputs or show a global loader.
+  onProcessingChange?: (processing: boolean) => void;
 }
 
-const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({ onDataExtracted }) => {
+const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({
+  onDataExtracted,
+  onProcessingChange,
+}) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -46,9 +52,10 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({ onDataExtracted }) => {
     };
     reader.readAsDataURL(file);
 
-    // Process with OCR
-    setIsProcessing(true);
-    setProcessingStatus("Uploading image...");
+      // Process with OCR
+      setIsProcessing(true);
+      setProcessingStatus("Uploading image...");
+      if (typeof onProcessingChange === "function") onProcessingChange(true);
 
     try {
       const formData = new FormData();
@@ -80,6 +87,7 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({ onDataExtracted }) => {
     } finally {
       setIsProcessing(false);
       setProcessingStatus("");
+      if (typeof onProcessingChange === "function") onProcessingChange(false);
     }
   };
 
@@ -103,7 +111,7 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({ onDataExtracted }) => {
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (!isProcessing) fileInputRef.current?.click();
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,6 +127,8 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({ onDataExtracted }) => {
       fileInputRef.current.value = "";
     }
   };
+
+  // no-op
 
   return (
     <div className="receipt-capture">
