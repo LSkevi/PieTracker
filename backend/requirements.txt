@@ -10,4 +10,4 @@ sqlalchemy
 python-dotenv
 google-generativeai
 pillow
-python-magic-bin
+python-magic
