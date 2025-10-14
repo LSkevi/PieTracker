@@ -5667,3 +5667,32 @@ body::before {
   background: rgba(168, 181, 160, 0.15);
   color: var(--accent-gold);
 }
+
+/* Loading states for category deletion */
+.delete-category-btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.modal-btn-delete.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+  position: relative;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
