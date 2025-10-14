@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { parseDateStringAsLocal } from "../utils/date";
 import type { ExpenseFormData, Expense, Currency } from "../types";
 import {
   formatCurrency,
@@ -122,6 +123,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       currency: selectedCurrency,
     }));
   }, [selectedCurrency]);
+
+  // Use shared util to parse YYYY-MM-DD as local date to avoid timezone shifts
+  const parseDateStringAsLocalLocal = parseDateStringAsLocal;
 
   // Handle escape key for closing modal
   useEffect(() => {
@@ -306,7 +310,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   // Handle date picker click
   const handleDatePickerClick = () => {
     // Initialize year/month from current form date or today
-    const currentDate = formData.date ? new Date(formData.date) : new Date();
+    const currentDate = formData.date
+      ? parseDateStringAsLocalLocal(formData.date)
+      : new Date();
     setSelectedYear(currentDate.getFullYear());
     setSelectedMonth(currentDate.getMonth());
     setShowDatePicker(true);
@@ -665,7 +671,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               >
                 <span className="date-value">
                   {formData.date
-                    ? format(new Date(formData.date), "dd/MM/yyyy")
+                    ? format(
+                        parseDateStringAsLocalLocal(formData.date),
+                        "dd/MM/yyyy"
+                      )
                     : "Select date"}
                 </span>
                 <span className="calendar-icon">📅</span>
@@ -793,7 +802,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <div key={expense.id} className="expense-card-simple">
                   <div className="expense-card-main">
                     <div className="expense-date-simple">
-                      {format(new Date(expense.date), "dd/MM/yyyy")}
+                      {format(
+                        parseDateStringAsLocalLocal(expense.date),
+                        "dd/MM/yyyy"
+                      )}
                     </div>
                     <div className="expense-category-badge">
                       {expense.category}
