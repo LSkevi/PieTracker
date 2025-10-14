@@ -52,6 +52,55 @@
     rgba(168, 181, 160, 0.1),
     rgba(245, 255, 245, 0.2)
   );
+  pointer-events: none; /* prevent interactions while processing */
+}
+
+/* Full overlay for OCR processing (appears above the form area) */
+.receipt-processing-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  backdrop-filter: blur(3px);
+}
+
+.receipt-processing-card {
+  background: var(--paper-white);
+  padding: 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.receipt-processing-card .receipt-spinner {
+  width: 56px;
+  height: 56px;
+  border-width: 5px;
+}
+
+.receipt-processing-message {
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+/* Small top banner variant inside the page (used by ExpenseForm) */
+.receipt-processing-banner {
+  width: 100%;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, rgba(104,160,101,0.12), rgba(168,181,160,0.08));
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .receipt-drop-content {

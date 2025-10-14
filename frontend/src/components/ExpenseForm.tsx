@@ -73,6 +73,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     date: format(new Date(), "yyyy-MM-dd"),
   });
 
+  // OCR processing state lifted from ReceiptCapture
+  const [isOCRProcessing, setIsOCRProcessing] = useState(false);
+
   // State for converted expense amounts in the list
   const [convertedExpenseAmounts, setConvertedExpenseAmounts] = useState<{
     [key: string]: number;
@@ -592,7 +595,20 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       </div>
 
       {/* Receipt Scanner */}
-      <ReceiptCapture onDataExtracted={handleOCRResult} />
+      {/* Pass processing callback so parent can disable the form and
+          show a small banner while OCR is running. */}
+      <ReceiptCapture
+        onDataExtracted={handleOCRResult}
+        onProcessingChange={(processing) => setIsOCRProcessing(processing)}
+      />
+
+      {/* Small banner that appears while OCR is processing */}
+      {isOCRProcessing && (
+        <div className="receipt-processing-banner">
+          <div className="receipt-spinner" style={{ width: 28, height: 28 }} />
+          <div className="receipt-processing-message">Scanning receipt — please wait...</div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="expense-form">
         <div className="form-row">
@@ -604,6 +620,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               step="0.01"
               value={formData.amount}
               onChange={handleChange}
+              disabled={isOCRProcessing}
               placeholder="0.00"
             />
           </div>
@@ -613,7 +630,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             <select
               name="currency"
               value={formData.currency}
-              onChange={handleChange}
+                onChange={handleChange}
+                disabled={isOCRProcessing}
               className="currency-select"
             >
               {currencies.map((currency) => (
@@ -635,7 +653,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 type="date"
                 name="date"
                 value={formData.date}
-                onChange={handleChange}
+                  onChange={handleChange}
+                  disabled={isOCRProcessing}
                 className="date-input-hidden"
               />
               <div
@@ -659,7 +678,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             type="text"
             name="description"
             value={formData.description}
-            onChange={handleChange}
+              onChange={handleChange}
+              disabled={isOCRProcessing}
             placeholder={
               formData.category
                 ? `What ${formData.category.toLowerCase()} did you buy?`
@@ -687,8 +707,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </datalist>
         </div>
 
-        <button type="submit" className="btn-primary-large">
-          Add Expense
+        <button type="submit" className="btn-primary-large" disabled={isOCRProcessing}>
+          {isOCRProcessing ? "Scanning…" : "Add Expense"}
         </button>
 
         {/* Success Message */}
