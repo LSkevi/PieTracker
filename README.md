@@ -9,7 +9,7 @@
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://pietracker.vercel.app](https://pietracker.vercel.app)
+- **Frontend**: [[https://pietracker.vercel.app](https://pietracker.vercel.app)](https://pie-tracker-seven.vercel.app)
 - **Backend API**: [https://pietracker-backend.onrender.com](https://pietracker-backend.onrender.com)
 
 ## ✨ Features
