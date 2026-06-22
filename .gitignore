@@ -33,6 +33,12 @@ pids
 *.db
 *.sqlite
 
-# JSON data files (optional - remove if you want to commit data)
+# Local data files (never commit user data)
+backend/users.json
 backend/expenses.json
 backend/categories.json
+backend/backups/
+
+# Python bytecode / backups
+*.pyc
+*.bak
