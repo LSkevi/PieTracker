@@ -95,7 +95,7 @@ export const setDefaultCurrency = (currencyCode: string): void => {
 };
 
 // API Configuration
-const API_KEY = "***REMOVED-EXCHANGE-KEY***";
+const API_KEY = import.meta.env.VITE_EXCHANGE_API_KEY ?? "";
 const API_URL = "https://api.exchangeratesapi.io/v1/latest";
 
 // Fallback exchange rates (base currency: EUR - as per exchangeratesapi.io)
