@@ -6,6 +6,10 @@ This script removes unwanted categories from a user's custom categories.
 
 import os
 from dotenv import load_dotenv
+# Allow running this script standalone: make backend modules importable.
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "backend"))
+
 from simple_db import SimpleDBService
 
 # Load environment variables

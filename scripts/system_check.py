@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# Allow running this script standalone: make backend modules importable.
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "backend"))
+
 """
 Comprehensive system check for PieTracker
 This script validates all critical functionality before production use
