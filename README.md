@@ -1,317 +1,301 @@
-# 🥧 PieTracker - Beautiful Expense Tracking App
+# PieTracker
 
-> A modern, elegant expense tracking web application with beautiful visualizations and multi-currency support
+> A multi-currency personal expense tracker with receipt OCR, built as a FastAPI + React/TypeScript full-stack application.
 
-[![React](https://img.shields.io/badge/React-19.1.1-blue?logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.7+-green?logo=python)](https://python.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-SQLAlchemy-336791?logo=postgresql&logoColor=white)](https://www.sqlalchemy.org/)
 
-## 🚀 Live Demo
+## Live demo
 
-- **Frontend**: https://pie-tracker-seven.vercel.app
-- **Backend API**: [https://pietracker-backend.onrender.com](https://pietracker-backend.onrender.com)
+- **Frontend (Vercel):** https://pie-tracker-seven.vercel.app
+- **Backend API (Render):** https://pietracker.onrender.com
 
-## ✨ Features
+> The backend runs on Render's free tier and may take a few seconds to wake from a cold start on the first request.
 
-- 🎨 **Beautiful UI**: Modern, responsive design with elegant color schemes
-- 📊 **Interactive Charts**: Dynamic pie charts showing expense breakdowns by category
-- � **Multi-Currency**: Support for 10+ currencies with real-time conversion
-- � **Monthly Tracking**: View and compare expenses across different months
-- 🏷️ **Smart Categories**: Pre-defined categories with the ability to add custom ones
-- 🔄 **Real-time Updates**: Instant chart updates when adding new expenses
-- 📱 **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-- 🌙 **Theme Toggle**: Light and dark mode support
-- 💾 **Data Persistence**: Local JSON storage with easy database migration path
+---
 
-## 🚀 Quick Start
+## The problem
+
+Tracking day-to-day spending is tedious: amounts arrive in different currencies when you travel or shop online, receipts pile up, and most simple trackers force you into one currency and manual data entry. PieTracker addresses this with three things:
+
+1. **Multi-currency by design** — every expense keeps its own currency, and totals are converted on demand into whatever currency you want to view.
+2. **Receipt OCR** — photograph or upload a receipt and have the amount, date, merchant, and a suggested category extracted automatically to pre-fill the form.
+3. **At-a-glance breakdowns** — interactive pie and trend charts show where money goes, by category and over time.
+
+It is a personal-finance tool and a portfolio project: the goal is a clean, end-to-end full-stack app with an explicit, honest account of its design trade-offs (see [Architecture](#architecture) and [Known limitations](#known-limitations--roadmap)).
+
+## Key features
+
+- **Expense tracking** — create, list, and delete expenses with amount, category, currency, date, and description; browse by month and year.
+- **Receipt OCR scanning** — upload or capture a receipt image; Google Gemini parses it into `{ amount, date, merchant, category, confidence }` to pre-fill the expense form.
+- **Multi-currency** — 10 supported currencies, each expense stored in its own currency. Live EUR-base exchange rates are fetched from [exchangeratesapi.io](https://exchangeratesapi.io), cached in the browser for 8 hours, with a built-in static fallback table when the API is unavailable.
+- **Authentication** — email/username + password signup and login, JWT-based sessions (HS256), `pbkdf2_sha256` password hashing.
+- **Categories** — sensible default categories plus user-defined custom categories with custom colors; defaults can be hidden per user.
+- **Charts & insights** — category breakdown pie chart, yearly trend chart, and computed totals across mixed currencies (Recharts).
+- **Admin panel** — user management (list, activate/deactivate, edit, delete) and basic usage stats for admin accounts.
+- **Light / dark theme** and a responsive layout.
+
+## Screenshots
+
+> Real screenshots can be added here. Placeholders below describe the intended captures.
+
+| Dashboard | Add expense + receipt OCR | Admin panel |
+| --- | --- | --- |
+| _Category pie chart, monthly total, and expense list._ | _Expense form pre-filled from a scanned receipt._ | _User management and usage stats._ |
+
+## Architecture
+
+PieTracker is a two-tier application: a **FastAPI** backend with a **PostgreSQL** database (accessed through SQLAlchemy), and a **React + TypeScript** single-page app built with Vite.
+
+```
+┌──────────────────────────┐         HTTPS / JSON          ┌───────────────────────────┐
+│  React + TS SPA (Vite)    │  ───────────────────────────▶ │  FastAPI app (main.py)     │
+│                           │   Authorization: Bearer JWT   │                            │
+│  • AuthContext + reducer  │                               │  • Auth (JWT, pbkdf2)      │
+│  • useExpenses hook       │ ◀───────────────────────────  │  • Expenses / categories   │
+│  • currency.ts (rates)    │         JSON responses        │  • OCR endpoint (Gemini)   │
+│  • Recharts charts        │                               │  • Admin routes            │
+└─────────────┬─────────────┘                               └─────────────┬─────────────┘
+              │                                                            │
+              │ live FX rates (cached 8h, static fallback)                 │ SQLAlchemy
+              ▼                                                            ▼
+   exchangeratesapi.io                                          PostgreSQL (db_service)
+              ▲                                                            ▲
+              │                                                            │
+   receipt image ──▶ FastAPI /ocr/receipt ──▶ Google Gemini ──▶ parsed JSON back to form
+```
+
+**Backend (`backend/`)**
+- `main.py` — the FastAPI application: app/CORS setup, JWT config, password hashing, and all route handlers (expenses, categories, currencies, auth, admin, export, OCR).
+- `simple_db.py` — a hand-written data-access layer (`db_service`) over three SQLAlchemy models (`User`, `Expense`, `UserCategories`), using one session per call. Schema is created with `create_all` (no migration tool yet). The database is treated as an optional runtime dependency: with no `DATABASE_URL`, the API stays up and degrades to empty responses.
+
+**Frontend (`frontend/src/`)**
+- `contexts/AuthContext.tsx` + `services/auth.ts` — auth state machine and the HTTP/token layer (JWT stored in `localStorage`).
+- `hooks/useExpenses.ts` — central server-state hook (axios) that loads categories, currencies, months, summaries, and expenses, and re-fetches after mutations.
+- `utils/currency.ts` — client-side formatting and conversion against cached live rates with a static fallback.
+- `components/` — `ExpenseForm`, `ReceiptCapture`, `ChartDisplay`, `InfoPanel`, `AdminPanel`, etc.
+
+### Request / data flow
+
+1. **Sign up / log in** — the SPA posts credentials to `/auth/signup` or `/auth/login`. The backend verifies the password (`pbkdf2_sha256`) and returns a signed JWT plus the user object, which the SPA stores in `localStorage`.
+2. **Authenticated requests** — `AuthService` attaches `Authorization: Bearer <jwt>` to subsequent calls. The backend resolves the acting user from the token.
+3. **Expenses & categories** — the `useExpenses` hook reads/writes via the REST API; the backend persists through `db_service` to PostgreSQL and the SPA re-fetches affected views.
+4. **Receipt OCR** — `ReceiptCapture` posts a receipt image to `/ocr/receipt`; the backend validates it with Pillow, sends it to Google Gemini with a strict-JSON prompt, sanitizes the result (amount and `DD/MM/YYYY → ISO` date), and returns structured fields to pre-fill the form.
+5. **Currency display** — conversion happens client-side in `currency.ts` using cached EUR-base rates, so totals can be shown in any selected currency.
+
+> Design decisions and their trade-offs (identity model, optional DB, stateless JWT, client-side FX, single-file backend) are documented honestly in [Known limitations & roadmap](#known-limitations--roadmap).
+
+## Tech stack
+
+**Backend**
+- FastAPI, Uvicorn (ASGI)
+- SQLAlchemy + PostgreSQL (`psycopg2-binary`), database hosted on Neon
+- `python-jose[cryptography]` (JWT), `passlib` (`pbkdf2_sha256`)
+- `google-generativeai` (Gemini) + Pillow for receipt OCR
+- `python-dotenv` for configuration
+
+**Frontend**
+- React 19 + TypeScript, Vite
+- Recharts (charts), axios (HTTP), date-fns (dates)
+
+**Infrastructure**
+- Backend on Render, PostgreSQL on Neon (serverless), frontend on Vercel
+- CI on GitHub Actions (`.github/workflows/ci.yml`): builds and tests the frontend and backend on every push
+- A separate cron (`.github/workflows/keep-awake.yml`) pings the backend every 10 minutes to reduce free-tier cold starts
+
+## Local development
 
 ### Prerequisites
+- Python 3.11+ (3.11 is used in deployment)
+- Node.js 18+
+- A PostgreSQL database (local or hosted). Without `DATABASE_URL` the API runs but returns empty data and `503` on writes.
+- Optional: a Google Gemini API key (for OCR) and an exchangeratesapi.io key (for live FX rates).
 
-- **Python 3.7+** (tested with Python 3.13)
-- **Node.js 16+**
-- **npm** or **yarn**
+### 1. Clone
 
-### Installation
+```bash
+git clone https://github.com/LSkevi/PieTracker.git
+cd PieTracker
+```
 
-1. **Clone the repository**
+### 2. Backend
 
-   ```bash
-   git clone https://github.com/yourusername/PieTracker.git
-   cd PieTracker
-   ```
+```bash
+cd backend
+python -m venv venv
 
-2. **Set up the backend**
+# Windows
+venv\Scripts\activate
+# macOS / Linux
+source venv/bin/activate
 
-   ```bash
-   cd backend
+pip install -r requirements.txt
 
-   # Create virtual environment
-   python -m venv venv
+# Configure environment
+cp .env.example .env   # then edit .env (see below)
 
-   # Activate virtual environment
-   # Windows:
-   venv\Scripts\activate
-   # macOS/Linux:
-   source venv/bin/activate
+uvicorn main:app --reload --port 8000
+```
 
-   # Install dependencies
-   pip install -r requirements.txt
-   ```
+Fill in `backend/.env` using `backend/.env.example` as the template:
 
-3. **Set up the frontend**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
+```ini
+GEMINI_API_KEY=          # Google Gemini key for receipt OCR
+PIETRACKER_SECRET_KEY=   # long random string used to sign JWTs
+DATABASE_URL=            # e.g. postgresql://user:password@host:5432/pietracker
+```
 
-### Running the Application
+The API will be available at `http://localhost:8000` (interactive docs at `http://localhost:8000/docs`).
 
-1. **Start the backend server**
+### 3. Frontend
 
-   ```bash
-   cd backend
-   python main.py
-   ```
+```bash
+cd frontend
+npm install
+cp .env.example .env    # optional
+npm run dev
+```
 
-   Backend will be available at `http://localhost:8000`
+Fill in `frontend/.env` using `frontend/.env.example` as the template:
 
-2. **Start the frontend development server**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   Frontend will be available at `http://localhost:5173`
+```ini
+VITE_EXCHANGE_API_KEY=   # exchangeratesapi.io key (optional; static fallback used if absent)
+# VITE_API_URL=http://localhost:8000   # optional override; defaults to localhost in dev
+```
 
-## 📱 Usage
+The app will be available at `http://localhost:5173`. In development the frontend defaults to `http://localhost:8000` for the API; set `VITE_API_URL` to point at a different backend.
 
-### Adding Expenses
+> **Never commit real secrets.** Only the `.env.example` files (with empty placeholders) are tracked; `.env` is git-ignored.
 
-1. Fill out the expense form with amount, category, and description
-2. Select your preferred currency and date
-3. Click "Add Expense" to save
-4. Watch the pie chart update in real-time!
+### Run both at once
 
-### Viewing Data
+From the repo root, a convenience script runs the backend and frontend together (requires `concurrently`, installed via the root `package.json`):
 
-- **Monthly View**: Use the month/year selectors to browse different periods
-- **Currency Conversion**: Switch between supported currencies for display
-- **Category Breakdown**: View detailed spending by category in the pie chart
-- **Expense List**: See all individual expenses with the ability to delete
+```bash
+npm install        # installs concurrently
+npm run dev        # runs backend (uvicorn) + frontend (vite)
+```
 
-### Custom Categories
+## Tests and CI
 
-- Add new expense categories on-the-fly
-- Categories are automatically saved and persist across sessions
+The project has unit test suites on both tiers, run in CI on every push.
 
-## �️ Architecture
+- **Frontend (Vitest + React Testing Library, jsdom):** unit tests for the pure utilities — currency conversion math and fallback behavior (`utils/currency.ts`) and local-date parsing (`utils/date.ts`) — plus a component test for `ThemeToggle` (interaction, `localStorage` persistence, accessibility). Run with `npm run test` in `frontend/`.
+- **Backend (pytest):** DB-free unit tests for the auth/authz helpers (`security.py`: password hashing, JWT round-trips, the user-identity resolver precedence, admin checks) and the pure parsing/aggregation logic (`parsing.py`: OCR JSON post-processing, monthly summaries). Endpoint and `db_service` tests that need a live PostgreSQL are marked and skipped in the unit run (they belong in integration tests). Run with `pytest` in `backend/`.
 
-### Frontend Stack
+To make the backend logic unit-testable without a database, the pure helpers were extracted from `main.py` into `security.py` and `parsing.py`.
 
-- **React 19** with TypeScript for type safety
-- **Vite** for fast development and building
-- **Recharts** for beautiful, interactive charts
-- **Axios** for API communication
-- **date-fns** for date manipulation
-- **Custom CSS** with modern design patterns
+CI runs on GitHub Actions (`.github/workflows/ci.yml`) on every push and pull request: it builds and tests the frontend (Node) and installs and tests the backend (Python). A separate cron (`.github/workflows/keep-awake.yml`) pings the backend to mitigate free-tier cold starts.
 
-### Backend Stack
+```bash
+# Frontend
+cd frontend
+npm run lint     # ESLint
+npm run test     # Vitest
+npm run build    # tsc -b && vite build (type-checks as part of the build)
 
-- **FastAPI** for high-performance API
-- **Pydantic** for data validation
-- **Uvicorn** as ASGI server
-- **JSON file storage** (easily replaceable with database)
+# Backend
+cd backend
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+```
 
-### Project Structure
+## Deployment
+
+### Backend — Render
+Configured by `backend/render.yaml`:
+- Build: `pip install -r requirements.txt`
+- Start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Health check path: `/`
+- Required environment variables: `DATABASE_URL` (a managed Postgres on **Neon** — Render's free database expires after 30 days, see [ADR-0007](docs/adr/0007-managed-postgres-on-neon.md)), `PIETRACKER_SECRET_KEY`, `ALLOWED_ORIGINS` (the deployed frontend origin), and `GEMINI_API_KEY` (for OCR).
+
+### Frontend — Vercel
+Configured by `frontend/vercel.json`:
+- Build: `npm run build`, output directory `dist`
+- SPA rewrite: all routes fall back to `/index.html`
+- Set `VITE_API_URL` to the deployed backend URL, and `VITE_EXCHANGE_API_KEY` if using live FX rates.
+
+## API overview
+
+Selected endpoints (full surface is defined in `backend/main.py`):
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `GET` | `/health`, `/db-status` | Service and database status |
+| `GET` | `/expenses` | List expenses for the current user |
+| `GET` | `/expenses/month/{year}/{month}` | Expenses for a given month |
+| `GET` | `/expenses/summary/{year}/{month}` | Monthly totals + per-category breakdown |
+| `POST` | `/expenses` | Create an expense |
+| `DELETE` | `/expenses/{expense_id}` | Delete an expense |
+| `GET` / `POST` / `DELETE` | `/categories` | List, add, and remove categories |
+| `GET` | `/currencies` | Supported currencies |
+| `POST` | `/auth/signup`, `/auth/login` | Register / authenticate (returns `{ user, token }`) |
+| `GET` | `/auth/me` | Current user from the bearer token |
+| `POST` | `/ocr/receipt` | OCR a receipt image (auth required) |
+| `GET` | `/admin/users`, `/admin/stats` | Admin-only user management and stats |
+| `GET` | `/export/expenses` | Export the current user's expenses as JSON |
+
+Supported currencies: **CAD, USD, EUR, GBP, JPY, AUD, CHF, CNY, INR, BRL**.
+
+## Known limitations & roadmap
+
+This project is intentionally transparent about its current trade-offs. The most relevant for reviewers:
+
+- **Identity / trust model.** Expense and category endpoints use an optional-auth resolver that prefers the JWT subject but also accepts an `X-User-Id` header and a shared anonymous bucket for pre-login use. For a finance app these endpoints should require a verified token and derive the user solely from it — planned hardening.
+- **JWT in `localStorage`** is exposed to XSS; an httpOnly cookie would be safer. Tokens are non-revocable for their 7-day lifetime.
+- **Password reset is a demo.** Reset tokens are held in process memory, so they are lost on restart and don't work across multiple instances.
+- **No database migrations.** Schema is created with `create_all`; adopting Alembic is planned. A couple of schema smells (string `is_active`, dual password columns) should be normalized.
+- **Single-file backend.** `main.py` mixes routing, auth, OCR, and persistence orchestration; splitting into routers/modules is planned.
+- **Client-side currency conversion** means totals depend on each browser's cached rates, and stale/fallback rates can produce slightly different figures across clients.
+
+Planned work, roughly in order:
+
+- [x] Frontend (Vitest) and backend (pytest) test suites + a CI workflow
+- [x] Restrict CORS to the deployed origin via environment configuration (`ALLOWED_ORIGINS`)
+- [x] Extract pure logic from `main.py` (`security.py`, `parsing.py`) for testability
+- [ ] Require authentication on all expense/category endpoints; remove the anonymous/header identity path
+- [ ] Move JWTs to httpOnly cookies and add token revocation
+- [ ] Replace in-memory reset tokens and `create_all` with a real reset flow and Alembic migrations
+- [ ] Split `main.py` into routers (the pure logic is already extracted)
+- [ ] Export to CSV/PDF and basic budget tracking
+
+## Project structure
 
 ```
 PieTracker/
 ├── backend/
-│   ├── main.py              # FastAPI application
-│   ├── requirements.txt     # Python dependencies
-│   └── expenses.json        # Data storage
+│   ├── main.py              # FastAPI app: routes, auth, OCR, admin
+│   ├── security.py          # pure auth/authz helpers (hashing, JWT, user resolution)
+│   ├── parsing.py           # pure OCR-JSON parsing + summary aggregation
+│   ├── simple_db.py         # SQLAlchemy models + db_service
+│   ├── tests/               # pytest unit tests (security, parsing)
+│   ├── render.yaml          # Render deployment config
+│   ├── requirements.txt
+│   ├── requirements-dev.txt # test/dev dependencies
+│   ├── pytest.ini
+│   └── .env.example
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── types/          # TypeScript type definitions
-│   │   ├── utils/          # Utility functions
-│   │   └── constants/      # App constants
-│   ├── package.json        # Node.js dependencies
-│   └── vite.config.ts      # Vite configuration
-└── README.md               # This file
+│   │   ├── components/       # ExpenseForm, ReceiptCapture, ChartDisplay, AdminPanel, ...
+│   │   ├── contexts/         # AuthContext
+│   │   ├── hooks/            # useExpenses, useAuth
+│   │   ├── services/         # auth.ts
+│   │   ├── utils/            # currency.ts (+ .test), date.ts (+ .test)
+│   │   ├── constants/        # colors.ts
+│   │   └── config/           # constants.ts (API base URL)
+│   ├── vercel.json           # Vercel deployment + SPA rewrite
+│   └── .env.example
+├── docs/adr/                 # architecture decision records
+├── scripts/                  # ops / maintenance / smoke scripts (not the test suite)
+├── .github/workflows/
+│   ├── ci.yml                # build + test (frontend + backend)
+│   └── keep-awake.yml        # cron ping to mitigate cold starts
+├── package.json              # root dev scripts (concurrently)
+└── README.md
 ```
 
-## 🔌 API Endpoints
+## License
 
-| Method   | Endpoint                           | Description                     |
-| -------- | ---------------------------------- | ------------------------------- |
-| `GET`    | `/`                                | Welcome message                 |
-| `GET`    | `/expenses`                        | Get all expenses                |
-| `GET`    | `/expenses/month/{year}/{month}`   | Get expenses for specific month |
-| `GET`    | `/expenses/summary/{year}/{month}` | Get monthly summary with totals |
-| `POST`   | `/expenses`                        | Add new expense                 |
-| `DELETE` | `/expenses/{expense_id}`           | Delete expense                  |
-| `GET`    | `/categories`                      | Get available categories        |
-| `GET`    | `/currencies`                      | Get supported currencies        |
-| `GET`    | `/expenses/available-months`       | Get months with expense data    |
-
-## 💱 Supported Currencies
-
-- 🇨🇦 **CAD** - Canadian Dollar
-- 🇺🇸 **USD** - US Dollar
-- 🇪🇺 **EUR** - Euro
-- 🇬🇧 **GBP** - British Pound
-- 🇯🇵 **JPY** - Japanese Yen
-- 🇦🇺 **AUD** - Australian Dollar
-- 🇨🇭 **CHF** - Swiss Franc
-- 🇨🇳 **CNY** - Chinese Yuan
-- 🇮🇳 **INR** - Indian Rupee
-- 🇧🇷 **BRL** - Brazilian Real
-
-## 🎨 Customization
-
-### Colors and Theming
-
-The app uses CSS custom properties for easy theming. Edit `frontend/src/App.css`:
-
-```css
-:root {
-  --primary-color: #your-color;
-  --secondary-color: #your-color;
-  /* More customizable properties */
-}
-```
-
-### Adding New Categories
-
-Categories are dynamically managed. Simply use a new category name when adding an expense, and it will be automatically saved for future use.
-
-## 🚀 Deployment
-
-### Backend on Render
-
-1. **Create a new Web Service on Render**
-
-   - Connect your GitHub repository
-   - Set root directory to `backend`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-
-2. **Environment Variables** (if needed)
-
-   - Set `PYTHON_VERSION` to `3.11.0`
-
-3. **Your backend will be available at**: `https://your-service-name.onrender.com`
-
-### Frontend on Vercel
-
-1. **Deploy to Vercel**
-
-   - Connect your GitHub repository
-   - Set root directory to `frontend`
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-
-2. **Environment Variables**
-
-   - Add `VITE_API_URL` = `https://your-backend-url.onrender.com`
-
-3. **Your frontend will be available at**: `https://your-project.vercel.app`
-
-### Alternative: Local Production Build
-
-````bash
-# Backend
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000
-
-# Frontend
-cd frontend
-npm run build
-npm run preview
-
-```bash
-cd backend
-# Add your deployment configuration
-# Update CORS origins for production
-````
-
-### Database Migration
-
-The app currently uses JSON file storage. For production, consider migrating to:
-
-- **PostgreSQL** for relational data
-- **MongoDB** for document storage
-- **SQLite** for simple deployments
-
-## 🤝 Contributing
-
-We welcome contributions! Here are some ways you can help:
-
-1. **🐛 Bug Reports**: Found a bug? Open an issue with details
-2. **✨ Feature Requests**: Have an idea? Let's discuss it!
-3. **🔧 Pull Requests**:
-   - Fork the repository
-   - Create a feature branch
-   - Make your changes
-   - Add tests if applicable
-   - Submit a pull request
-
-### Development Setup
-
-```bash
-# Install dependencies for both frontend and backend
-npm run install:all  # If you add this script
-
-# Run both servers simultaneously
-npm run dev:all      # If you add this script
-```
-
-## 📊 Screenshots
-
-### Main Dashboard
-
-_Beautiful expense tracking with real-time pie charts_
-
-### Monthly Overview
-
-_Compare spending patterns across different months_
-
-### Multi-Currency Support
-
-_Track expenses in your preferred currency_
-
-## 🔜 Roadmap
-
-- [ ] **User Authentication** - Multi-user support
-- [ ] **Database Integration** - PostgreSQL/MongoDB support
-- [ ] **Export Features** - CSV/PDF reports
-- [ ] **Budget Tracking** - Set and monitor budgets
-- [ ] **Recurring Expenses** - Automatic expense entries
-- [ ] **Mobile App** - React Native version
-- [ ] **Advanced Analytics** - Trends and predictions
-- [ ] **Receipt Scanning** - OCR integration
-- [ ] **Bank Integration** - Automatic transaction import
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Recharts** for amazing chart components
-- **FastAPI** for the excellent Python framework
-- **React Team** for the powerful frontend library
-- **Vite** for lightning-fast development experience
-
----
-
-<div align="center">
-
-**Made with ❤️ for smart financial planning**
-
-[Demo](https://your-demo-link.com) • [Documentation](https://your-docs-link.com) • [Report Bug](https://github.com/yourusername/PieTracker/issues) • [Request Feature](https://github.com/yourusername/PieTracker/issues)
-
-</div>
+Declared as MIT in the root `package.json`. A `LICENSE` file has not yet been added to the repository.
