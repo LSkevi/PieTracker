@@ -5,19 +5,29 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from typing import List, Dict, Optional
 from datetime import datetime, date, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr, Field
 import json
 import os
 import shutil
 import tempfile
-from collections import defaultdict
 import uuid
 import logging
 import base64
 import io
 from PIL import Image
 import google.generativeai as genai
+
+from security import (
+    SECRET_KEY,
+    ALGORITHM,
+    hash_password,
+    verify_password,
+    create_access_token,
+    resolve_user_id,
+    is_admin_user,
+    prepare_user_for_output,
+)
+from parsing import parse_ocr_json, summarize_expenses
 
 # Set up logging first
 logging.basicConfig(level=logging.INFO)
@@ -48,27 +58,21 @@ PASSWORD_RESET_TOKENS: Dict[str, Dict[str, str]] = {}
 
 app = FastAPI(title="PieTracker - Elegant Finance App")
 
-# =====================
-# Auth Configuration
-# =====================
-SECRET_KEY = os.environ.get("PIETRACKER_SECRET_KEY", "dev-secret-change-me")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+# Auth configuration (SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES) and the
+# password hashing context are defined in security.py. main.py imports the subset
+# it uses directly (SECRET_KEY/ALGORITHM for jwt.decode) above.
 
 # =====================
 # Gemini AI Configuration
 # =====================
-GEMINI_API_KEY = "***REMOVED-GEMINI-KEY***"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     logger.info("✅ Gemini AI configured for OCR functionality")
 else:
     logger.warning("⚠️  GEMINI_API_KEY not configured - OCR features unavailable")
 
-"""Password hashing context.
-Using pbkdf2_sha256 to avoid bcrypt Windows backend issues & 72-byte truncation.
-If you later prefer bcrypt, change schemes=["bcrypt"]."""
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# Password hashing lives in security.py (hash_password/verify_password, imported above).
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # Users are now stored only in database - no in-memory storage
@@ -126,20 +130,8 @@ def _safe_write_json(path: str, data):
 
 # Remove legacy migration since everything is now database-only
 
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-def verify_password(password: str, hashed: str) -> bool:
-    try:
-        return pwd_context.verify(password, hashed)
-    except Exception:
-        return False
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+# hash_password, verify_password and create_access_token are defined in
+# security.py and imported above.
 
 def get_user_by_email(email: str) -> Optional[Dict[str, str]]:
     """Get user by email from database"""
@@ -203,11 +195,18 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     
     return user
 
-# CORS middleware to allow React frontend
+# CORS — allowed origins are configurable via the ALLOWED_ORIGINS env var
+# (comma-separated). Defaults to local dev origins; set it to the deployed
+# frontend URL(s) in production.
+_origins_env = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000")
+ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",") if o.strip()]
+_allow_all_origins = ALLOWED_ORIGINS == ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now - will restrict later
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    # Credentialed requests cannot use a wildcard origin, so only enable
+    # credentials when origins are explicitly listed.
+    allow_credentials=not _allow_all_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -279,21 +278,12 @@ def get_user_id(
     x_user_id: Optional[str] = Header(default=None),
     authorization: Optional[str] = Header(default=None)
 ) -> str:
-    """Resolve user id from JWT if provided, else from X-User-Id header, else public anon.
-    This prevents a client from spoofing a different user's id via header when authenticated."""
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization.split(" ", 1)[1]
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            sub = payload.get("sub")
-            if isinstance(sub, str) and sub.strip():
-                return sub.strip()
-        except JWTError:
-            # fall back to header/public if token invalid
-            pass
-    if x_user_id and x_user_id.strip():
-        return x_user_id.strip()
-    return "public-anon-user"
+    """FastAPI dependency wrapping security.resolve_user_id.
+
+    Resolve user id from JWT if provided, else from X-User-Id header, else public
+    anon. This prevents a client from spoofing a different user's id via header
+    when authenticated."""
+    return resolve_user_id(x_user_id, authorization)
 
 # Database-only category functions
 def get_user_custom_categories(user_id: str) -> Dict[str, str]:
@@ -362,18 +352,8 @@ async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_
         ]
     else:
         monthly_expenses = []
-    
-    category_totals = defaultdict(float)
-    total_amount = 0.0
-    for expense in monthly_expenses:
-        category_totals[expense["category"]] += float(expense["amount"])
-        total_amount += float(expense["amount"])
-    return {
-        "month": f"{year}-{month:02d}",
-        "total": total_amount,
-        "categories": dict(category_totals),
-        "expense_count": len(monthly_expenses)
-    }
+
+    return summarize_expenses(monthly_expenses, year, month)
 
 @app.post("/expenses")
 async def create_expense(expense: dict, user_id: str = Depends(get_user_id)):
@@ -569,14 +549,7 @@ class OCRResponse(BaseModel):
     confidence: Optional[str] = None
     error: Optional[str] = None
 
-def prepare_user_for_output(user: dict) -> dict:
-    """Convert user data to format suitable for UserOut model"""
-    return {
-        "id": user["id"],
-        "username": user["username"],
-        "email": user["email"],
-        "created_at": user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else str(user["created_at"])
-    }
+# prepare_user_for_output is defined in security.py and imported above.
 
 @app.post("/auth/signup", response_model=AuthResponse)
 async def signup(req: SignupRequest):
@@ -644,36 +617,7 @@ async def login(credentials: LoginRequest):
     password = credentials.password
     if len(password) > 256:
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    
-    # Special admin login
-    if username == "admin" and password == "admin123":
-        # Create/update admin user if doesn't exist
-        admin_user_id = "admin-super-user"
-        admin_user = {
-            "id": admin_user_id,
-            "username": "admin",
-            "email": "admin@pietracker.com",
-            "password_hash": hash_password("admin123"),
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "role": "super_admin",
-            "is_active": True,
-            "last_login": datetime.utcnow().isoformat() + "Z"
-        }
-        
-        # Save to database
-        try:
-            db_service.save_user(admin_user_id, admin_user)
-        except Exception as e:
-            logger.error(f"Failed to save admin user: {e}")
-            raise HTTPException(status_code=500, detail="Database operation failed")
-        
-        token = create_access_token({"sub": admin_user_id})
-        return AuthResponse(
-            user=UserOut(**prepare_user_for_output(admin_user)),
-            token=token,
-            message="Admin login successful"
-        )
-    
+
     user = authenticate_user(username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -780,12 +724,7 @@ async def reset_password(req: ResetPasswordRequest):
 # Admin User Management Endpoints
 # =====================
 
-def is_admin_user(user: dict) -> bool:
-    """Check if user has admin privileges. You can customize this logic."""
-    return (user.get("role") == "admin" or 
-            user.get("role") == "super_admin" or 
-            user.get("email") == "admin@pietracker.com" or
-            user.get("id") == "admin-super-user")
+# is_admin_user is defined in security.py and imported above.
 
 @app.get("/admin/users", dependencies=[Depends(get_current_user)])
 async def list_all_users(current_user: dict = Depends(get_current_user)):
@@ -1107,51 +1046,16 @@ async def process_receipt(file: UploadFile = File(...), current_user: dict = Dep
         
         # Parse the response
         try:
-            # Clean up the response text
-            response_text = response.text.strip()
-            # Remove code block markers if present
-            if response_text.startswith('```json'):
-                response_text = response_text[7:]
-            if response_text.startswith('```'):
-                response_text = response_text[3:]
-            if response_text.endswith('```'):
-                response_text = response_text[:-3]
-            
-            result = json.loads(response_text.strip())
-            
-            # Validate and clean the extracted data
-            amount = result.get('amount')
-            if amount is not None:
-                try:
-                    amount = float(str(amount).replace(',', '.').replace(' ', ''))
-                    if amount <= 0:
-                        amount = None
-                except (ValueError, TypeError):
-                    amount = None
-            
-            # Clean date format
-            date_str = result.get('date')
-            if date_str and isinstance(date_str, str):
-                # Try to standardize date format
-                date_str = date_str.strip()
-                # Handle common French/European date formats
-                if '/' in date_str and len(date_str.split('/')) == 3:
-                    try:
-                        parts = date_str.split('/')
-                        if len(parts[0]) == 2:  # DD/MM/YYYY format
-                            date_str = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
-                    except:
-                        pass  # Keep original format if conversion fails
-            
+            parsed = parse_ocr_json(response.text)
             return OCRResponse(
                 success=True,
-                amount=amount,
-                date=date_str,
-                merchant=result.get('merchant'),
-                category=result.get('category'),
-                confidence=result.get('confidence', 'medium')
+                amount=parsed["amount"],
+                date=parsed["date"],
+                merchant=parsed["merchant"],
+                category=parsed["category"],
+                confidence=parsed["confidence"]
             )
-            
+
         except json.JSONDecodeError:
             # If JSON parsing fails, return a basic response
             return OCRResponse(
