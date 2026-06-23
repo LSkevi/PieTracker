@@ -4,17 +4,11 @@ import { format } from "date-fns";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getDefaultCurrency } from "../utils/currency";
 import { AuthService } from "../services/auth";
-import { API_CONFIG, AUTH_CONFIG } from "../config/constants";
+import { API_CONFIG } from "../config/constants";
 
-// Headers helper to unify auth + legacy fallback
+// Headers helper for authenticated API calls (identity comes from the JWT)
 function getHeaders() {
-  const headers = AuthService.getAuthHeaders();
-  // Only add legacy public user id if there's no JWT token
-  if (!headers["Authorization"] && !headers["X-User-Id"]) {
-    // Provide a stable public bucket so existing data still loads
-    headers["X-User-Id"] = AUTH_CONFIG.PUBLIC_USER_ID;
-  }
-  return headers;
+  return AuthService.getAuthHeaders();
 }
 
 export const useExpenses = () => {
@@ -123,14 +117,12 @@ export const useExpenses = () => {
     try {
       setLoading(true);
       const url = `${API_CONFIG.BASE_URL}/expenses/summary/${selectedYear}/${selectedMonth}`;
-      console.log("Fetching from:", url);
 
       const response = await axios.get(url, {
         timeout: 10000,
         headers: { "Content-Type": "application/json", ...getHeaders() },
       });
 
-      console.log("Summary response:", response.data);
       setSummary(response.data);
     } catch (error) {
       console.error("Error fetching summary:", error);
@@ -161,14 +153,12 @@ export const useExpenses = () => {
   const fetchMonthlyExpenses = useCallback(async () => {
     try {
       const url = `${API_CONFIG.BASE_URL}/expenses/month/${selectedYear}/${selectedMonth}`;
-      console.log("Fetching expenses from:", url);
 
       const response = await axios.get(url, {
         timeout: 10000,
         headers: { "Content-Type": "application/json", ...getHeaders() },
       });
 
-      console.log("Expenses response:", response.data);
       setExpenses(response.data);
     } catch (error) {
       console.error("Error fetching expenses:", error);
@@ -191,14 +181,12 @@ export const useExpenses = () => {
     try {
       setLoadingYearly(true);
       const url = `${API_CONFIG.BASE_URL}/expenses/year/${selectedYear}`;
-      console.log("Fetching yearly expenses from:", url);
 
       const response = await axios.get(url, {
         timeout: 10000,
         headers: { "Content-Type": "application/json", ...getHeaders() },
       });
 
-      console.log("Yearly expenses response:", response.data);
       setYearlyExpenses(response.data);
     } catch (error) {
       console.error("Error fetching yearly expenses:", error);

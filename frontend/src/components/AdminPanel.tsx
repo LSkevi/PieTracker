@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { AuthService } from "../services/auth";
 import { useStyle } from "../hooks/useStyle";
+import { API_CONFIG } from "../config/constants";
 import PasswordInput from "./ui/PasswordInput";
 import "./AdminPanel.css";
 
@@ -42,7 +43,7 @@ const AdminDashboard: React.FC = () => {
   const [showPasswords, setShowPasswords] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  const API_BASE = API_CONFIG.BASE_URL;
 
   const fetchData = useCallback(async () => {
     try {

@@ -56,11 +56,9 @@ export class AuthService {
   // Get auth headers for API calls
   static getAuthHeaders(): Record<string, string> {
     const token = this.getToken();
-    const user = this.getUser();
 
     return {
       ...(token && { Authorization: `Bearer ${token}` }),
-      ...(user && { "X-User-Id": user.id }),
     };
   }
 

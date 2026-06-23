@@ -54,7 +54,7 @@ const AuthContainer: React.FC = () => {
               }}
             >
               <div>
-                <h1>{style === "casual" ? "🥧 " : ""}Pie Tracker</h1>
+                <h1>{style === "casual" ? "🥧 " : ""}PieTracker</h1>
                 <p>Expense tracking made simple</p>
               </div>
               <div

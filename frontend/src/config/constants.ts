@@ -17,7 +17,6 @@ export const API_CONFIG = {
 export const AUTH_CONFIG = {
   TOKEN_STORAGE_KEY: "pietracker_token",
   USER_STORAGE_KEY: "pietracker_user",
-  PUBLIC_USER_ID: "public-anon-user",
 } as const;
 
 // UI Configuration
