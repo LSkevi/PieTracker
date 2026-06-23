@@ -4,6 +4,7 @@ import { enUS } from "date-fns/locale";
 import type { Expense, MonthlySummary, Currency } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 import { formatCurrency, convertCurrency } from "../utils/currency";
+import { useStyle } from "../hooks/useStyle";
 
 interface InfoPanelProps {
   summary: MonthlySummary | null;
@@ -32,6 +33,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   categoryColors,
   loading = false,
 }) => {
+  const { style } = useStyle();
   const [isDarkMode, setIsDarkMode] = useState(() => isDarkModeEnabled());
   const [convertedAmounts, setConvertedAmounts] = useState<{
     [key: string]: number;
@@ -198,7 +200,27 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
             </span>
             <span className="year-name">{selectedYear}</span>
           </div>
-          <div className="calendar-icon">📅</div>
+          <div className="calendar-icon">
+            {style === "casual" ? (
+              "📅"
+            ) : (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                <line x1="16" x2="16" y1="2" y2="6" />
+                <line x1="8" x2="8" y1="2" y2="6" />
+                <line x1="3" x2="21" y1="10" y2="10" />
+              </svg>
+            )}
+          </div>
         </div>
 
         {/* Calendar Popup */}
@@ -371,7 +393,8 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                       backgroundColor: getCategoryColor(
                         item.name,
                         isDarkMode,
-                        categoryColors
+                        categoryColors,
+                        style
                       ),
                     }}
                   ></div>

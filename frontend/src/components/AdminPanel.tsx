@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { AuthService } from "../services/auth";
+import { useStyle } from "../hooks/useStyle";
 import PasswordInput from "./ui/PasswordInput";
 import "./AdminPanel.css";
 
@@ -32,6 +33,7 @@ interface EditingUser {
 }
 
 const AdminDashboard: React.FC = () => {
+  const { style } = useStyle();
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -192,12 +194,19 @@ const AdminDashboard: React.FC = () => {
   );
 
   if (loading)
-    return <div className="admin-loading">🔧 Loading Admin Dashboard...</div>;
+    return (
+      <div className="admin-loading">
+        {style === "casual" ? "🔧 " : ""}Loading Admin Dashboard...
+      </div>
+    );
 
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-        <h1>👑 Super Admin Dashboard 👑 </h1>
+        <h1>
+          {style === "casual" ? "👑 " : ""}Super Admin Dashboard
+          {style === "casual" ? " 👑 " : ""}
+        </h1>
         <p>Complete user management and system control</p>
       </div>
 
@@ -217,31 +226,31 @@ const AdminDashboard: React.FC = () => {
       {/* Statistics Dashboard */}
       {stats && (
         <div className="stats-dashboard">
-          <h2>📊 System Statistics</h2>
+          <h2>{style === "casual" ? "📊 " : ""}System Statistics</h2>
           <div className="stats-grid">
             <div className="stat-card total">
-              <div className="stat-icon">👥</div>
+              <div className="stat-icon">{style === "casual" ? "👥" : ""}</div>
               <div className="stat-info">
                 <div className="stat-number">{stats.total_users}</div>
                 <div className="stat-label">Total Users</div>
               </div>
             </div>
             <div className="stat-card active">
-              <div className="stat-icon">✅</div>
+              <div className="stat-icon">{style === "casual" ? "✅" : ""}</div>
               <div className="stat-info">
                 <div className="stat-number">{stats.active_users}</div>
                 <div className="stat-label">Active Users</div>
               </div>
             </div>
             <div className="stat-card inactive">
-              <div className="stat-icon">⏸️</div>
+              <div className="stat-icon">{style === "casual" ? "⏸️" : ""}</div>
               <div className="stat-info">
                 <div className="stat-number">{stats.inactive_users}</div>
                 <div className="stat-label">Inactive Users</div>
               </div>
             </div>
             <div className="stat-card data">
-              <div className="stat-icon">💾</div>
+              <div className="stat-icon">{style === "casual" ? "💾" : ""}</div>
               <div className="stat-info">
                 <div className="stat-number">
                   {stats.users_with_expense_data}
@@ -256,7 +265,10 @@ const AdminDashboard: React.FC = () => {
       {/* User Management Section */}
       <div className="users-management">
         <div className="section-header">
-          <h2>👥 User Management ({filteredUsers.length})</h2>
+          <h2>
+            {style === "casual" ? "👥 " : ""}User Management (
+            {filteredUsers.length})
+          </h2>
           <div className="controls">
             <input
               type="text"
@@ -269,7 +281,9 @@ const AdminDashboard: React.FC = () => {
               onClick={() => setShowPasswords(!showPasswords)}
               className={`toggle-passwords ${showPasswords ? "active" : ""}`}
             >
-              {showPasswords ? "🔒 Hide Passwords" : "👁️ Show Passwords"}
+              {showPasswords
+                ? `${style === "casual" ? "🔒 " : ""}Hide Passwords`
+                : `${style === "casual" ? "👁️ " : ""}Show Passwords`}
             </button>
           </div>
         </div>
@@ -326,14 +340,16 @@ const AdminDashboard: React.FC = () => {
                           user.is_active ? "active" : "inactive"
                         }`}
                       >
-                        {user.is_active ? "✅ Active" : "⏸️ Inactive"}
+                        {user.is_active
+                          ? `${style === "casual" ? "✅ " : ""}Active`
+                          : `${style === "casual" ? "⏸️ " : ""}Inactive`}
                       </span>
                       <span className={`role-badge ${user.role}`}>
                         {user.role === "super_admin"
-                          ? "👑 Super Admin"
+                          ? `${style === "casual" ? "👑 " : ""}Super Admin`
                           : user.role === "admin"
-                          ? "🛡️ Admin"
-                          : "👤 User"}
+                          ? `${style === "casual" ? "🛡️ " : ""}Admin`
+                          : `${style === "casual" ? "👤 " : ""}User`}
                       </span>
                     </div>
                   </td>
@@ -354,7 +370,8 @@ const AdminDashboard: React.FC = () => {
                   <td>
                     <div className="data-info">
                       <div className="expense-count">
-                        📊 {user.expense_count} expenses
+                        {style === "casual" ? "📊 " : ""}
+                        {user.expense_count} expenses
                       </div>
                     </div>
                   </td>
@@ -365,7 +382,7 @@ const AdminDashboard: React.FC = () => {
                         className="btn-edit"
                         title="Edit User"
                       >
-                        ✏️ Edit
+                        {style === "casual" ? "✏️ " : ""}Edit
                       </button>
                       <button
                         onClick={() =>
@@ -378,14 +395,16 @@ const AdminDashboard: React.FC = () => {
                           user.is_active ? "Deactivate User" : "Activate User"
                         }
                       >
-                        {user.is_active ? "⏸️ Deactivate" : "▶️ Activate"}
+                        {user.is_active
+                          ? `${style === "casual" ? "⏸️ " : ""}Deactivate`
+                          : `${style === "casual" ? "▶️ " : ""}Activate`}
                       </button>
                       <button
                         onClick={() => deleteUser(user.id, user.email)}
                         className="btn-delete"
                         title="Delete User"
                       >
-                        🗑️ Delete
+                        {style === "casual" ? "🗑️ " : ""}Delete
                       </button>
                     </div>
                   </td>
@@ -400,7 +419,9 @@ const AdminDashboard: React.FC = () => {
       {editingUser && (
         <div className="modal-overlay">
           <div className="edit-modal">
-            <h3>✏️ Edit User: {editingUser.email}</h3>
+            <h3>
+              {style === "casual" ? "✏️ " : ""}Edit User: {editingUser.email}
+            </h3>
             <div className="edit-form">
               <div className="form-group">
                 <label>Email:</label>
@@ -443,9 +464,15 @@ const AdminDashboard: React.FC = () => {
                     setEditingUser({ ...editingUser, role: e.target.value })
                   }
                 >
-                  <option value="user">👤 User</option>
-                  <option value="admin">🛡️ Admin</option>
-                  <option value="super_admin">👑 Super Admin</option>
+                  <option value="user">
+                    {style === "casual" ? "👤 " : ""}User
+                  </option>
+                  <option value="admin">
+                    {style === "casual" ? "🛡️ " : ""}Admin
+                  </option>
+                  <option value="super_admin">
+                    {style === "casual" ? "👑 " : ""}Super Admin
+                  </option>
                 </select>
               </div>
               <div className="form-group">
@@ -465,13 +492,13 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="modal-actions">
                 <button onClick={saveUser} className="btn-save">
-                  💾 Save Changes
+                  {style === "casual" ? "💾 " : ""}Save Changes
                 </button>
                 <button
                   onClick={() => setEditingUser(null)}
                   className="btn-cancel"
                 >
-                  ❌ Cancel
+                  {style === "casual" ? "❌ " : ""}Cancel
                 </button>
               </div>
             </div>
