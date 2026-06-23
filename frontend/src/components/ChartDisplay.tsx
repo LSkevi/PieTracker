@@ -15,8 +15,66 @@ import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import type { MonthlySummary, PieDataItem, Expense } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
-import { formatCurrency, convertCurrency } from "../utils/currency";
+import {
+  formatCurrency,
+  convertCurrency,
+  convertCurrencySync,
+} from "../utils/currency";
 import { useStyle } from "../hooks/useStyle";
+
+const YEAR_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+export interface YearlyPoint {
+  month: string;
+  spending: number;
+}
+
+// Pure aggregation of yearly expenses: converts each expense from its own
+// currency to the target currency before summing per month and overall.
+// eslint-disable-next-line react-refresh/only-export-components
+export const aggregateYearlyData = (
+  yearlyExpenses: Expense[],
+  selectedCurrency: string
+): { data: YearlyPoint[]; total: number } => {
+  const monthlyTotals: { [key: string]: number } = {};
+  YEAR_MONTHS.forEach((month) => {
+    monthlyTotals[month] = 0;
+  });
+
+  let total = 0;
+  yearlyExpenses.forEach((expense) => {
+    const fromCurrency = expense.currency || "CAD";
+    const converted = convertCurrencySync(
+      expense.amount,
+      fromCurrency,
+      selectedCurrency
+    );
+    const monthKey = YEAR_MONTHS[new Date(expense.date).getMonth()];
+    monthlyTotals[monthKey] += converted;
+    total += converted;
+  });
+
+  return {
+    data: YEAR_MONTHS.map((month) => ({
+      month,
+      spending: monthlyTotals[month],
+    })),
+    total,
+  };
+};
 
 interface ChartDisplayProps {
   summary: MonthlySummary | null;
@@ -192,52 +250,13 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     }));
   };
 
-  // Prepare yearly spending data for line chart
-  const prepareYearlyData = () => {
-    const monthlyTotals: { [key: string]: number } = {};
+  // Prepare yearly spending data for line chart (currency-converted)
+  const prepareYearlyData = () =>
+    aggregateYearlyData(yearlyExpenses, selectedCurrency).data;
 
-    // Initialize all months with 0
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-
-    months.forEach((month) => {
-      monthlyTotals[month] = 0;
-    });
-
-    // Calculate monthly totals for the selected year using yearlyExpenses
-    yearlyExpenses.forEach((expense) => {
-      const expenseDate = new Date(expense.date);
-      const monthKey = months[expenseDate.getMonth()];
-      monthlyTotals[monthKey] += expense.amount;
-    });
-
-    // Convert to chart data format
-    return months.map((month) => ({
-      month,
-      spending: monthlyTotals[month],
-    }));
-  };
-
-  // Calculate yearly total expenses
-  const calculateYearlyTotal = () => {
-    const yearlyTotal = yearlyExpenses.reduce(
-      (total, expense) => total + expense.amount,
-      0
-    );
-    return yearlyTotal;
-  };
+  // Calculate yearly total expenses (currency-converted)
+  const calculateYearlyTotal = () =>
+    aggregateYearlyData(yearlyExpenses, selectedCurrency).total;
 
   // Custom tooltip for line chart
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -509,7 +528,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   }}
                 />
                 <YAxis
-                  domain={[0, 3000]}
+                  domain={[0, "auto"]}
                   axisLine={false}
                   tickLine={false}
                   tick={{
@@ -517,7 +536,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                     fontSize: 12,
                     fontWeight: 500,
                   }}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) =>
+                    formatCurrency(value, selectedCurrency)
+                  }
                 />
                 <Tooltip content={LineTooltip} />
                 <Line
