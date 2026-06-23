@@ -1015,6 +1015,7 @@ body::before {
 }
 
 .date-input-display {
+  width: 100%;
   background: rgba(245, 255, 245, 0.8);
   border: 2px solid rgba(168, 181, 160, 0.3);
   border-radius: 12px;
@@ -1031,6 +1032,12 @@ body::before {
   color: var(--charcoal);
   font-family: "Inter", sans-serif;
   min-height: 20px;
+  text-align: left;
+}
+
+.date-input-display:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .date-input-display:hover {
@@ -6090,6 +6097,35 @@ body::before {
 .style-toggle:focus-visible,
 .theme-toggle:focus-visible {
   outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* High-contrast keyboard focus ring for all interactive controls.
+   Generalizes the .date-input-display:focus-visible pattern so keyboard
+   users always see where they are (WCAG 2.4.7 / 2.4.11). */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Restore the focus ring on inputs whose :focus rule sets outline:none.
+   Those :focus rules outrank the generic input:focus-visible above, so the
+   ring would be suppressed for keyboard users without these companions. */
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.currency-select:focus-visible,
+.currency-select-display:focus-visible,
+.category-name-input:focus-visible,
+.custom-category-input input:focus-visible,
+.month-picker:focus-visible,
+.auth-form-group input:focus-visible,
+.expense-search-input:focus-visible {
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 

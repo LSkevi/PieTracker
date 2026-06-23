@@ -10,6 +10,8 @@ interface PasswordInputProps {
   autoComplete?: string;
   maxLength?: number;
   className?: string;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }
 
 const PasswordInput: React.FC<PasswordInputProps> = ({
@@ -22,6 +24,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   autoComplete = "current-password",
   maxLength = 100,
   className = "",
+  "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedby,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,6 +46,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         disabled={disabled}
         autoComplete={autoComplete}
         maxLength={maxLength}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedby}
       />
       <button
         type="button"

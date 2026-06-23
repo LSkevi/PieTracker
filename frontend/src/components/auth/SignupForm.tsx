@@ -113,9 +113,13 @@ const SignupForm: React.FC<SignupFormProps> = ({
               placeholder="Choose a username"
               disabled={isLoading}
               autoComplete="username"
+              aria-invalid={validationErrors.username ? true : undefined}
+              aria-describedby={
+                validationErrors.username ? "signup-username-error" : undefined
+              }
             />
             {validationErrors.username && (
-              <span className="auth-field-error">
+              <span className="auth-field-error" id="signup-username-error">
                 {validationErrors.username}
               </span>
             )}
@@ -133,9 +137,15 @@ const SignupForm: React.FC<SignupFormProps> = ({
               placeholder="Enter your email"
               disabled={isLoading}
               autoComplete="email"
+              aria-invalid={validationErrors.email ? true : undefined}
+              aria-describedby={
+                validationErrors.email ? "signup-email-error" : undefined
+              }
             />
             {validationErrors.email && (
-              <span className="auth-field-error">{validationErrors.email}</span>
+              <span className="auth-field-error" id="signup-email-error">
+                {validationErrors.email}
+              </span>
             )}
           </div>
 
@@ -151,9 +161,13 @@ const SignupForm: React.FC<SignupFormProps> = ({
               disabled={isLoading}
               autoComplete="new-password"
               maxLength={100}
+              aria-invalid={validationErrors.password ? true : undefined}
+              aria-describedby={
+                validationErrors.password ? "signup-password-error" : undefined
+              }
             />
             {validationErrors.password && (
-              <span className="auth-field-error">
+              <span className="auth-field-error" id="signup-password-error">
                 {validationErrors.password}
               </span>
             )}
@@ -171,9 +185,18 @@ const SignupForm: React.FC<SignupFormProps> = ({
               disabled={isLoading}
               autoComplete="new-password"
               maxLength={100}
+              aria-invalid={validationErrors.confirmPassword ? true : undefined}
+              aria-describedby={
+                validationErrors.confirmPassword
+                  ? "signup-confirm-password-error"
+                  : undefined
+              }
             />
             {validationErrors.confirmPassword && (
-              <span className="auth-field-error">
+              <span
+                className="auth-field-error"
+                id="signup-confirm-password-error"
+              >
                 {validationErrors.confirmPassword}
               </span>
             )}

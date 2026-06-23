@@ -51,16 +51,25 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="auth-form-content">
-            {error && <div className="auth-error-message">{error}</div>}
+            {error && (
+              <div className="auth-error-message" id="reset-error" role="alert">
+                {error}
+              </div>
+            )}
             <div className="auth-form-group">
               <label htmlFor="reset-token">Reset Token</label>
               <input
                 id="reset-token"
+                name="token"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 placeholder="Enter reset token"
                 disabled={loading}
                 autoComplete="off"
+                aria-invalid={error === "Token is required" ? true : undefined}
+                aria-describedby={
+                  error === "Token is required" ? "reset-error" : undefined
+                }
               />
             </div>
             <div className="auth-form-group">
@@ -73,6 +82,18 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                 placeholder="Enter new password"
                 disabled={loading}
                 autoComplete="new-password"
+                aria-invalid={
+                  error === "Password must be at least 6 characters" ||
+                  error === "Passwords do not match"
+                    ? true
+                    : undefined
+                }
+                aria-describedby={
+                  error === "Password must be at least 6 characters" ||
+                  error === "Passwords do not match"
+                    ? "reset-error"
+                    : undefined
+                }
               />
             </div>
             <div className="auth-form-group">
@@ -85,6 +106,12 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                 placeholder="Confirm new password"
                 disabled={loading}
                 autoComplete="new-password"
+                aria-invalid={
+                  error === "Passwords do not match" ? true : undefined
+                }
+                aria-describedby={
+                  error === "Passwords do not match" ? "reset-error" : undefined
+                }
               />
             </div>
             <button
