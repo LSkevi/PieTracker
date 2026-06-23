@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { AuthService } from "../services/auth";
 import { useStyle } from "../hooks/useStyle";
+import { API_CONFIG } from "../config/constants";
 
 interface OCRResult {
   success: boolean;
@@ -65,8 +66,7 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({
 
       setProcessingStatus("AI analyzing receipt...");
 
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const response = await fetch(`${API_URL}/ocr/receipt`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/ocr/receipt`, {
         method: "POST",
         headers: {
           ...AuthService.getAuthHeaders(),

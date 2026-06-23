@@ -81,7 +81,7 @@ export const getCurrencyName = (
   currencyCode: string
 ): string => {
   const currency = currencies.find((c) => c.code === currencyCode);
-  return currency?.name || "Canadian Dollar";
+  return currency?.name || currencyCode;
 };
 
 // Get the default/preferred currency (can be expanded to save user preference)
@@ -147,8 +147,6 @@ const getCachedRates = (): { [key: string]: number } => {
 // Fetch fresh exchange rates from API
 const fetchExchangeRates = async (): Promise<{ [key: string]: number }> => {
   try {
-    console.log("🔄 Fetching fresh exchange rates...");
-
     const response = await fetch(
       `${API_URL}?access_key=${API_KEY}&symbols=USD,CAD,GBP,JPY,AUD,CHF,CNY,INR,BRL`
     );
@@ -173,7 +171,6 @@ const fetchExchangeRates = async (): Promise<{ [key: string]: number }> => {
     localStorage.setItem(CACHE_KEY, JSON.stringify(rates));
     localStorage.setItem(CACHE_TIMESTAMP_KEY, new Date().toISOString());
 
-    console.log("✅ Exchange rates updated successfully");
     return rates;
   } catch (error) {
     console.warn("❌ Failed to fetch exchange rates, using fallback:", error);
@@ -189,7 +186,6 @@ export const getExchangeRates = async (): Promise<{
     return await fetchExchangeRates();
   } else {
     const cachedRates = getCachedRates();
-    console.log("📱 Using cached exchange rates");
     return cachedRates;
   }
 };

@@ -15,34 +15,38 @@ import { useExpenses } from "./hooks/useExpenses";
 import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
 
-// Simple error boundary for debugging
-const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      console.error("App error:", error);
-      setHasError(true);
-    };
-
-    window.addEventListener("error", handleError);
-    return () => window.removeEventListener("error", handleError);
-  }, []);
-
-  if (hasError) {
-    return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
-        <h1>Something went wrong</h1>
-        <p>Check the console for errors</p>
-        <button onClick={() => window.location.reload()}>Reload</button>
-      </div>
-    );
+// Error boundary that catches errors thrown during React rendering
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
   }
 
-  return <>{children}</>;
-};
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("App error:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: "20px", textAlign: "center" }}>
+          <h1>Something went wrong</h1>
+          <p>Check the console for errors</p>
+          <button onClick={() => window.location.reload()}>Reload</button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const AuthenticatedApp: React.FC = () => {
   const { logout, user } = useAuth();
@@ -69,24 +73,13 @@ const AuthenticatedApp: React.FC = () => {
     setMonthYear,
   } = useExpenses();
 
-  // Debug logging for production
-  useEffect(() => {
-    console.log("App mounted, loading:", loading);
-    console.log("API Base:", import.meta.env.VITE_API_URL || "fallback");
-    console.log("Environment:", import.meta.env.MODE);
-    console.log("User:", user?.username);
-  }, [loading, user]);
-
   const [convertedTotal, setConvertedTotal] = useState<number>(0);
   const [currentView, setCurrentView] = useState<"dashboard" | "admin">(
     "dashboard"
   );
 
   // Check if user is admin
-  const isAdmin =
-    user?.email === "admin@pietracker.com" ||
-    user?.id === "admin-super-user" ||
-    user?.username === "admin";
+  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   // Convert total amount when currency or data changes
   useEffect(() => {
@@ -149,7 +142,7 @@ const AuthenticatedApp: React.FC = () => {
         </div>
         <div className="user-header-center">
           <h1 className="header-title">
-            <span className="title-text">Pie Tracker</span>
+            <span className="title-text">PieTracker</span>
           </h1>
         </div>
         <div className="user-header-actions">
@@ -282,7 +275,7 @@ const AppContent: React.FC = () => {
     return (
       <div className="app-loading">
         <div className="loading-content">
-          <h1>{style === "casual" ? "🥧 " : ""}Pie Tracker</h1>
+          <h1>{style === "casual" ? "🥧 " : ""}PieTracker</h1>
           <div className="loading">Loading...</div>
         </div>
       </div>
