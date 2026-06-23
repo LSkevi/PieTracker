@@ -4,6 +4,7 @@ import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
 import ThemeToggle from "./components/ThemeToggle";
 import StyleToggle from "./components/StyleToggle";
+import FallingLeaves from "./components/FallingLeaves";
 import AdminDashboard from "./components/AdminPanel";
 import AuthContainer from "./components/auth/AuthContainer";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -121,25 +122,7 @@ const AuthenticatedApp: React.FC = () => {
   return (
     <div className="app">
       {/* Falling leaves background for main menu (casual style only) */}
-      {style === "casual" && (
-        <div className="main-falling-leaves">
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-          <div className="main-leaf"></div>
-        </div>
-      )}
+      {style === "casual" && <FallingLeaves />}
 
       {/* User Header with Title, Theme + Logout */}
       <div className="user-header">
