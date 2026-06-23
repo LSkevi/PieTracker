@@ -39,7 +39,15 @@ It is a personal-finance tool and a portfolio project: the goal is a clean, end-
 
 ## Screenshots
 
-> Image files are not committed yet; drop them in `docs/screenshots/` using the file names below and they will render here.
+### Two visual styles
+
+PieTracker ships two orthogonal visual styles, **business** (default, sober fintech) and **casual** (warm, animated), each with light and dark themes, switchable from the header and persisted in `localStorage`.
+
+| Business (default) | Casual |
+| --- | --- |
+| ![Business style](docs/screenshots/style-business.png) | ![Casual style](docs/screenshots/style-casual.png) |
+
+> The dashboard, expense form and admin shots below are not committed yet; drop them in `docs/screenshots/` using the file names shown and they will render here.
 
 ### Dashboard
 
