@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import { parseDateStringAsLocal } from "../utils/date";
 import type { ExpenseFormData, Expense, Currency } from "../types";
@@ -11,6 +11,73 @@ import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 import { useStyle } from "../hooks/useStyle";
 import ReceiptCapture from "./ReceiptCapture";
 import "./ReceiptCapture.css";
+
+// Accessible dialog behaviour shared by the form modals: focus moves into the
+// dialog on open and returns to the trigger on close, Tab is trapped inside,
+// and Escape closes. Returns a ref to attach to the dialog element.
+function useModalA11y(isOpen: boolean, onClose: () => void) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    triggerRef.current = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+
+    const getFocusable = () =>
+      dialog
+        ? Array.from(
+            dialog.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )
+          )
+        : [];
+
+    // Move focus into the dialog (first focusable, else the dialog itself).
+    const focusable = getFocusable();
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    } else {
+      dialog?.focus();
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const items = getFocusable();
+      if (items.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      // Return focus to whatever opened the dialog.
+      triggerRef.current?.focus();
+    };
+  }, [isOpen, onClose]);
+
+  return dialogRef;
+}
 
 interface ExpenseFormProps {
   categories: string[];
@@ -79,6 +146,40 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   // OCR processing state lifted from ReceiptCapture
   const [isOCRProcessing, setIsOCRProcessing] = useState(false);
 
+  // Stable close handlers for the dialogs (used by the focus-trap hook too)
+  const closeCustomCategory = useCallback(() => {
+    setShowCustomCategory(false);
+    setCustomCategory("");
+    setCustomCategoryColor("#a8b5a0");
+  }, []);
+
+  const closeDatePicker = useCallback(() => {
+    setShowDatePicker(false);
+  }, []);
+
+  // Keep a ref to the in-progress flag so the stable close callback can guard
+  // against dismissing the dialog mid-deletion without re-running the effect.
+  const isDeletingCategoryRef = useRef(false);
+  const closeDeleteConfirm = useCallback(() => {
+    if (isDeletingCategoryRef.current) return;
+    setShowDeleteConfirm(false);
+    setCategoryToDelete("");
+  }, []);
+
+  const customCategoryDialogRef = useModalA11y(
+    showCustomCategory,
+    closeCustomCategory
+  );
+  const datePickerDialogRef = useModalA11y(showDatePicker, closeDatePicker);
+  const deleteConfirmDialogRef = useModalA11y(
+    showDeleteConfirm,
+    closeDeleteConfirm
+  );
+
+  useEffect(() => {
+    isDeletingCategoryRef.current = isDeletingCategory;
+  }, [isDeletingCategory]);
+
   // State for converted expense amounts in the list
   const [convertedExpenseAmounts, setConvertedExpenseAmounts] = useState<{
     [key: string]: number;
@@ -128,22 +229,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   // Use shared util to parse YYYY-MM-DD as local date to avoid timezone shifts
   const parseDateStringAsLocalLocal = parseDateStringAsLocal;
-
-  // Handle escape key for closing modal
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && showCustomCategory) {
-        setShowCustomCategory(false);
-        setCustomCategory("");
-        setCustomCategoryColor("#a8b5a0");
-      }
-    };
-
-    if (showCustomCategory) {
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [showCustomCategory]);
 
   // Update rate status on component mount
   useEffect(() => {
@@ -388,12 +473,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     }
   };
 
-  // Cancel category deletion
-  const cancelDeleteCategory = () => {
-    if (isDeletingCategory) return; // Prevent closing while deleting
-    setShowDeleteConfirm(false);
-    setCategoryToDelete("");
-  };
+  // Cancel category deletion (guard against closing while deleting)
+  const cancelDeleteCategory = closeDeleteConfirm;
 
   return (
     <div className="expense-form-tab">
@@ -522,8 +603,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         {/* Custom category modal */}
         {showCustomCategory && (
           <div className="custom-category-modal">
-            <div className="custom-category-content">
-              <h4>Add New Category</h4>
+            <div
+              className="custom-category-content"
+              ref={customCategoryDialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="custom-category-title"
+              tabIndex={-1}
+            >
+              <h3 id="custom-category-title">Add New Category</h3>
 
               <div className="category-form-group">
                 <label>Category Name</label>
@@ -568,9 +656,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                           ...prev,
                           category: customCategory.trim(),
                         }));
-                        setShowCustomCategory(false);
-                        setCustomCategory("");
-                        setCustomCategoryColor("#a8b5a0");
+                        closeCustomCategory();
                       } else {
                         setErrorMessage(
                           "Failed to add category. Please try again."
@@ -587,11 +673,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowCustomCategory(false);
-                    setCustomCategory("");
-                    setCustomCategoryColor("#a8b5a0");
-                  }}
+                  onClick={closeCustomCategory}
                   className="btn-custom-cancel"
                 >
                   Cancel
@@ -652,7 +734,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </select>
             {rateStatus && <div className="rate-status">{rateStatus}</div>}
             {conversionMessage && (
-              <div className="conversion-message">
+              <div className="conversion-message" aria-live="polite">
                 {style === "casual" ? "💱 " : ""}
                 {conversionMessage}
               </div>
@@ -660,7 +742,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label>Date</label>
+            <label id="date-field-label">Date</label>
             <div className="date-input-wrapper">
               <input
                 type="date"
@@ -669,10 +751,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 onChange={handleChange}
                 disabled={isOCRProcessing}
                 className="date-input-hidden"
+                tabIndex={-1}
+                aria-hidden="true"
               />
-              <div
+              <button
+                type="button"
                 className="date-input-display"
                 onClick={handleDatePickerClick}
+                disabled={isOCRProcessing}
+                aria-haspopup="dialog"
+                aria-labelledby="date-field-label"
               >
                 <span className="date-value">
                   {formData.date
@@ -683,7 +771,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     : "Select date"}
                 </span>
                 <span className="calendar-icon"></span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -733,14 +821,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
         {/* Success Message */}
         {showSuccess && (
-          <div className="success-message">
+          <div className="success-message" aria-live="polite">
             {style === "casual" ? "✅ " : ""}Expense added successfully!
           </div>
         )}
 
         {/* Error Message */}
         {showError && (
-          <div className="error-message">
+          <div className="error-message" role="alert">
             {style === "casual" ? "⚠️ " : ""}
             {errorMessage}
           </div>
@@ -871,17 +959,23 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
       {/* Custom Date Picker Modal */}
       {showDatePicker && (
-        <div
-          className="calendar-popup-overlay"
-          onClick={() => setShowDatePicker(false)}
-        >
-          <div className="calendar-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="calendar-popup-overlay" onClick={closeDatePicker}>
+          <div
+            className="calendar-popup"
+            onClick={(e) => e.stopPropagation()}
+            ref={datePickerDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="date-picker-title"
+            tabIndex={-1}
+          >
             <div className="calendar-header">
-              <h3>Choose Date</h3>
+              <h3 id="date-picker-title">Choose Date</h3>
               <button
                 type="button"
                 className="modal-close-btn"
-                onClick={() => setShowDatePicker(false)}
+                onClick={closeDatePicker}
+                aria-label="Close"
               >
                 ×
               </button>
@@ -1004,9 +1098,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       {/* Delete Category Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={cancelDeleteCategory}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            ref={deleteConfirmDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-category-title"
+            tabIndex={-1}
+          >
             <div className="modal-header">
-              <h3>Delete Category</h3>
+              <h3 id="delete-category-title">Delete Category</h3>
             </div>
             <div className="modal-body">
               <p>

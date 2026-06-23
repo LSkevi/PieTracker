@@ -96,9 +96,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
               placeholder="Enter your username"
               disabled={isLoading}
               autoComplete="username"
+              aria-invalid={validationErrors.username ? true : undefined}
+              aria-describedby={
+                validationErrors.username ? "username-error" : undefined
+              }
             />
             {validationErrors.username && (
-              <span className="auth-field-error">
+              <span className="auth-field-error" id="username-error">
                 {validationErrors.username}
               </span>
             )}
@@ -116,9 +120,13 @@ const LoginForm: React.FC<LoginFormProps> = ({
               disabled={isLoading}
               autoComplete="current-password"
               maxLength={100}
+              aria-invalid={validationErrors.password ? true : undefined}
+              aria-describedby={
+                validationErrors.password ? "password-error" : undefined
+              }
             />
             {validationErrors.password && (
-              <span className="auth-field-error">
+              <span className="auth-field-error" id="password-error">
                 {validationErrors.password}
               </span>
             )}

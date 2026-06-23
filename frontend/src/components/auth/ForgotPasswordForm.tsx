@@ -54,17 +54,24 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="auth-form-content">
-            {error && <div className="auth-error-message">{error}</div>}
+            {error && (
+              <div className="auth-error-message" id="fp-error" role="alert">
+                {error}
+              </div>
+            )}
             <div className="auth-form-group">
               <label htmlFor="fp-email">Email Address</label>
               <input
                 type="email"
                 id="fp-email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 disabled={loading}
                 autoComplete="email"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? "fp-error" : undefined}
               />
             </div>
             <button
