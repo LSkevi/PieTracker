@@ -39,11 +39,33 @@ It is a personal-finance tool and a portfolio project: the goal is a clean, end-
 
 ## Screenshots
 
-> Real screenshots can be added here. Placeholders below describe the intended captures.
+> Image files are not committed yet; drop them in `docs/screenshots/` using the file names below and they will render here.
 
-| Dashboard | Add expense + receipt OCR | Admin panel |
-| --- | --- | --- |
-| _Category pie chart, monthly total, and expense list._ | _Expense form pre-filled from a scanned receipt._ | _User management and usage stats._ |
+### Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+_Category pie chart, monthly total, and the expense list._
+
+### Add expense + receipt OCR
+
+![Add expense and receipt OCR](docs/screenshots/add-expense.png)
+
+_Expense form pre-filled from a scanned receipt._
+
+### Admin panel
+
+![Admin panel](docs/screenshots/admin.png)
+
+_User management and usage stats._
+
+## Demo
+
+The app is gated behind authentication: sign up for an account, or log in, to reach
+the dashboard, expense tracking, and charts (see [Live demo](#live-demo)). Admin
+features require an account with the `admin` role.
+
+> Demo credentials to be documented here.
 
 ## Architecture
 
@@ -298,4 +320,4 @@ PieTracker/
 
 ## License
 
-Declared as MIT in the root `package.json`. A `LICENSE` file has not yet been added to the repository.
+MIT, see [LICENSE](LICENSE). Also declared as MIT in the root `package.json`.
