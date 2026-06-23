@@ -8,6 +8,7 @@ import {
   getCacheStatus,
 } from "../utils/currency";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
+import { useStyle } from "../hooks/useStyle";
 import ReceiptCapture from "./ReceiptCapture";
 import "./ReceiptCapture.css";
 
@@ -45,6 +46,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onDeleteCategory,
   onCurrencyChange,
 }) => {
+  const { style } = useStyle();
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -281,7 +283,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
           // Show conversion message
           setConversionMessage(
-            `💱 Converted ${formatCurrency(
+            `Converted ${formatCurrency(
               currentAmount,
               formData.currency
             )} to ${formatCurrency(convertedAmount, value)}`
@@ -650,7 +652,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             </select>
             {rateStatus && <div className="rate-status">{rateStatus}</div>}
             {conversionMessage && (
-              <div className="conversion-message">💱 {conversionMessage}</div>
+              <div className="conversion-message">
+                {style === "casual" ? "💱 " : ""}
+                {conversionMessage}
+              </div>
             )}
           </div>
 
@@ -728,11 +733,18 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
         {/* Success Message */}
         {showSuccess && (
-          <div className="success-message">✅ Expense added successfully!</div>
+          <div className="success-message">
+            {style === "casual" ? "✅ " : ""}Expense added successfully!
+          </div>
         )}
 
         {/* Error Message */}
-        {showError && <div className="error-message">⚠️ {errorMessage}</div>}
+        {showError && (
+          <div className="error-message">
+            {style === "casual" ? "⚠️ " : ""}
+            {errorMessage}
+          </div>
+        )}
       </form>
 
       {/* Expenses */}

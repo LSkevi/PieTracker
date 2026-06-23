@@ -26,6 +26,33 @@ export const DARK_MODE_COLORS = [
   "#70a3a6", // 9 - Brighter cadet blue
 ];
 
+// Business style: sober indigo/slate categorical palette (fintech), distinguishable hues
+export const BUSINESS_COLORS = [
+  "#4338ca", // 0 - Transportation (indigo)
+  "#0891b2", // 1 - Food (cyan)
+  "#7c3aed", // 2 - Entertainment (violet)
+  "#b45309", // 3 - Shopping (amber)
+  "#0f766e", // 4 - teal
+  "#be123c", // 5 - rose
+  "#4d7c0f", // 6 - lime
+  "#1d4ed8", // 7 - blue
+  "#a21caf", // 8 - fuchsia
+  "#475569", // 9 - slate
+];
+
+export const BUSINESS_DARK_COLORS = [
+  "#818cf8", // 0 - Transportation (indigo)
+  "#22d3ee", // 1 - Food (cyan)
+  "#a78bfa", // 2 - Entertainment (violet)
+  "#fbbf24", // 3 - Shopping (amber)
+  "#2dd4bf", // 4 - teal
+  "#fb7185", // 5 - rose
+  "#a3e635", // 6 - lime
+  "#60a5fa", // 7 - blue
+  "#e879f9", // 8 - fuchsia
+  "#94a3b8", // 9 - slate
+];
+
 // Category order matching our system (simplified for main categories)
 export const CATEGORY_ORDER = [
   "Food",
@@ -38,7 +65,8 @@ export const CATEGORY_ORDER = [
 export const getCategoryColor = (
   categoryName: string,
   isDarkMode: boolean,
-  customColors?: { [key: string]: string }
+  customColors?: { [key: string]: string },
+  styleOverride?: "business" | "casual"
 ): string => {
   // Check for custom colors first (only if customColors is not empty)
   if (
@@ -49,7 +77,14 @@ export const getCategoryColor = (
     return customColors[categoryName];
   }
 
-  const colors = isDarkMode ? DARK_MODE_COLORS : ELEGANT_COLORS;
+  const isBusiness = (styleOverride ?? getAppStyle()) === "business";
+  const colors = isBusiness
+    ? isDarkMode
+      ? BUSINESS_DARK_COLORS
+      : BUSINESS_COLORS
+    : isDarkMode
+    ? DARK_MODE_COLORS
+    : ELEGANT_COLORS;
 
   // Direct mapping for our main categories (case-insensitive)
   const categoryColorMap: { [key: string]: number } = {
@@ -79,4 +114,14 @@ export const isDarkModeEnabled = (): boolean => {
 
   const theme = document.documentElement.getAttribute("data-theme");
   return theme === "dark";
+};
+
+// Utility function to read the active visual style (business default)
+export const getAppStyle = (): "business" | "casual" => {
+  if (typeof document === "undefined" || !document.documentElement) {
+    return "business";
+  }
+  return document.documentElement.getAttribute("data-style") === "casual"
+    ? "casual"
+    : "business";
 };

@@ -1,7 +1,7 @@
 {
   "name": "pietracker",
   "version": "1.0.0",
-  "description": "Beautiful expense tracking application",
+  "description": "PieTracker, an expense tracking application",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && uvicorn main:app --reload --port 8000",

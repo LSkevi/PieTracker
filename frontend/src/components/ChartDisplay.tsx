@@ -16,6 +16,7 @@ import { enUS } from "date-fns/locale";
 import type { MonthlySummary, PieDataItem, Expense } from "../types";
 import { getCategoryColor, isDarkModeEnabled } from "../constants/colors";
 import { formatCurrency, convertCurrency } from "../utils/currency";
+import { useStyle } from "../hooks/useStyle";
 
 interface ChartDisplayProps {
   summary: MonthlySummary | null;
@@ -40,6 +41,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
   selectedCurrency,
   categoryColors,
 }) => {
+  const { style } = useStyle();
   const [convertedAmounts, setConvertedAmounts] = useState<{
     [key: string]: number;
   }>({});
@@ -314,7 +316,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     <>
       {Object.keys(summary.categories).length > 0 ? (
         <div className="big-chart-container">
-          {/* Beautiful Month Display */}
+          {/* Month Display */}
           <div className="month-display">
             <span className="month-text">
               {format(
@@ -375,7 +377,8 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                     const fillColor = getCategoryColor(
                       name,
                       isDarkModeEnabled(),
-                      categoryColors
+                      categoryColors,
+                      style
                     );
                     return (
                       <text
@@ -404,7 +407,8 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                     const color = getCategoryColor(
                       entry.name,
                       isDarkModeEnabled(),
-                      categoryColors
+                      categoryColors,
+                      style
                     );
                     return <Cell key={`cell-${index}`} fill={color} />;
                   })}
