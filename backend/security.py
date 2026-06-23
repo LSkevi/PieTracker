@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import os
 
-from jose import JWTError, jwt
+from jose import jwt
 from passlib.context import CryptContext
 
 # =====================
@@ -43,33 +43,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def resolve_user_id(x_user_id: Optional[str], authorization: Optional[str]) -> str:
-    """Resolve user id from JWT if provided, else from X-User-Id header, else public anon.
-
-    Prefers the verified JWT subject so an authenticated client cannot spoof a
-    different user's id via the X-User-Id header.
-    """
-    if authorization and authorization.lower().startswith("bearer "):
-        token = authorization.split(" ", 1)[1]
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            sub = payload.get("sub")
-            if isinstance(sub, str) and sub.strip():
-                return sub.strip()
-        except JWTError:
-            # fall back to header/public if token invalid
-            pass
-    if x_user_id and x_user_id.strip():
-        return x_user_id.strip()
-    return "public-anon-user"
-
-
 def is_admin_user(user: dict) -> bool:
     """Check if user has admin privileges."""
-    return (user.get("role") == "admin" or
-            user.get("role") == "super_admin" or
-            user.get("email") == "admin@pietracker.com" or
-            user.get("id") == "admin-super-user")
+    return user.get("role") in {"admin", "super_admin"}
 
 
 def prepare_user_for_output(user: dict) -> dict:
@@ -78,5 +54,6 @@ def prepare_user_for_output(user: dict) -> dict:
         "id": user["id"],
         "username": user["username"],
         "email": user["email"],
-        "created_at": user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else str(user["created_at"])
+        "created_at": user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else str(user["created_at"]),
+        "role": user.get("role", "user")
     }

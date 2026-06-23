@@ -1,15 +1,13 @@
 from fastapi import FastAPI, HTTPException, Header, Depends, status, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 from typing import List, Dict, Optional
 from datetime import datetime, date, timedelta
 from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr, Field
 import json
 import os
-import shutil
-import tempfile
 import uuid
 import logging
 import base64
@@ -23,7 +21,6 @@ from security import (
     hash_password,
     verify_password,
     create_access_token,
-    resolve_user_id,
     is_admin_user,
     prepare_user_for_output,
 )
@@ -74,55 +71,6 @@ else:
 
 # Password hashing lives in security.py (hash_password/verify_password, imported above).
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-# Users are now stored only in database - no in-memory storage
-# Keeping empty users_db for admin functions compatibility (will be removed later)
-users_db: Dict[str, Dict[str, str]] = {}
-
-# All user data operations now use database only
-
-BACKUP_DIR = "backups"
-os.makedirs(BACKUP_DIR, exist_ok=True)
-BACKUP_RETENTION = 20  # keep last N backups per file
-
-def _rotate_backups(original_path: str):
-    """Ensure only the most recent BACKUP_RETENTION backups are kept for a given file base name."""
-    base = os.path.basename(original_path)
-    prefix = base + "."
-    backups = [f for f in os.listdir(BACKUP_DIR) if f.startswith(prefix)]
-    # Sort newest first (timestamp is part of filename, we used ISO so lexical works)
-    backups.sort(reverse=True)
-    for old in backups[BACKUP_RETENTION:]:
-        try:
-            os.remove(os.path.join(BACKUP_DIR, old))
-        except Exception:
-            pass
-
-def _safe_write_json(path: str, data):
-    """Atomically write JSON with simple timestamped backup of previous version.
-    This reduces the risk of data loss from partial writes or accidental overwrites."""
-    try:
-        if os.path.exists(path):
-            # Backup current file before overwrite
-            ts = datetime.utcnow().strftime('%Y%m%dT%H%M%S')
-            backup_name = f"{os.path.basename(path)}.{ts}.bak"
-            shutil.copy2(path, os.path.join(BACKUP_DIR, backup_name))
-            _rotate_backups(path)
-        # Write to temp then replace
-        dir_name = os.path.dirname(path) or "."
-        fd, tmp_path = tempfile.mkstemp(dir=dir_name, prefix="._tmp_", suffix=".json")
-        try:
-            with os.fdopen(fd, 'w') as tmp_f:
-                json.dump(data, tmp_f, indent=2)
-            os.replace(tmp_path, path)  # atomic on same filesystem
-        finally:
-            if os.path.exists(tmp_path):
-                try:
-                    os.remove(tmp_path)
-                except Exception:
-                    pass
-    except Exception as e:
-        print(f"[WARN] Failed safe write for {path}: {e}")
 
 # All user operations now use database only - no separate save function needed
 
@@ -211,11 +159,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Health check endpoint for deployment monitoring
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "message": "PieTracker API is running"}
-
 # Database status endpoint for testing
 @app.get("/db-status")
 async def database_status():
@@ -274,16 +217,12 @@ async def health_check():
 
 DEFAULT_CATEGORIES = ["Food", "Transportation", "Shopping", "Entertainment"]
 
-def get_user_id(
-    x_user_id: Optional[str] = Header(default=None),
-    authorization: Optional[str] = Header(default=None)
-) -> str:
-    """FastAPI dependency wrapping security.resolve_user_id.
+def get_user_id(current_user: dict = Depends(get_current_user)) -> str:
+    """Resolve the user id from the verified JWT only.
 
-    Resolve user id from JWT if provided, else from X-User-Id header, else public
-    anon. This prevents a client from spoofing a different user's id via header
-    when authenticated."""
-    return resolve_user_id(x_user_id, authorization)
+    Requires a valid bearer token (via get_current_user); the id comes solely
+    from the token subject, so a client cannot spoof another user's data."""
+    return current_user["id"]
 
 # Database-only category functions
 def get_user_custom_categories(user_id: str) -> Dict[str, str]:
@@ -301,10 +240,6 @@ def delete_user_category(user_id: str, name: str):
     """Delete a user category from database"""
     if db_service and db_service.use_db:
         db_service.delete_user_category(user_id, name)
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to PieTracker!"}
 
 @app.get("/expenses")
 async def get_expenses(user_id: str = Depends(get_user_id)):
@@ -355,18 +290,24 @@ async def get_monthly_summary(year: int, month: int, user_id: str = Depends(get_
 
     return summarize_expenses(monthly_expenses, year, month)
 
+class ExpenseCreate(BaseModel):
+    amount: float
+    category: str
+    description: str
+    date: str
+    currency: str = "CAD"
+
 @app.post("/expenses")
-async def create_expense(expense: dict, user_id: str = Depends(get_user_id)):
+async def create_expense(expense: ExpenseCreate, user_id: str = Depends(get_user_id)):
     """Create new expense in database"""
-    import uuid
     new_expense = {
         "id": str(uuid.uuid4()),
         "user_id": user_id,
-        "amount": float(expense["amount"]),
-        "category": expense["category"],
-        "description": expense["description"],
-        "date": expense["date"],
-        "currency": expense.get("currency", "CAD"),
+        "amount": expense.amount,
+        "category": expense.category,
+        "description": expense.description,
+        "date": expense.date,
+        "currency": expense.currency,
         "created_at": datetime.now().isoformat()
     }
     
@@ -527,6 +468,7 @@ class UserOut(BaseModel):
     username: str
     email: EmailStr
     created_at: str
+    role: str
 
 class AuthResponse(BaseModel):
     user: UserOut
@@ -576,7 +518,6 @@ async def signup(req: SignupRequest):
     if len(password) > 256:
         raise HTTPException(status_code=400, detail="Password must be 256 characters or fewer")
     
-    import uuid
     user_id = str(uuid.uuid4())
     new_user = {
         "id": user_id,
@@ -584,7 +525,7 @@ async def signup(req: SignupRequest):
         "email": email,
         "password_hash": hash_password(password),
         "created_at": datetime.utcnow().isoformat() + "Z",
-        "role": "admin" if email == "admin@pietracker.com" else "user",
+        "role": "user",
         "is_active": True,
         "last_login": None
     }
@@ -669,6 +610,7 @@ async def me(authorization: Optional[str] = Header(default=None)):
             "username": user.get("username") or user.get("name"),
             "email": user.get("email"),
             "created_at": user.get("created_at"),
+            "role": user.get("role", "user"),
         }
         return {"user": normalized}
     except JWTError:
@@ -911,18 +853,6 @@ async def list_backups(current_user: dict = Depends(get_current_user)):
         "note": "File-based backups no longer available - all data now in database"
     }
 
-@app.get("/admin/backup/download", dependencies=[Depends(get_current_user)])
-async def download_backup(name: str, current_user: dict = Depends(get_current_user)):
-    if not is_admin_user(current_user):
-        raise HTTPException(status_code=403, detail="Admin access required")
-    path = os.path.join(BACKUP_DIR, name)
-    if not os.path.isfile(path):
-        raise HTTPException(status_code=404, detail="Backup not found")
-    def iterfile():
-        with open(path, 'rb') as f:
-            yield from f
-    return StreamingResponse(iterfile(), media_type='application/json', headers={'Content-Disposition': f'attachment; filename={name}'})
-
 @app.get("/export/expenses", dependencies=[Depends(get_current_user)])
 async def export_expenses(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("id")
@@ -1070,7 +1000,7 @@ async def process_receipt(file: UploadFile = File(...), current_user: dict = Dep
         logger.error(f"Full traceback: {traceback.format_exc()}")
         return OCRResponse(
             success=False,
-            error=f"An error occurred while processing the receipt: {str(e)}"
+            error="An error occurred while processing the receipt. Please try again."
         )
 
 if __name__ == "__main__":
