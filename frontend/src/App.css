@@ -1,8 +1,90 @@
-/* Sophisticated Finance App Styles - Detailed & Beautiful Design */
+/* PieTracker app styles */
 
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap");
 
+/*
+  Design tokens: 2 estilos (business, casual) x 2 temas (claro, escuro) = 4 combinacoes.
+  Eixos ortogonais via atributos no <html>: data-style ("business" default | "casual") e
+  data-theme (ausente = claro | "dark"). A UI consome tokens semanticos (--bg, --text,
+  --primary...); os nomes legados (--sage-green etc.) sao mantidos como ponte mapeada por
+  estilo para nao reescrever as regras existentes de uma vez.
+*/
+
+/* BUSINESS CLARO (default, tambem o estado pre-JS) */
 :root {
+  --bg: #f6f9fc;
+  --surface: #ffffff;
+  --text: #0a2540;
+  --text-muted: #425466;
+  --primary: #533afd;
+  --accent: #533afd;
+  --border: #e3e8ee;
+  --success: #2f7d57;
+  --danger: #df1b41;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-numeric: "Inter", system-ui, sans-serif;
+  --font-display: var(--font-sans);
+  --radius: 6px;
+  --shadow: none;
+  --spacing-unit: 8px;
+
+  /* ponte: nomes legados mapeados para o business */
+  --sage-green: var(--primary);
+  --soft-beige: var(--bg);
+  --cream-white: var(--surface);
+  --paper-white: var(--bg);
+  --muted-teal: var(--primary);
+  --dusty-rose: var(--danger);
+  --warm-gray: var(--border);
+  --charcoal: var(--text);
+  --text-soft: var(--text-muted);
+  --accent-gold: var(--primary);
+  --accent-coral: var(--primary);
+  --accent-lavender: var(--primary);
+  --gradient-soft: var(--surface);
+  --gradient-sage: var(--primary);
+  --gradient-sunset: var(--primary);
+  --shadow-soft: 0 1px 3px rgba(10, 37, 64, 0.08);
+  --shadow-card: 0 1px 3px rgba(10, 37, 64, 0.08);
+  --shadow-button: none;
+  --warm-overlay: var(--surface);
+  --warm-overlay-light: var(--surface);
+  --warm-overlay-subtle: var(--surface);
+}
+
+/* BUSINESS ESCURO */
+[data-style="business"][data-theme="dark"] {
+  --bg: #171721;
+  --surface: #1e1e2a;
+  --text: #ededf3;
+  --text-muted: #9a94a6;
+  --primary: #5266eb;
+  --accent: #5266eb;
+  --border: #272735;
+  --success: #3ecf8e;
+  --danger: #e0607a;
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* CASUAL CLARO (identidade atual preservada 1:1) */
+[data-style="casual"] {
+  --bg: #ede6d8;
+  --surface: #efe8da;
+  --text: #4a4a4a;
+  --text-muted: #6b6b6b;
+  --primary: #a8b5a0;
+  --accent: #d4af37;
+  --border: #c7c0b8;
+  --success: #525b02;
+  --danger: #b54a3a;
+  --font-sans: "Inter", "Segoe UI", "Roboto", -apple-system, sans-serif;
+  --font-numeric: "Inter", sans-serif;
+  --font-display: "Playfair Display", "Crimson Text", serif;
+  --radius: 16px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --spacing-unit: 8px;
+
   --sage-green: #a8b5a0;
   --soft-beige: #ede6d8;
   --cream-white: #efe8da;
@@ -21,15 +103,24 @@
   --shadow-soft: 0 8px 32px rgba(168, 181, 160, 0.2);
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-button: 0 6px 24px rgba(168, 181, 160, 0.3);
-
-  /* Warm overlay colors for better eye comfort */
   --warm-overlay: rgba(241, 234, 220, 0.98);
   --warm-overlay-light: rgba(241, 234, 220, 0.95);
   --warm-overlay-subtle: rgba(241, 234, 220, 0.8);
 }
 
-/* Dark Mode Variables */
-[data-theme="dark"] {
+/* CASUAL ESCURO (identidade atual preservada 1:1) */
+[data-style="casual"][data-theme="dark"] {
+  --bg: #1a1812;
+  --surface: #141210;
+  --text: #e5e5e5;
+  --text-muted: #c9c9c9;
+  --primary: #7a8c6f;
+  --accent: #d4af37;
+  --border: #4a453f;
+  --success: #6b7d03;
+  --danger: #c0604f;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
   --sage-green: #7a8c6f;
   --soft-beige: #1a1812;
   --cream-white: #141210;
@@ -108,7 +199,7 @@ div {
   font-family: "Inter", sans-serif;
 }
 
-/* Beautiful background pattern with decorative elements */
+/* Background pattern with decorative elements */
 body::before {
   content: "";
   position: fixed;
@@ -3533,7 +3624,7 @@ body::before {
   display: none !important;
 }
 
-/* Beautiful Tooltip Styling */
+/* Tooltip Styling */
 .tooltip {
   background: var(--warm-overlay);
   border: 2px solid var(--sage-green);
@@ -3640,7 +3731,7 @@ body::before {
   outline: none !important;
 }
 
-/* Beautiful Month Display */
+/* Month Display */
 .month-display {
   text-align: center;
   margin-bottom: 8px;
@@ -5956,5 +6047,130 @@ body::before {
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* ===========================================================================
+   Style selector, business overrides and shared fixes
+   data-style="business" (default) vs data-style="casual"
+   =========================================================================== */
+
+/* Brand title color token (was referenced as --forest-green without definition) */
+:root {
+  --forest-green: var(--text);
+}
+
+/* Style toggle button: mirrors .theme-toggle, sits to its left, tokenized */
+.style-toggle {
+  position: fixed;
+  top: 30px;
+  right: 150px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--shadow-card);
+  z-index: 1000;
+}
+.style-toggle:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-soft);
+  border-color: var(--primary);
+}
+.style-toggle:active {
+  transform: translateY(0) scale(0.98);
+}
+.style-toggle:focus-visible,
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Kill the broken replacement-char glyph that was injected after the header title */
+.header h1::after {
+  content: none;
+  display: none;
+}
+
+/* Tabular numerals for monetary values (alignment in a finance UI) */
+.insight-value,
+.legend-amount,
+.label-amount,
+.total-amount,
+.yearly-total-amount,
+.summary-info .total-amount,
+.tooltip-value {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* --- Business style: sober fintech, no serif, no decoration, no gradient text --- */
+[data-style="business"] h1,
+[data-style="business"] h2,
+[data-style="business"] h3,
+[data-style="business"] .header-title,
+[data-style="business"] .title-text {
+  font-family: var(--font-sans);
+}
+
+[data-style="business"] .title-text {
+  background: none;
+  -webkit-text-fill-color: var(--text);
+  color: var(--text);
+}
+
+[data-style="business"] .total-amount,
+[data-style="business"] .summary-info .total-amount,
+[data-style="business"] .yearly-total-amount {
+  font-family: var(--font-numeric);
+  letter-spacing: normal;
+}
+
+/* Flatten the header title pill into a sober surface */
+[data-style="business"] .header h1 {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+[data-style="business"] .header h1:hover {
+  transform: none;
+  box-shadow: var(--shadow);
+  border-color: var(--border);
+}
+
+/* Sober toggles in business */
+[data-style="business"] .theme-toggle {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Hide casual-only decoration in business */
+[data-style="business"] .app::before,
+[data-style="business"] .app::after,
+[data-style="business"] .title-icon,
+[data-style="business"] .nature-element,
+[data-style="business"] .corner-leaf,
+[data-style="business"] .card-leaf,
+[data-style="business"] .main-falling-leaves {
+  display: none;
+}
+
+/* Respect users who prefer reduced motion (also tames the casual leaves) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
