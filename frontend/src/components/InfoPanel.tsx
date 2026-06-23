@@ -171,22 +171,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
 
   return (
     <div className="info-panel">
-      {/* Falling Leaves Background Animation */}
-      <div className="falling-leaves">
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-        <div className="falling-leaf"></div>
-      </div>
-
       {/* Calendar Period Selector */}
       <div className="calendar-selector">
         <div className="chart-title">Select Period</div>
