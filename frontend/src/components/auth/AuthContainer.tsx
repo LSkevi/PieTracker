@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useStyle } from "../../hooks/useStyle";
 import ThemeToggle from "../ThemeToggle";
 import StyleToggle from "../StyleToggle";
+import FallingLeaves from "../FallingLeaves";
 
 type AuthMode = "login" | "signup" | "forgot" | "reset";
 
@@ -39,22 +40,7 @@ const AuthContainer: React.FC = () => {
     <div className="auth-container">
       <div className="auth-background">
         {/* Decorative falling leaves (casual style only) */}
-        {style === "casual" && (
-          <div className="auth-falling-leaves">
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-            <div className="auth-leaf"></div>
-          </div>
-        )}
+        {style === "casual" && <FallingLeaves />}
 
         <div className="auth-content">
           <div className="auth-brand">
