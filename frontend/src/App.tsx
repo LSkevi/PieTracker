@@ -3,10 +3,13 @@ import ExpenseForm from "./components/ExpenseForm";
 import ChartDisplay from "./components/ChartDisplay";
 import InfoPanel from "./components/InfoPanel";
 import ThemeToggle from "./components/ThemeToggle";
+import StyleToggle from "./components/StyleToggle";
 import AdminDashboard from "./components/AdminPanel";
 import AuthContainer from "./components/auth/AuthContainer";
 import { AuthProvider } from "./contexts/AuthContext";
+import { StyleProvider } from "./contexts/StyleContext";
 import { useAuth } from "./hooks/useAuth";
+import { useStyle } from "./hooks/useStyle";
 import { useExpenses } from "./hooks/useExpenses";
 import { formatCurrency, convertCurrency } from "./utils/currency";
 import "./App.css";
@@ -42,6 +45,7 @@ const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
 
 const AuthenticatedApp: React.FC = () => {
   const { logout, user } = useAuth();
+  const { style } = useStyle();
   const {
     expenses,
     yearlyExpenses,
@@ -116,24 +120,26 @@ const AuthenticatedApp: React.FC = () => {
 
   return (
     <div className="app">
-      {/* Falling leaves background for main menu */}
-      <div className="main-falling-leaves">
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-        <div className="main-leaf"></div>
-      </div>
+      {/* Falling leaves background for main menu (casual style only) */}
+      {style === "casual" && (
+        <div className="main-falling-leaves">
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+          <div className="main-leaf"></div>
+        </div>
+      )}
 
       {/* User Header with Title, Theme + Logout */}
       <div className="user-header">
@@ -147,13 +153,13 @@ const AuthenticatedApp: React.FC = () => {
                   currentView === "dashboard" ? "active" : ""
                 }`}
               >
-                📊 Dashboard
+                {style === "casual" ? "📊 " : ""}Dashboard
               </button>
               <button
                 onClick={() => setCurrentView("admin")}
                 className={`nav-btn ${currentView === "admin" ? "active" : ""}`}
               >
-                🛡️ Admin Panel
+                {style === "casual" ? "🛡️ " : ""}Admin Panel
               </button>
             </div>
           )}
@@ -164,6 +170,7 @@ const AuthenticatedApp: React.FC = () => {
           </h1>
         </div>
         <div className="user-header-actions">
+          <StyleToggle />
           <ThemeToggle />
           <button onClick={handleLogout} className="logout-btn">
             Logout
@@ -276,20 +283,23 @@ const AuthenticatedApp: React.FC = () => {
 
 const AppWithErrorBoundary: React.FC = () => (
   <ErrorBoundary>
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <StyleProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </StyleProvider>
   </ErrorBoundary>
 );
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { style } = useStyle();
 
   if (isLoading) {
     return (
       <div className="app-loading">
         <div className="loading-content">
-          <h1>🥧 Pie Tracker</h1>
+          <h1>{style === "casual" ? "🥧 " : ""}Pie Tracker</h1>
           <div className="loading">Loading...</div>
         </div>
       </div>

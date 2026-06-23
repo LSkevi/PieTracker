@@ -4,13 +4,16 @@ import SignupForm from "./SignupForm";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import ResetPasswordForm from "./ResetPasswordForm";
 import { useAuth } from "../../hooks/useAuth";
+import { useStyle } from "../../hooks/useStyle";
 import ThemeToggle from "../ThemeToggle";
+import StyleToggle from "../StyleToggle";
 
 type AuthMode = "login" | "signup" | "forgot" | "reset";
 
 const AuthContainer: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>("login");
   const { login, signup, isLoading, error, clearError } = useAuth();
+  const { style } = useStyle();
 
   const switchToSignup = () => {
     clearError();
@@ -35,21 +38,23 @@ const AuthContainer: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-background">
-        {/* Decorative falling leaves */}
-        <div className="auth-falling-leaves">
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-          <div className="auth-leaf"></div>
-        </div>
+        {/* Decorative falling leaves (casual style only) */}
+        {style === "casual" && (
+          <div className="auth-falling-leaves">
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+            <div className="auth-leaf"></div>
+          </div>
+        )}
 
         <div className="auth-content">
           <div className="auth-brand">
@@ -63,10 +68,15 @@ const AuthContainer: React.FC = () => {
               }}
             >
               <div>
-                <h1>🥧 Pie Tracker</h1>
-                <p>Beautiful expense tracking made simple</p>
+                <h1>{style === "casual" ? "🥧 " : ""}Pie Tracker</h1>
+                <p>Expense tracking made simple</p>
               </div>
-              <ThemeToggle />
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <StyleToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
 

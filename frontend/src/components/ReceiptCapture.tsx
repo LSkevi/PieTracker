@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { AuthService } from "../services/auth";
+import { useStyle } from "../hooks/useStyle";
 
 interface OCRResult {
   success: boolean;
@@ -22,6 +23,7 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({
   onDataExtracted,
   onProcessingChange,
 }) => {
+  const { style } = useStyle();
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -161,7 +163,9 @@ const ReceiptCapture: React.FC<ReceiptCaptureProps> = ({
               </>
             ) : (
               <>
-                <div className="receipt-camera-icon">📷</div>
+                <div className="receipt-camera-icon">
+                  {style === "casual" ? "📷" : ""}
+                </div>
                 <h3>Scan Receipt</h3>
                 <p>Click to take photo or drag image here</p>
                 <span>Supports French & English receipts</span>
