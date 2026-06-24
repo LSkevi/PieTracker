@@ -480,7 +480,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     <div className="expense-form-tab">
       <div className="expense-form-header">
         <h2>Add New Expense</h2>
-        <p className="form-subtitle">Track your spending with style</p>
+        <p className="form-subtitle">Add an expense to this month.</p>
       </div>
 
       {/* Category Toggle Buttons */}

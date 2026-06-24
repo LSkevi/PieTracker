@@ -410,16 +410,6 @@ body::before {
   font-weight: 700;
 }
 
-.header h1::after {
-  content: "�";
-  position: absolute;
-  right: -45px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2rem;
-  animation: rotateFlower 4s linear infinite reverse;
-}
-
 @keyframes bounce {
   0%,
   20%,
@@ -1991,7 +1981,7 @@ body::before {
 
 [data-style="casual"][data-theme="dark"] .insights-banner,
 [data-style="casual"][data-theme="dark"] .insights-banner-global {
-  background: var(--gradient-sage);
+  background: linear-gradient(135deg, #2f4a3e, #294238);
   border-color: transparent;
   color: #ffffff;
 }
