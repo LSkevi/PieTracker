@@ -1,6 +1,6 @@
 /* PieTracker app styles */
 
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap");
 
 /*
   Design tokens: 2 estilos (business, casual) x 2 temas (claro, escuro) = 4 combinacoes.
@@ -16,13 +16,13 @@
   --surface: #ffffff;
   --text: #0a2540;
   --text-muted: #425466;
-  --primary: #533afd;
-  --accent: #533afd;
+  --primary: #2454c7;
+  --accent: #2454c7;
   --border: #e3e8ee;
   --success: #2f7d57;
   --danger: #df1b41;
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-numeric: "Inter", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-numeric: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-display: var(--font-sans);
   --radius: 6px;
   --shadow: none;
@@ -58,8 +58,8 @@
   --surface: #1e1e2a;
   --text: #ededf3;
   --text-muted: #9a94a6;
-  --primary: #5266eb;
-  --accent: #5266eb;
+  --primary: #5b85f5;
+  --accent: #5b85f5;
   --border: #272735;
   --success: #3ecf8e;
   --danger: #e0607a;
@@ -78,11 +78,11 @@
   --border: #c7c0b8;
   --success: #525b02;
   --danger: #b54a3a;
-  --font-sans: "Inter", "Segoe UI", "Roboto", -apple-system, sans-serif;
-  --font-numeric: "Inter", sans-serif;
+  --font-sans: "IBM Plex Sans", "Segoe UI", "Roboto", -apple-system, sans-serif;
+  --font-numeric: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-display: "Playfair Display", "Crimson Text", serif;
   --radius: 16px;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   --spacing-unit: 8px;
 
   --sage-green: #a8b5a0;
@@ -100,9 +100,9 @@
   --gradient-soft: linear-gradient(135deg, #ede6d8, #efe8da);
   --gradient-sage: linear-gradient(135deg, #a8b5a0, #7ba098);
   --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #a8b5a0);
-  --shadow-soft: 0 8px 32px rgba(168, 181, 160, 0.2);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
-  --shadow-button: 0 6px 24px rgba(168, 181, 160, 0.3);
+  --shadow-soft: 0 4px 14px rgba(168, 181, 160, 0.16);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-button: 0 2px 8px rgba(168, 181, 160, 0.22);
   --warm-overlay: rgba(241, 234, 220, 0.98);
   --warm-overlay-light: rgba(241, 234, 220, 0.95);
   --warm-overlay-subtle: rgba(241, 234, 220, 0.8);
@@ -119,7 +119,7 @@
   --border: #4a453f;
   --success: #6b7d03;
   --danger: #c0604f;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 
   --sage-green: #7a8c6f;
   --soft-beige: #1a1812;
@@ -136,9 +136,9 @@
   --gradient-soft: linear-gradient(135deg, #1a1812, #141210);
   --gradient-sage: linear-gradient(135deg, #7a8c6f, #5c7a73);
   --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #7a8c6f);
-  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
-  --shadow-button: 0 6px 24px rgba(122, 140, 111, 0.4);
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.32);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-button: 0 2px 8px rgba(122, 140, 111, 0.3);
 }
 
 * {
@@ -148,8 +148,8 @@
 }
 
 body {
-  font-family: "Inter", "Segoe UI", "Roboto", -apple-system, BlinkMacSystemFont,
-    sans-serif;
+  font-family: "IBM Plex Sans", "Segoe UI", "Roboto", -apple-system,
+    BlinkMacSystemFont, sans-serif;
   background: var(--soft-beige);
   min-height: 100vh;
   width: 100vw;
@@ -196,7 +196,7 @@ h3 {
 p,
 span,
 div {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Background pattern with decorative elements */
@@ -389,10 +389,7 @@ body::before {
 }
 
 .title-text {
-  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--sage-green);
   font-weight: 700;
 }
 
@@ -404,10 +401,7 @@ body::before {
 }
 
 .title-text {
-  background: linear-gradient(135deg, var(--sage-green), var(--muted-teal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--sage-green);
   font-weight: 700;
 }
 
@@ -487,7 +481,7 @@ body::before {
   border-radius: 8px;
   background: transparent;
   color: var(--text-soft);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -605,7 +599,7 @@ body::before {
   color: var(--text-soft);
   font-size: 1.1rem;
   line-height: 1.6;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Responsive Design for Tabbed Layout */
@@ -732,7 +726,7 @@ body::before {
   color: var(--text-soft);
   font-size: 1.1rem;
   line-height: 1.6;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Responsive Design for New Layout */
@@ -897,7 +891,7 @@ body::before {
   color: var(--text-soft);
   margin-top: 4px;
   font-style: italic;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .amount-currency-group {
@@ -941,7 +935,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   cursor: pointer;
 }
 
@@ -979,7 +973,7 @@ body::before {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--paper-white);
   color: var(--charcoal);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -1030,7 +1024,7 @@ body::before {
   font-size: 1rem;
   font-weight: 400;
   color: var(--charcoal);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   min-height: 20px;
   text-align: left;
 }
@@ -1111,7 +1105,7 @@ body::before {
   box-shadow: var(--shadow-button);
   text-transform: uppercase;
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .btn-primary::before {
@@ -1177,7 +1171,7 @@ body::before {
   color: var(--text-soft);
   font-size: 1.1rem;
   font-style: italic;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .form-row {
@@ -1198,7 +1192,7 @@ body::before {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   letter-spacing: 0.5px;
   box-shadow: var(--shadow-button);
   position: relative;
@@ -1270,7 +1264,7 @@ body::before {
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   box-shadow: 0 2px 6px rgba(168, 181, 160, 0.2);
   letter-spacing: 0.3px;
 }
@@ -1285,7 +1279,7 @@ body::before {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   box-shadow: 0 2px 6px rgba(168, 181, 160, 0.1);
 }
 
@@ -1335,7 +1329,7 @@ body::before {
   margin: 0;
   flex: 1;
   line-height: 1.3;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .expense-card-header {
@@ -1386,20 +1380,20 @@ body::before {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .expense-date {
   font-size: 0.85rem;
   color: var(--text-soft);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .expense-amount-card {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--charcoal);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .show-more-expenses {
@@ -1409,7 +1403,7 @@ body::before {
   border-radius: 8px;
   color: var(--text-soft);
   font-style: italic;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Search Input */
@@ -1662,7 +1656,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   position: relative;
   overflow: hidden;
@@ -1739,7 +1733,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   width: 100%; /* full width for vertical layout */
   min-height: 36px;
@@ -1790,7 +1784,7 @@ body::before {
   margin-bottom: 6px;
   color: var(--charcoal);
   font-weight: 500;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .category-name-input {
@@ -1843,7 +1837,7 @@ body::before {
   border: none;
   border-radius: 6px;
   font-weight: 500;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1884,7 +1878,7 @@ body::before {
   font-weight: 600;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 1.7s;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Error Message */
@@ -1898,7 +1892,7 @@ body::before {
   font-weight: 600;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Conversion Message */
@@ -1913,7 +1907,7 @@ body::before {
   font-size: 0.85rem;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 @keyframes slideInUp {
@@ -1997,7 +1991,7 @@ body::before {
   font-size: 0.85rem;
   opacity: 0.9;
   margin-bottom: 4px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
 }
 
@@ -2005,7 +1999,7 @@ body::before {
   display: block;
   font-size: 1.2rem;
   font-weight: 700;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Category Selection Row */
@@ -2025,7 +2019,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .currency-select:focus {
@@ -2046,7 +2040,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   white-space: nowrap;
 }
 
@@ -2118,7 +2112,7 @@ body::before {
   color: var(--charcoal);
   font-weight: 600;
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .category-name-input {
@@ -2127,7 +2121,7 @@ body::before {
   border: 1px solid var(--warm-gray);
   border-radius: 6px;
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   box-sizing: border-box;
 }
 
@@ -2182,7 +2176,7 @@ body::before {
   border-radius: 6px;
   font-size: 0.9rem;
   margin-bottom: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .custom-category-input input:focus {
@@ -2208,7 +2202,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .btn-custom-add:hover:not(:disabled) {
@@ -2232,7 +2226,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .btn-custom-cancel:hover {
@@ -2334,7 +2328,7 @@ body::before {
 }
 
 .modal-body p {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 14px;
   color: var(--text-soft);
   line-height: 1.6;
@@ -2363,7 +2357,7 @@ body::before {
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -2466,7 +2460,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   min-width: 100px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
 }
 
@@ -2478,7 +2472,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   min-width: 150px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
 }
 
@@ -2495,7 +2489,7 @@ body::before {
   color: var(--charcoal);
   font-size: 1rem;
   min-width: 150px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -2606,7 +2600,7 @@ body::before {
   font-weight: 500;
   color: var(--charcoal);
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   letter-spacing: 0.3px;
 }
 
@@ -2614,7 +2608,7 @@ body::before {
   font-weight: 600;
   color: var(--sage-green);
   font-size: 1rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   letter-spacing: 0.2px;
 }
 
@@ -2680,7 +2674,7 @@ body::before {
   margin-bottom: 4px;
   font-weight: 600;
   font-size: 0.95rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   letter-spacing: 0.3px;
 }
 
@@ -2688,7 +2682,7 @@ body::before {
   color: var(--text-soft);
   font-size: 0.85rem;
   font-style: normal;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
 }
 
@@ -2696,7 +2690,7 @@ body::before {
   font-weight: 600;
   color: var(--muted-teal);
   font-size: 1rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   letter-spacing: 0.2px;
 }
 
@@ -2710,7 +2704,7 @@ body::before {
   font-size: 0.8rem;
   margin-left: 10px;
   transition: all 0.2s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
 }
 
@@ -2726,7 +2720,7 @@ body::before {
   background: var(--paper-white);
   border-radius: 8px;
   border: 1px dashed var(--warm-gray);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   font-size: 1rem;
 }
@@ -2783,7 +2777,7 @@ body::before {
   color: var(--sage-green);
   font-size: 1.1rem;
   font-weight: 500;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   opacity: 0.8;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -2933,7 +2927,7 @@ body::before {
   color: var(--paper-white);
   border: 2px solid rgba(168, 181, 160, 0.5);
   border-radius: 20px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -3060,7 +3054,7 @@ body::before {
 }
 
 .yearly-total-label {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
   color: var(--charcoal);
   font-size: 1rem;
@@ -3178,7 +3172,7 @@ body::before {
   margin: 0;
   color: #6b6b6b;
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
 }
 
@@ -3236,21 +3230,21 @@ body::before {
   font-weight: 500;
   color: var(--charcoal);
   font-size: 0.85rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .legend-text-vertical .legend-amount {
   font-weight: 600;
   color: var(--sage-green);
   font-size: 0.8rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 /* Expense Meta Information Styling */
 .expense-meta {
   font-size: 0.75rem;
   color: var(--text-soft);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   margin-top: 2px;
 }
@@ -3258,7 +3252,7 @@ body::before {
 .expense-original {
   font-size: 0.7rem;
   color: var(--muted-teal);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   font-style: italic;
   margin-top: 1px;
@@ -3345,7 +3339,7 @@ body::before {
   padding: 16px 20px;
   box-shadow: 0 8px 32px rgba(168, 181, 160, 0.3);
   backdrop-filter: blur(10px);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   min-width: 200px;
   z-index: 1000;
   position: relative;
@@ -3455,7 +3449,7 @@ body::before {
 }
 
 .month-text {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--charcoal);
@@ -3528,7 +3522,7 @@ body::before {
 .year-name {
   font-size: 0.9rem;
   color: var(--text-soft);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .calendar-icon {
@@ -3582,7 +3576,7 @@ body::before {
   margin: 0;
   color: var(--text-soft);
   font-size: 0.9rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-style: italic;
 }
 
@@ -3663,7 +3657,7 @@ body::before {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
 }
 
@@ -3694,7 +3688,7 @@ body::before {
   color: var(--charcoal);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -4531,7 +4525,7 @@ body::before {
   cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 1px solid rgba(168, 181, 160, 0.1);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .currency-dropdown-item:last-child {
@@ -4998,7 +4992,7 @@ body::before {
 }
 
 .auth-brand p {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   color: var(--text-soft);
   font-size: 1.1rem;
   margin: 0;
@@ -5058,7 +5052,7 @@ body::before {
 }
 
 .auth-header p {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   color: var(--text-soft);
   margin: 0;
   font-size: 0.95rem;
@@ -5078,7 +5072,7 @@ body::before {
 }
 
 .auth-form-group label {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
   color: var(--charcoal);
   font-size: 0.9rem;
@@ -5088,7 +5082,7 @@ body::before {
   padding: 12px 16px;
   border: 2px solid rgba(168, 181, 160, 0.3);
   border-radius: 10px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 1rem;
   background: var(--cream-white);
   color: var(--charcoal);
@@ -5120,14 +5114,14 @@ body::before {
   border: 1px solid #f5c6cb;
   font-weight: 600;
   text-align: center;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-size: 0.9rem;
 }
 
 .auth-field-error {
   color: var(--dusty-rose);
   font-size: 0.8rem;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   margin-top: 2px;
 }
@@ -5139,7 +5133,7 @@ body::before {
   color: white;
   border: none;
   border-radius: 12px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -5165,7 +5159,7 @@ body::before {
 }
 
 .auth-switch p {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   color: var(--text-soft);
   font-size: 0.9rem;
   margin: 0;
@@ -5175,7 +5169,7 @@ body::before {
   background: none;
   border: none;
   color: var(--sage-green);
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -5260,7 +5254,7 @@ body::before {
 }
 
 .loading-content .loading {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   color: var(--text-soft);
   font-size: 1.1rem;
 }
@@ -5326,7 +5320,7 @@ body::before {
 }
 
 .user-greeting {
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   color: var(--charcoal);
   font-weight: 500;
   font-size: 0.95rem;
@@ -5338,7 +5332,7 @@ body::before {
   color: white;
   border: none;
   border-radius: 8px;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   font-size: 0.85rem;
   cursor: pointer;
@@ -5459,7 +5453,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 .nav-btn:hover {
