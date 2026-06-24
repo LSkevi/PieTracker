@@ -94,9 +94,9 @@ export const setDefaultCurrency = (currencyCode: string): void => {
   localStorage.setItem("preferred-currency", currencyCode);
 };
 
-// API Configuration
-const API_KEY = import.meta.env.VITE_EXCHANGE_API_KEY ?? "";
-const API_URL = "https://api.exchangeratesapi.io/v1/latest";
+// API Configuration. Frankfurter (frankfurter.app): free, HTTPS, no API key,
+// CORS-enabled, EUR-based ECB reference rates.
+const API_URL = "https://api.frankfurter.dev/v1/latest";
 
 // Fallback exchange rates (base currency: EUR - as per exchangeratesapi.io)
 const FALLBACK_RATES: { [key: string]: number } = {
@@ -148,7 +148,7 @@ const getCachedRates = (): { [key: string]: number } => {
 const fetchExchangeRates = async (): Promise<{ [key: string]: number }> => {
   try {
     const response = await fetch(
-      `${API_URL}?access_key=${API_KEY}&symbols=USD,CAD,GBP,JPY,AUD,CHF,CNY,INR,BRL`
+      `${API_URL}?base=EUR&symbols=USD,CAD,GBP,JPY,AUD,CHF,CNY,INR,BRL`
     );
 
     if (!response.ok) {
@@ -157,11 +157,11 @@ const fetchExchangeRates = async (): Promise<{ [key: string]: number }> => {
 
     const data = await response.json();
 
-    if (!data.success) {
-      throw new Error(`API error: ${data.error?.info || "Unknown error"}`);
+    if (!data.rates) {
+      throw new Error("API error: no rates in response");
     }
 
-    // API returns rates with EUR as base, add EUR: 1.0
+    // Frankfurter returns rates with EUR as base; add EUR: 1.0 explicitly
     const rates = {
       EUR: 1.0,
       ...data.rates,
