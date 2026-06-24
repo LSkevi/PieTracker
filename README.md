@@ -74,7 +74,7 @@ The app is gated behind authentication: sign up for an account, or log in, to re
 the dashboard, expense tracking, and charts (see [Live demo](#live-demo)). Admin
 features require an account with the `admin` role.
 
-> Demo credentials to be documented here.
+**Demo account** (pre-populated with sample expenses across categories, currencies, and months): username `demo`, password `PieDemo2026`.
 
 ## Architecture
 
