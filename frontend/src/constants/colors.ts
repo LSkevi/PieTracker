@@ -1,56 +1,59 @@
 // Shared color constants and utility functions for consistent theming
 
+// Casual (printshop) categorical palette: earthy spruce/olive with saffron + brick
+// accents and an indigo ink anchor. Harmonious, not rainbow.
 export const ELEGANT_COLORS = [
-  "#525B02", // 0 - Transportation (Deep forest green)
-  "#9B9E56", // 1 - Food (Fresh sage green)
-  "#A2B7B0", // 2 - Entertainment (Soft mint)
-  "#BCA3A4", // 3 - Shopping (Dusty rose)
-  "#695216", // 4 - Additional categories (Warm earth brown)
-  "#2d4a22", // 5 - Deep olive
-  "#b8860b", // 6 - Dark goldenrod
-  "#8fbc8f", // 7 - Dark sea green
-  "#daa520", // 8 - Goldenrod
-  "#5f9ea0", // 9 - Cadet blue
+  "#3e6b5a", // 0 - Transportation (spruce)
+  "#6e8c4e", // 1 - Food (olive)
+  "#4f8a86", // 2 - Entertainment (teal-green)
+  "#c98a1e", // 3 - Shopping (saffron)
+  "#a8412e", // 4 - brick
+  "#2a2e45", // 5 - indigo ink
+  "#8a6d3b", // 6 - bronze
+  "#5c8a74", // 7 - spruce light
+  "#b5793a", // 8 - ochre
+  "#6b6f5a", // 9 - olive grey
 ];
 
 export const DARK_MODE_COLORS = [
-  "#6b7d03", // 0 - Transportation (Brighter forest)
-  "#b5b869", // 1 - Food (Brighter sage)
-  "#b5c9c1", // 2 - Entertainment (Brighter mint)
-  "#d0b5b6", // 3 - Shopping (Brighter dusty rose)
-  "#7a601c", // 4 - Additional categories (Brighter earth)
-  "#3e5e32", // 5 - Brighter olive
-  "#daa520", // 6 - Bright goldenrod
-  "#98c098", // 7 - Brighter sea green
-  "#ffd700", // 8 - Gold
-  "#70a3a6", // 9 - Brighter cadet blue
+  "#5c8a74", // 0 - Transportation (spruce dim)
+  "#9aad6a", // 1 - Food (olive)
+  "#6fb0a8", // 2 - Entertainment (teal)
+  "#d49a36", // 3 - Shopping (saffron)
+  "#d4796a", // 4 - brick
+  "#9a8fbf", // 5 - indigo
+  "#b89a5a", // 6 - bronze
+  "#7faa8e", // 7 - spruce light
+  "#d4a05a", // 8 - ochre
+  "#9a9d82", // 9 - olive grey
 ];
 
-// Business style: sober indigo/slate categorical palette (fintech), distinguishable hues
+// Business (precision-instrument) categorical palette: petrol-led, muted and
+// cohesive with restrained warm accents. Distinguishable but not rainbow.
 export const BUSINESS_COLORS = [
-  "#4338ca", // 0 - Transportation (indigo)
-  "#0891b2", // 1 - Food (cyan)
-  "#7c3aed", // 2 - Entertainment (violet)
-  "#b45309", // 3 - Shopping (amber)
-  "#0f766e", // 4 - teal
-  "#be123c", // 5 - rose
-  "#4d7c0f", // 6 - lime
-  "#1d4ed8", // 7 - blue
-  "#a21caf", // 8 - fuchsia
-  "#475569", // 9 - slate
+  "#0e6e73", // 0 - Transportation (petrol, brand)
+  "#3b6ea5", // 1 - Food (muted blue)
+  "#8a5a83", // 2 - Entertainment (muted plum)
+  "#c98a1e", // 3 - Shopping (saffron)
+  "#4f7a6a", // 4 - sage-teal
+  "#a8533f", // 5 - terracotta
+  "#5b6b8c", // 6 - slate-blue
+  "#2f8f86", // 7 - teal
+  "#7a6f9c", // 8 - lavender
+  "#6b7b80", // 9 - cool grey
 ];
 
 export const BUSINESS_DARK_COLORS = [
-  "#818cf8", // 0 - Transportation (indigo)
-  "#22d3ee", // 1 - Food (cyan)
-  "#a78bfa", // 2 - Entertainment (violet)
-  "#fbbf24", // 3 - Shopping (amber)
-  "#2dd4bf", // 4 - teal
-  "#fb7185", // 5 - rose
-  "#a3e635", // 6 - lime
-  "#60a5fa", // 7 - blue
-  "#e879f9", // 8 - fuchsia
-  "#94a3b8", // 9 - slate
+  "#2fa8ae", // 0 - Transportation (petrol bright)
+  "#6a9fd8", // 1 - Food (blue)
+  "#c98ac0", // 2 - Entertainment (plum)
+  "#e0b15a", // 3 - Shopping (amber)
+  "#6fb09a", // 4 - sage-teal
+  "#e0917a", // 5 - terracotta
+  "#8fa0c8", // 6 - slate-blue
+  "#56c2b8", // 7 - teal
+  "#b0a3d8", // 8 - lavender
+  "#9aa8ad", // 9 - cool grey
 ];
 
 // Category order matching our system (simplified for main categories)
