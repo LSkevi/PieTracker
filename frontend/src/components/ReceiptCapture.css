@@ -123,7 +123,7 @@
 .receipt-drop-content h3 {
   margin: 0;
   color: var(--charcoal);
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.4rem;
   font-weight: 600;
 }
@@ -169,7 +169,7 @@
 .receipt-preview-header h4 {
   margin: 0;
   color: var(--charcoal);
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.2rem;
 }
 
@@ -214,7 +214,7 @@
   color: var(--paper-white);
   border: none;
   border-radius: 10px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;

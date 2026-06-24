@@ -1,6 +1,6 @@
 /* PieTracker app styles */
 
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Hanken+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap");
 
 /*
   Design tokens: 2 estilos (business, casual) x 2 temas (claro, escuro) = 4 combinacoes.
@@ -12,23 +12,26 @@
 
 /* BUSINESS CLARO (default, tambem o estado pre-JS) */
 :root {
-  --bg: #f6f9fc;
+  /* Ledger & Loom - business: petrol sobre porcelana */
+  --bg: #f5f7f8;
   --surface: #ffffff;
-  --text: #0a2540;
-  --text-muted: #425466;
-  --primary: #2454c7;
-  --accent: #2454c7;
-  --border: #e3e8ee;
-  --success: #2f7d57;
-  --danger: #df1b41;
-  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-numeric: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --font-display: var(--font-sans);
-  --radius: 6px;
+  --text: #122a33;
+  --text-muted: #51636b;
+  --primary: #0e6e73;
+  --accent: #0e6e73;
+  --border: #e2e8ea;
+  --success: #1f7a5c;
+  --danger: #c0392f;
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-numeric: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-display: "Fraunces", "Hanken Grotesk", serif;
+  --radius: 8px;
   --shadow: none;
   --spacing-unit: 8px;
+  /* elevacao shadow-as-border (tecnica Vercel) */
+  --elevation: 0 0 0 1px rgba(18, 42, 51, 0.07), 0 1px 2px rgba(18, 42, 51, 0.05);
 
-  /* ponte: nomes legados mapeados para o business */
+  /* ponte: nomes legados re-apontados para o business */
   --sage-green: var(--primary);
   --soft-beige: var(--bg);
   --cream-white: var(--surface);
@@ -44,8 +47,8 @@
   --gradient-soft: var(--surface);
   --gradient-sage: var(--primary);
   --gradient-sunset: var(--primary);
-  --shadow-soft: 0 1px 3px rgba(10, 37, 64, 0.08);
-  --shadow-card: 0 1px 3px rgba(10, 37, 64, 0.08);
+  --shadow-soft: var(--elevation);
+  --shadow-card: var(--elevation);
   --shadow-button: none;
   --warm-overlay: var(--surface);
   --warm-overlay-light: var(--surface);
@@ -54,91 +57,93 @@
 
 /* BUSINESS ESCURO */
 [data-style="business"][data-theme="dark"] {
-  --bg: #171721;
-  --surface: #1e1e2a;
-  --text: #ededf3;
-  --text-muted: #9a94a6;
-  --primary: #5b85f5;
-  --accent: #5b85f5;
-  --border: #272735;
-  --success: #3ecf8e;
-  --danger: #e0607a;
-  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --bg: #101619;
+  --surface: #18242a;
+  --text: #e8edee;
+  --text-muted: #93a1a6;
+  --primary: #2fa8ae;
+  --accent: #2fa8ae;
+  --border: #25333a;
+  --success: #3fcb91;
+  --danger: #e8746b;
+  --elevation: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-soft: var(--elevation);
+  --shadow-card: var(--elevation);
 }
 
 /* CASUAL CLARO (identidade atual preservada 1:1) */
 [data-style="casual"] {
-  --bg: #ede6d8;
-  --surface: #efe8da;
-  --text: #4a4a4a;
-  --text-muted: #6b6b6b;
-  --primary: #a8b5a0;
-  --accent: #d4af37;
-  --border: #c7c0b8;
-  --success: #525b02;
-  --danger: #b54a3a;
-  --font-sans: "IBM Plex Sans", "Segoe UI", "Roboto", -apple-system, sans-serif;
-  --font-numeric: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --font-display: "Playfair Display", "Crimson Text", serif;
-  --radius: 16px;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  /* Ledger & Loom - casual: tinta indigo sobre papel manila (printshop) */
+  --bg: #ede7da;
+  --surface: #f6f1e6;
+  --text: #2a2e45;
+  --text-muted: #5b5f72;
+  --primary: #3e6b5a;
+  --accent: #c98a1e;
+  --border: #cdc2ad;
+  --success: #2f6149;
+  --danger: #a8412e;
+  --font-sans: "Hanken Grotesk", "Segoe UI", "Roboto", -apple-system, sans-serif;
+  --font-numeric: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-display: "Fraunces", "Hanken Grotesk", serif;
+  --radius: 14px;
+  --shadow: 0 3px 10px rgba(42, 46, 69, 0.12);
   --spacing-unit: 8px;
 
-  --sage-green: #a8b5a0;
-  --soft-beige: #ede6d8;
-  --cream-white: #efe8da;
-  --paper-white: #f1eadc;
-  --muted-teal: #7ba098;
-  --dusty-rose: #d4b5a0;
-  --warm-gray: #c7c0b8;
-  --charcoal: #4a4a4a;
-  --text-soft: #6b6b6b;
-  --accent-gold: #d4af37;
-  --accent-coral: #f4a261;
-  --accent-lavender: #c8a2c8;
-  --gradient-soft: linear-gradient(135deg, #ede6d8, #efe8da);
-  --gradient-sage: linear-gradient(135deg, #a8b5a0, #7ba098);
-  --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #a8b5a0);
-  --shadow-soft: 0 4px 14px rgba(168, 181, 160, 0.16);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-button: 0 2px 8px rgba(168, 181, 160, 0.22);
-  --warm-overlay: rgba(241, 234, 220, 0.98);
-  --warm-overlay-light: rgba(241, 234, 220, 0.95);
-  --warm-overlay-subtle: rgba(241, 234, 220, 0.8);
+  --sage-green: #3e6b5a;
+  --soft-beige: #ede7da;
+  --cream-white: #f6f1e6;
+  --paper-white: #f6f1e6;
+  --muted-teal: #5c8a74;
+  --dusty-rose: #c98a1e;
+  --warm-gray: #cdc2ad;
+  --charcoal: #2a2e45;
+  --text-soft: #5b5f72;
+  --accent-gold: #c98a1e;
+  --accent-coral: #a8412e;
+  --accent-lavender: #7a6f9c;
+  --gradient-soft: linear-gradient(135deg, #ede7da, #f6f1e6);
+  --gradient-sage: linear-gradient(135deg, #3e6b5a, #2f6149);
+  --gradient-sunset: linear-gradient(135deg, #c98a1e, #a8412e, #3e6b5a);
+  --shadow-soft: 0 4px 14px rgba(42, 46, 69, 0.12);
+  --shadow-card: 0 3px 10px rgba(42, 46, 69, 0.12);
+  --shadow-button: 0 2px 8px rgba(62, 107, 90, 0.22);
+  --warm-overlay: rgba(246, 241, 230, 0.98);
+  --warm-overlay-light: rgba(246, 241, 230, 0.95);
+  --warm-overlay-subtle: rgba(246, 241, 230, 0.8);
 }
 
 /* CASUAL ESCURO (identidade atual preservada 1:1) */
 [data-style="casual"][data-theme="dark"] {
-  --bg: #1a1812;
-  --surface: #141210;
-  --text: #e5e5e5;
-  --text-muted: #c9c9c9;
-  --primary: #7a8c6f;
-  --accent: #d4af37;
-  --border: #4a453f;
-  --success: #6b7d03;
-  --danger: #c0604f;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --bg: #181a24;
+  --surface: #12141c;
+  --text: #ece6d6;
+  --text-muted: #aca695;
+  --primary: #5c8a74;
+  --accent: #d49a36;
+  --border: #3a3b47;
+  --success: #5c9a7a;
+  --danger: #d4796a;
+  --shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
 
-  --sage-green: #7a8c6f;
-  --soft-beige: #1a1812;
-  --cream-white: #141210;
-  --paper-white: #1c1a15;
-  --muted-teal: #5c7a73;
-  --dusty-rose: #a08970;
-  --warm-gray: #4a453f;
-  --charcoal: #e5e5e5;
-  --text-soft: #c9c9c9;
-  --accent-gold: #d4af37;
-  --accent-coral: #f4a261;
-  --accent-lavender: #c8a2c8;
-  --gradient-soft: linear-gradient(135deg, #1a1812, #141210);
-  --gradient-sage: linear-gradient(135deg, #7a8c6f, #5c7a73);
-  --gradient-sunset: linear-gradient(135deg, #f4a261, #d4af37, #7a8c6f);
-  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.32);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-button: 0 2px 8px rgba(122, 140, 111, 0.3);
+  --sage-green: #5c8a74;
+  --soft-beige: #181a24;
+  --cream-white: #12141c;
+  --paper-white: #1c1e28;
+  --muted-teal: #4f8a76;
+  --dusty-rose: #d49a36;
+  --warm-gray: #3a3b47;
+  --charcoal: #ece6d6;
+  --text-soft: #aca695;
+  --accent-gold: #d49a36;
+  --accent-coral: #d4796a;
+  --accent-lavender: #9a8fbf;
+  --gradient-soft: linear-gradient(135deg, #181a24, #12141c);
+  --gradient-sage: linear-gradient(135deg, #5c8a74, #4f8a76);
+  --gradient-sunset: linear-gradient(135deg, #d49a36, #d4796a, #5c8a74);
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 3px 10px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 2px 8px rgba(92, 138, 116, 0.3);
 }
 
 * {
@@ -148,7 +153,7 @@
 }
 
 body {
-  font-family: "IBM Plex Sans", "Segoe UI", "Roboto", -apple-system,
+  font-family: "Hanken Grotesk", "Segoe UI", "Roboto", -apple-system,
     BlinkMacSystemFont, sans-serif;
   background: var(--soft-beige);
   min-height: 100vh;
@@ -176,19 +181,19 @@ h6 {
 }
 
 h1 {
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 2.5rem;
   font-weight: 700;
 }
 
 h2 {
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
 h3 {
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.4rem;
   font-weight: 600;
 }
@@ -196,7 +201,7 @@ h3 {
 p,
 span,
 div {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Background pattern with decorative elements */
@@ -376,7 +381,7 @@ body::before {
   border-radius: 35px;
   border: 2px solid rgba(168, 181, 160, 0.3);
   box-shadow: 0 8px 25px rgba(106, 176, 106, 0.15);
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   display: inline-block;
   position: relative;
   transition: all 0.3s ease;
@@ -481,7 +486,7 @@ body::before {
   border-radius: 8px;
   background: transparent;
   color: var(--text-soft);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -592,14 +597,14 @@ body::before {
 .no-data-tab h3 {
   color: var(--charcoal);
   margin-bottom: 16px;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .no-data-tab p {
   color: var(--text-soft);
   font-size: 1.1rem;
   line-height: 1.6;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Responsive Design for Tabbed Layout */
@@ -671,7 +676,7 @@ body::before {
 .expense-section-header h2 {
   margin: 0;
   color: var(--charcoal);
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.5rem;
 }
 
@@ -719,14 +724,14 @@ body::before {
 .no-data-section h3 {
   color: var(--charcoal);
   margin-bottom: 16px;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .no-data-section p {
   color: var(--text-soft);
   font-size: 1.1rem;
   line-height: 1.6;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Responsive Design for New Layout */
@@ -855,7 +860,7 @@ body::before {
   margin-bottom: 30px;
   font-size: 1.6rem;
   font-weight: 600;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   position: relative;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(168, 181, 160, 0.2);
@@ -891,7 +896,7 @@ body::before {
   color: var(--text-soft);
   margin-top: 4px;
   font-style: italic;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .amount-currency-group {
@@ -935,7 +940,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   cursor: pointer;
 }
 
@@ -960,7 +965,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.95rem;
   letter-spacing: 0.5px;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   margin-bottom: 2px;
 }
 
@@ -973,7 +978,7 @@ body::before {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--paper-white);
   color: var(--charcoal);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
   position: relative;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -1024,7 +1029,7 @@ body::before {
   font-size: 1rem;
   font-weight: 400;
   color: var(--charcoal);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   min-height: 20px;
   text-align: left;
 }
@@ -1105,7 +1110,7 @@ body::before {
   box-shadow: var(--shadow-button);
   text-transform: uppercase;
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .btn-primary::before {
@@ -1164,14 +1169,14 @@ body::before {
   color: var(--charcoal);
   margin-bottom: 8px;
   font-size: 2rem;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .form-subtitle {
   color: var(--text-soft);
   font-size: 1.1rem;
   font-style: italic;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .form-row {
@@ -1192,7 +1197,7 @@ body::before {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   letter-spacing: 0.5px;
   box-shadow: var(--shadow-button);
   position: relative;
@@ -1264,7 +1269,7 @@ body::before {
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   box-shadow: 0 2px 6px rgba(168, 181, 160, 0.2);
   letter-spacing: 0.3px;
 }
@@ -1279,7 +1284,7 @@ body::before {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   box-shadow: 0 2px 6px rgba(168, 181, 160, 0.1);
 }
 
@@ -1329,7 +1334,7 @@ body::before {
   margin: 0;
   flex: 1;
   line-height: 1.3;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .expense-card-header {
@@ -1380,20 +1385,20 @@ body::before {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .expense-date {
   font-size: 0.85rem;
   color: var(--text-soft);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .expense-amount-card {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--charcoal);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .show-more-expenses {
@@ -1403,7 +1408,7 @@ body::before {
   border-radius: 8px;
   color: var(--text-soft);
   font-style: italic;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Search Input */
@@ -1656,7 +1661,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
   position: relative;
   overflow: hidden;
@@ -1733,7 +1738,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
   width: 100%; /* full width for vertical layout */
   min-height: 36px;
@@ -1770,7 +1775,7 @@ body::before {
 .custom-category-content h4 {
   margin: 0 0 20px 0;
   color: var(--charcoal);
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -1784,7 +1789,7 @@ body::before {
   margin-bottom: 6px;
   color: var(--charcoal);
   font-weight: 500;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .category-name-input {
@@ -1837,7 +1842,7 @@ body::before {
   border: none;
   border-radius: 6px;
   font-weight: 500;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1878,7 +1883,7 @@ body::before {
   font-weight: 600;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 1.7s;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Error Message */
@@ -1892,7 +1897,7 @@ body::before {
   font-weight: 600;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Conversion Message */
@@ -1907,7 +1912,7 @@ body::before {
   font-size: 0.85rem;
   text-align: center;
   animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 @keyframes slideInUp {
@@ -1991,7 +1996,7 @@ body::before {
   font-size: 0.85rem;
   opacity: 0.9;
   margin-bottom: 4px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
 }
 
@@ -1999,7 +2004,7 @@ body::before {
   display: block;
   font-size: 1.2rem;
   font-weight: 700;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Category Selection Row */
@@ -2019,7 +2024,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .currency-select:focus {
@@ -2040,7 +2045,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   white-space: nowrap;
 }
 
@@ -2097,7 +2102,7 @@ body::before {
 .custom-category-content h4 {
   margin: 0 0 20px 0;
   color: var(--charcoal);
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.3rem;
   text-align: center;
 }
@@ -2112,7 +2117,7 @@ body::before {
   color: var(--charcoal);
   font-weight: 600;
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .category-name-input {
@@ -2121,7 +2126,7 @@ body::before {
   border: 1px solid var(--warm-gray);
   border-radius: 6px;
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   box-sizing: border-box;
 }
 
@@ -2176,7 +2181,7 @@ body::before {
   border-radius: 6px;
   font-size: 0.9rem;
   margin-bottom: 12px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .custom-category-input input:focus {
@@ -2202,7 +2207,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .btn-custom-add:hover:not(:disabled) {
@@ -2226,7 +2231,7 @@ body::before {
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .btn-custom-cancel:hover {
@@ -2316,7 +2321,7 @@ body::before {
 }
 
 .modal-header h3 {
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 20px;
   font-weight: 600;
   color: var(--charcoal);
@@ -2328,7 +2333,7 @@ body::before {
 }
 
 .modal-body p {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 14px;
   color: var(--text-soft);
   line-height: 1.6;
@@ -2357,7 +2362,7 @@ body::before {
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -2448,7 +2453,7 @@ body::before {
   color: var(--charcoal);
   font-size: 1rem;
   white-space: nowrap;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   letter-spacing: 0.3px;
 }
 
@@ -2460,7 +2465,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   min-width: 100px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
 }
 
@@ -2472,7 +2477,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.9rem;
   min-width: 150px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
 }
 
@@ -2489,7 +2494,7 @@ body::before {
   color: var(--charcoal);
   font-size: 1rem;
   min-width: 150px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -2550,7 +2555,7 @@ body::before {
   margin-bottom: 30px;
   text-align: center;
   font-weight: 600;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   letter-spacing: 0.6px;
 }
 
@@ -2600,7 +2605,7 @@ body::before {
   font-weight: 500;
   color: var(--charcoal);
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   letter-spacing: 0.3px;
 }
 
@@ -2608,7 +2613,7 @@ body::before {
   font-weight: 600;
   color: var(--sage-green);
   font-size: 1rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   letter-spacing: 0.2px;
 }
 
@@ -2647,7 +2652,7 @@ body::before {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -2674,7 +2679,7 @@ body::before {
   margin-bottom: 4px;
   font-weight: 600;
   font-size: 0.95rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   letter-spacing: 0.3px;
 }
 
@@ -2682,7 +2687,7 @@ body::before {
   color: var(--text-soft);
   font-size: 0.85rem;
   font-style: normal;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
 }
 
@@ -2690,7 +2695,7 @@ body::before {
   font-weight: 600;
   color: var(--muted-teal);
   font-size: 1rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   letter-spacing: 0.2px;
 }
 
@@ -2704,7 +2709,7 @@ body::before {
   font-size: 0.8rem;
   margin-left: 10px;
   transition: all 0.2s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
 }
 
@@ -2720,7 +2725,7 @@ body::before {
   background: var(--paper-white);
   border-radius: 8px;
   border: 1px dashed var(--warm-gray);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
   font-size: 1rem;
 }
@@ -2777,7 +2782,7 @@ body::before {
   color: var(--sage-green);
   font-size: 1.1rem;
   font-weight: 500;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   opacity: 0.8;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -2911,7 +2916,7 @@ body::before {
   position: relative;
   display: inline-block;
   box-shadow: 0 4px 15px rgba(106, 176, 106, 0.1);
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 /* Show Labels Button for Touch Devices */
@@ -2927,7 +2932,7 @@ body::before {
   color: var(--paper-white);
   border: 2px solid rgba(168, 181, 160, 0.5);
   border-radius: 20px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -2963,7 +2968,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   text-align: center;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   border-bottom: 2px solid rgba(168, 181, 160, 0.2);
   padding-bottom: 10px;
 }
@@ -3054,14 +3059,14 @@ body::before {
 }
 
 .yearly-total-label {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   color: var(--charcoal);
   font-size: 1rem;
 }
 
 .yearly-total-amount {
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   font-weight: 700;
   color: var(--sage-green);
   font-size: 1.4rem;
@@ -3155,7 +3160,7 @@ body::before {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 8px;
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   letter-spacing: 0.3px;
 }
 
@@ -3164,7 +3169,7 @@ body::before {
   color: var(--charcoal);
   margin-bottom: 12px;
   font-weight: 600;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   letter-spacing: 0.5px;
 }
 
@@ -3172,7 +3177,7 @@ body::before {
   margin: 0;
   color: #6b6b6b;
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
 }
 
@@ -3205,7 +3210,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin: 0 0 12px 0;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .legend-item-vertical {
@@ -3230,21 +3235,21 @@ body::before {
   font-weight: 500;
   color: var(--charcoal);
   font-size: 0.85rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .legend-text-vertical .legend-amount {
   font-weight: 600;
   color: var(--sage-green);
   font-size: 0.8rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 /* Expense Meta Information Styling */
 .expense-meta {
   font-size: 0.75rem;
   color: var(--text-soft);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
   margin-top: 2px;
 }
@@ -3252,7 +3257,7 @@ body::before {
 .expense-original {
   font-size: 0.7rem;
   color: var(--muted-teal);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 400;
   font-style: italic;
   margin-top: 1px;
@@ -3287,7 +3292,7 @@ body::before {
   color: #4a6b4a;
   margin: 0 0 12px 0;
   font-weight: 600;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .expense-item-info {
@@ -3339,7 +3344,7 @@ body::before {
   padding: 16px 20px;
   box-shadow: 0 8px 32px rgba(168, 181, 160, 0.3);
   backdrop-filter: blur(10px);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   min-width: 200px;
   z-index: 1000;
   position: relative;
@@ -3449,7 +3454,7 @@ body::before {
 }
 
 .month-text {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 1.6rem;
   font-weight: 600;
   color: var(--charcoal);
@@ -3516,13 +3521,13 @@ body::before {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--charcoal);
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
 }
 
 .year-name {
   font-size: 0.9rem;
   color: var(--text-soft);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .calendar-icon {
@@ -3576,7 +3581,7 @@ body::before {
   margin: 0;
   color: var(--text-soft);
   font-size: 0.9rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-style: italic;
 }
 
@@ -3636,7 +3641,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin-bottom: 15px;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   text-align: center;
   letter-spacing: 0.5px;
 }
@@ -3657,7 +3662,7 @@ body::before {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
 }
 
@@ -3688,7 +3693,7 @@ body::before {
   color: var(--charcoal);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -3783,7 +3788,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin-bottom: 8px;
-  font-family: "Crimson Text", serif;
+  font-family: "Fraunces", serif;
   text-align: center;
 }
 
@@ -4525,7 +4530,7 @@ body::before {
   cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 1px solid rgba(168, 181, 160, 0.1);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .currency-dropdown-item:last-child {
@@ -4984,7 +4989,7 @@ body::before {
 }
 
 .auth-brand h1 {
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 2.5rem;
   color: var(--charcoal);
   margin-bottom: 10px;
@@ -4992,7 +4997,7 @@ body::before {
 }
 
 .auth-brand p {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   color: var(--text-soft);
   font-size: 1.1rem;
   margin: 0;
@@ -5044,7 +5049,7 @@ body::before {
 }
 
 .auth-header h2 {
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 1.8rem;
   color: var(--charcoal);
   margin-bottom: 8px;
@@ -5052,7 +5057,7 @@ body::before {
 }
 
 .auth-header p {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   color: var(--text-soft);
   margin: 0;
   font-size: 0.95rem;
@@ -5072,7 +5077,7 @@ body::before {
 }
 
 .auth-form-group label {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   color: var(--charcoal);
   font-size: 0.9rem;
@@ -5082,7 +5087,7 @@ body::before {
   padding: 12px 16px;
   border: 2px solid rgba(168, 181, 160, 0.3);
   border-radius: 10px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 1rem;
   background: var(--cream-white);
   color: var(--charcoal);
@@ -5114,14 +5119,14 @@ body::before {
   border: 1px solid #f5c6cb;
   font-weight: 600;
   text-align: center;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-size: 0.9rem;
 }
 
 .auth-field-error {
   color: var(--dusty-rose);
   font-size: 0.8rem;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
   margin-top: 2px;
 }
@@ -5133,7 +5138,7 @@ body::before {
   color: white;
   border: none;
   border-radius: 12px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -5159,7 +5164,7 @@ body::before {
 }
 
 .auth-switch p {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   color: var(--text-soft);
   font-size: 0.9rem;
   margin: 0;
@@ -5169,7 +5174,7 @@ body::before {
   background: none;
   border: none;
   color: var(--sage-green);
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -5246,7 +5251,7 @@ body::before {
 }
 
 .loading-content h1 {
-  font-family: "Playfair Display", serif;
+  font-family: "Fraunces", serif;
   font-size: 2.5rem;
   color: var(--charcoal);
   margin-bottom: 20px;
@@ -5254,7 +5259,7 @@ body::before {
 }
 
 .loading-content .loading {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   color: var(--text-soft);
   font-size: 1.1rem;
 }
@@ -5324,7 +5329,7 @@ body::before {
 }
 
 .user-greeting {
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   color: var(--charcoal);
   font-weight: 500;
   font-size: 0.95rem;
@@ -5336,7 +5341,7 @@ body::before {
   color: white;
   border: none;
   border-radius: 8px;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
   font-weight: 500;
   font-size: 0.85rem;
   cursor: pointer;
@@ -5457,7 +5462,7 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "IBM Plex Sans", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
 }
 
 .nav-btn:hover {
