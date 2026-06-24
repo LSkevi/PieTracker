@@ -35,6 +35,7 @@ It is a personal-finance tool and a portfolio project: the goal is a clean, end-
 - **Categories** — sensible default categories plus user-defined custom categories with custom colors; defaults can be hidden per user.
 - **Charts & insights** — category breakdown pie chart, yearly trend chart, and computed totals across mixed currencies (Recharts).
 - **Admin panel** — user management (list, activate/deactivate, edit, delete) and basic usage stats for admin accounts.
+- **Two visual styles** — switch between a sober _business_ (fintech) style and a warm, animated _casual_ style, orthogonal to light/dark themes (four combinations), persisted in `localStorage` (see [Screenshots](#screenshots)).
 - **Light / dark theme** and a responsive layout.
 
 ## Screenshots
