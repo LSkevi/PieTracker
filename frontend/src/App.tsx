@@ -276,6 +276,7 @@ const AppContent: React.FC = () => {
       <div className="app-loading">
         <div className="loading-content">
           <h1>{style === "casual" ? "🥧 " : ""}PieTracker</h1>
+          <div className="spinner-circle" aria-hidden="true"></div>
           <div className="loading">Loading...</div>
         </div>
       </div>

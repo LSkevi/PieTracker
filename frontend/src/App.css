@@ -5259,6 +5259,10 @@ body::before {
   font-size: 1.1rem;
 }
 
+.loading-content .spinner-circle {
+  margin: 0 auto 20px;
+}
+
 /* User Header */
 .user-header {
   display: grid;
