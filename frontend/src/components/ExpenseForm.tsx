@@ -907,7 +907,17 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                         "dd/MM/yyyy"
                       )}
                     </div>
-                    <div className="expense-category-badge">
+                    <div
+                      className="expense-category-badge"
+                      style={{
+                        background: getCategoryColor(
+                          expense.category,
+                          isDarkModeEnabled(),
+                          categoryColors,
+                          style
+                        ),
+                      }}
+                    >
                       {expense.category}
                     </div>
                     <div className="expense-amount-simple">
