@@ -42,3 +42,7 @@ backend/backups/
 # Python bytecode / backups
 *.pyc
 *.bak
+
+# Internal working notes (do not publish)
+/CLAUDE.md
+/docs/AVALIACAO.md
