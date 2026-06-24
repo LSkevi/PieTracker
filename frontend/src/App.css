@@ -1,6 +1,6 @@
 /* PieTracker app styles */
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Hanken+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=Hanken+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap");
 
 /*
   Design tokens: 2 estilos (business, casual) x 2 temas (claro, escuro) = 4 combinacoes.
@@ -24,7 +24,7 @@
   --danger: #c0392f;
   --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-numeric: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --font-display: "Fraunces", "Hanken Grotesk", serif;
+  --font-display: "Space Grotesk", "Hanken Grotesk", sans-serif;
   --radius: 8px;
   --shadow: none;
   --spacing-unit: 8px;
@@ -85,7 +85,7 @@
   --danger: #a8412e;
   --font-sans: "Hanken Grotesk", "Segoe UI", "Roboto", -apple-system, sans-serif;
   --font-numeric: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --font-display: "Fraunces", "Hanken Grotesk", serif;
+  --font-display: "Space Grotesk", "Hanken Grotesk", sans-serif;
   --radius: 14px;
   --shadow: 0 3px 10px rgba(42, 46, 69, 0.12);
   --spacing-unit: 8px;
@@ -181,19 +181,19 @@ h6 {
 }
 
 h1 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 2.5rem;
   font-weight: 700;
 }
 
 h2 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
 h3 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.4rem;
   font-weight: 600;
 }
@@ -381,7 +381,7 @@ body::before {
   border-radius: 35px;
   border: 2px solid rgba(168, 181, 160, 0.3);
   box-shadow: 0 8px 25px rgba(106, 176, 106, 0.15);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   display: inline-block;
   position: relative;
   transition: all 0.3s ease;
@@ -597,7 +597,7 @@ body::before {
 .no-data-tab h3 {
   color: var(--charcoal);
   margin-bottom: 16px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .no-data-tab p {
@@ -676,7 +676,7 @@ body::before {
 .expense-section-header h2 {
   margin: 0;
   color: var(--charcoal);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.5rem;
 }
 
@@ -724,7 +724,7 @@ body::before {
 .no-data-section h3 {
   color: var(--charcoal);
   margin-bottom: 16px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .no-data-section p {
@@ -860,7 +860,7 @@ body::before {
   margin-bottom: 30px;
   font-size: 1.6rem;
   font-weight: 600;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   position: relative;
   padding-bottom: 12px;
   border-bottom: 2px solid rgba(168, 181, 160, 0.2);
@@ -965,7 +965,7 @@ body::before {
   color: var(--charcoal);
   font-size: 0.95rem;
   letter-spacing: 0.5px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   margin-bottom: 2px;
 }
 
@@ -1169,7 +1169,7 @@ body::before {
   color: var(--charcoal);
   margin-bottom: 8px;
   font-size: 2rem;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .form-subtitle {
@@ -1775,7 +1775,7 @@ body::before {
 .custom-category-content h4 {
   margin: 0 0 20px 0;
   color: var(--charcoal);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -1954,57 +1954,86 @@ body::before {
   justify-content: center;
   align-items: stretch;
   gap: 40px;
-  background: linear-gradient(90deg, var(--sage-green), var(--muted-teal));
-  border-radius: 14px;
-  padding: 22px 40px;
-  box-shadow: var(--shadow-soft);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 32px;
+  box-shadow: var(--elevation, var(--shadow-soft));
   margin: 0 0 28px 0;
+}
+
+/* Casual keeps a warm printshop band; business stays a sober instrument strip */
+[data-style="casual"] .insights-banner-global {
+  background: var(--gradient-sage);
+  border-color: transparent;
+  box-shadow: var(--shadow-card);
+}
+
+[data-style="casual"] .insight-item {
+  color: #ffffff;
+}
+
+[data-style="casual"] .insight-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: "Hanken Grotesk", sans-serif;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.85rem;
+}
+
+[data-style="casual"] .insight-value {
+  color: #ffffff;
 }
 
 .insights-banner-global .insight-item {
   flex: 1;
 }
 
-[data-theme="dark"] .insights-banner,
-[data-theme="dark"] .insights-banner-global {
-  background: linear-gradient(90deg, #4f5d47, #5c7a73);
+[data-style="casual"][data-theme="dark"] .insights-banner,
+[data-style="casual"][data-theme="dark"] .insights-banner-global {
+  background: var(--gradient-sage);
+  border-color: transparent;
   color: #ffffff;
 }
 
-[data-theme="dark"] .insights-banner .insight-item,
-[data-theme="dark"] .insights-banner-global .insight-item {
+[data-style="casual"][data-theme="dark"] .insights-banner .insight-item,
+[data-style="casual"][data-theme="dark"] .insights-banner-global .insight-item {
   color: #ffffff;
 }
 
-[data-theme="dark"] .insights-banner .insight-label,
-[data-theme="dark"] .insights-banner-global .insight-label {
+[data-style="casual"][data-theme="dark"] .insights-banner .insight-label,
+[data-style="casual"][data-theme="dark"] .insights-banner-global .insight-label {
   color: #f5f9f3;
 }
 
-[data-theme="dark"] .insights-banner .insight-value,
-[data-theme="dark"] .insights-banner-global .insight-value {
+[data-style="casual"][data-theme="dark"] .insights-banner .insight-value,
+[data-style="casual"][data-theme="dark"] .insights-banner-global .insight-value {
   color: #ffffff;
 }
 
 .insight-item {
   text-align: center;
-  color: white;
+  color: var(--text);
 }
 
 .insight-label {
   display: block;
-  font-size: 0.85rem;
-  opacity: 0.9;
-  margin-bottom: 4px;
-  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-family: var(--font-numeric);
   font-weight: 500;
+  color: var(--text-muted);
 }
 
 .insight-value {
   display: block;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  font-family: "Hanken Grotesk", sans-serif;
+  font-family: var(--font-numeric);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--text);
 }
 
 /* Category Selection Row */
@@ -2102,7 +2131,7 @@ body::before {
 .custom-category-content h4 {
   margin: 0 0 20px 0;
   color: var(--charcoal);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.3rem;
   text-align: center;
 }
@@ -2321,7 +2350,7 @@ body::before {
 }
 
 .modal-header h3 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 20px;
   font-weight: 600;
   color: var(--charcoal);
@@ -2453,7 +2482,7 @@ body::before {
   color: var(--charcoal);
   font-size: 1rem;
   white-space: nowrap;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   letter-spacing: 0.3px;
 }
 
@@ -2555,7 +2584,7 @@ body::before {
   margin-bottom: 30px;
   text-align: center;
   font-weight: 600;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   letter-spacing: 0.6px;
 }
 
@@ -2652,7 +2681,7 @@ body::before {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -2916,7 +2945,7 @@ body::before {
   position: relative;
   display: inline-block;
   box-shadow: 0 4px 15px rgba(106, 176, 106, 0.1);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 /* Show Labels Button for Touch Devices */
@@ -2968,7 +2997,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   text-align: center;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   border-bottom: 2px solid rgba(168, 181, 160, 0.2);
   padding-bottom: 10px;
 }
@@ -3066,7 +3095,7 @@ body::before {
 }
 
 .yearly-total-amount {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-weight: 700;
   color: var(--sage-green);
   font-size: 1.4rem;
@@ -3078,6 +3107,37 @@ body::before {
   height: 400px;
   max-width: 600px;
   padding: 8px; /* prevent clipping of labels on smaller screens */
+  position: relative;
+}
+
+/* Calibration Dial: total read dead-center in the donut (the signature) */
+.dial-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+  text-align: center;
+}
+
+.dial-center-label {
+  font-family: var(--font-numeric);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dial-center-value {
+  font-family: var(--font-numeric);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-size: clamp(1.3rem, 3.6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .no-data-big {
@@ -3160,7 +3220,7 @@ body::before {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 8px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   letter-spacing: 0.3px;
 }
 
@@ -3169,7 +3229,7 @@ body::before {
   color: var(--charcoal);
   margin-bottom: 12px;
   font-weight: 600;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   letter-spacing: 0.5px;
 }
 
@@ -3210,7 +3270,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin: 0 0 12px 0;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .legend-item-vertical {
@@ -3292,7 +3352,7 @@ body::before {
   color: #4a6b4a;
   margin: 0 0 12px 0;
   font-weight: 600;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .expense-item-info {
@@ -3521,7 +3581,7 @@ body::before {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--charcoal);
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
 }
 
 .year-name {
@@ -3641,7 +3701,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin-bottom: 15px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   text-align: center;
   letter-spacing: 0.5px;
 }
@@ -3788,7 +3848,7 @@ body::before {
   font-weight: 600;
   color: var(--charcoal);
   margin-bottom: 8px;
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   text-align: center;
 }
 
@@ -4989,7 +5049,7 @@ body::before {
 }
 
 .auth-brand h1 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 2.5rem;
   color: var(--charcoal);
   margin-bottom: 10px;
@@ -5049,7 +5109,7 @@ body::before {
 }
 
 .auth-header h2 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 1.8rem;
   color: var(--charcoal);
   margin-bottom: 8px;
@@ -5251,7 +5311,7 @@ body::before {
 }
 
 .loading-content h1 {
-  font-family: "Fraunces", serif;
+  font-family: "Space Grotesk", serif;
   font-size: 2.5rem;
   color: var(--charcoal);
   margin-bottom: 20px;

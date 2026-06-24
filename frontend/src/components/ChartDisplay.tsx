@@ -365,8 +365,9 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                   data={preparePieData()}
                   cx="50%"
                   cy="50%"
+                  innerRadius={chartDimensions.radius * 0.62}
                   outerRadius={chartDimensions.radius}
-                  fill="#8884d8"
+                  paddingAngle={1.5}
                   dataKey="value"
                   labelLine={false}
                   onClick={handlePieClick}
@@ -435,6 +436,16 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
                 <Tooltip content={CustomTooltipWithSummary} offset={20} />
               </PieChart>
             </ResponsiveContainer>
+            {/* Calibration Dial: total read dead-center in the donut */}
+            <div className="dial-center" aria-hidden="true">
+              <span className="dial-center-label">Total</span>
+              <span className="dial-center-value">
+                {formatCurrency(
+                  convertedTotal || summary?.total || 0,
+                  selectedCurrency
+                )}
+              </span>
+            </div>
           </div>
 
           {/* All Labels Display for Touch Devices */}
