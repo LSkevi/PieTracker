@@ -47,7 +47,7 @@ const StyleToggle: React.FC = () => {
       aria-label={isBusiness ? "Switch to casual style" : "Switch to business style"}
       title={isBusiness ? "Switch to casual style" : "Switch to business style"}
     >
-      {isBusiness ? <LeafIcon /> : <BriefcaseIcon />}
+      {isBusiness ? <BriefcaseIcon /> : <LeafIcon />}
     </button>
   );
 };

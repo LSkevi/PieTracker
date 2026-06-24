@@ -5302,7 +5302,8 @@ body::before {
   color: var(--forest-green);
 }
 
-.user-header .theme-toggle {
+.user-header .theme-toggle,
+.user-header .style-toggle {
   position: static;
   width: 40px;
   height: 40px;
@@ -5315,7 +5316,8 @@ body::before {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-.user-header .theme-toggle:hover {
+.user-header .theme-toggle:hover,
+.user-header .style-toggle:hover {
   transform: translateY(-2px);
 }
 
@@ -5761,4 +5763,19 @@ textarea:focus-visible,
 [data-style="casual"] .main-container-new {
   position: relative;
   z-index: 2;
+}
+
+/* Business: hide all casual leaf decorations (re-added; do not strip) */
+[data-style="business"] .app::before,
+[data-style="business"] .app::after,
+[data-style="business"] .card::before,
+[data-style="business"] .card::after,
+[data-style="business"] .right-panel::before,
+[data-style="business"] .right-panel::after,
+[data-style="business"] .summary-info::before,
+[data-style="business"] .chart-legend-vertical::before,
+[data-style="business"] .latest-expense-info::before,
+[data-style="business"] .month-text::before,
+[data-style="business"] .month-text::after {
+  display: none !important;
 }
